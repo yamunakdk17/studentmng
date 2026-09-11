@@ -1,14 +1,29 @@
-
-        package studentmanagement.admin.student;
+package studentmanagement.admin.student;
 
 import studentmanagement.dao.StudentDAO;
 import studentmanagement.model.Student;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class UpdateStudentFrame extends JFrame {
 
+    // =========================================================
+    // COLORS
+    // =========================================================
+    private static final Color PRIMARY = new Color(28, 51, 43);
+    private static final Color ACCENT_GREEN = new Color(40, 115, 78);
+    private static final Color ACCENT_GREEN_HOVER = new Color(48, 138, 93);
+    private static final Color BG = new Color(245, 247, 246);
+    private static final Color CARD_BG = Color.WHITE;
+    private static final Color TEXT_DARK = new Color(15, 23, 42);
+    private static final Color TEXT_MUTED = new Color(100, 116, 139);
+    private static final Color BORDER_COLOR = new Color(226, 232, 240);
+
+    // =========================================================
+    // FIELDS
+    // =========================================================
     private final JTextField idField = new JTextField();
     private final JTextField nameField = new JTextField();
     private final JTextField ageField = new JTextField();
@@ -29,129 +44,744 @@ public class UpdateStudentFrame extends JFrame {
     // =========================================================
     // CONSTRUCTOR
     // =========================================================
-
     public UpdateStudentFrame() {
 
         setTitle("Update Student");
-        setSize(540, 420);
-        setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        initUI();
+        setSize(620, 600);
+
+        setMinimumSize(
+                new Dimension(580, 560)
+        );
+
+        setLocationRelativeTo(null);
+
+        setDefaultCloseOperation(
+                JFrame.DISPOSE_ON_CLOSE
+        );
+
+        setLayout(
+                new BorderLayout()
+        );
+
+        getContentPane().setBackground(BG);
+
+        createHeader();
+        createForm();
     }
 
     // =========================================================
-    // UI
+    // HEADER
     // =========================================================
+    private void createHeader() {
 
-    private void initUI() {
+        JPanel header =
+                new JPanel(
+                        new BorderLayout()
+                );
 
-        JPanel form = new JPanel(
-                new GridLayout(7, 2, 10, 10)
-        );
+        header.setBackground(PRIMARY);
 
-        form.setBorder(
+        header.setBorder(
                 BorderFactory.createEmptyBorder(
-                        25, 30, 15, 30
+                        18,
+                        25,
+                        18,
+                        25
                 )
         );
 
-        // Student ID
-        form.add(new JLabel("Student ID:"));
-        form.add(idField);
+        JPanel titlePanel =
+                new JPanel();
 
-        // Name
-        form.add(new JLabel("Name:"));
-        form.add(nameField);
+        titlePanel.setLayout(
+                new BoxLayout(
+                        titlePanel,
+                        BoxLayout.Y_AXIS
+                )
+        );
 
-        // Age
-        form.add(new JLabel("Age:"));
-        form.add(ageField);
+        titlePanel.setOpaque(false);
 
-        // Gender
-        form.add(new JLabel("Gender:"));
-        form.add(genderBox);
+        JLabel title =
+                new JLabel(
+                        "Update Student"
+                );
 
-        // Address
-        form.add(new JLabel("Address:"));
-        form.add(addressField);
+        title.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        20
+                )
+        );
 
-        // Phone
-        form.add(new JLabel("Phone:"));
-        form.add(phoneField);
+        title.setForeground(Color.WHITE);
 
-        // Email
-        form.add(new JLabel("Email:"));
-        form.add(emailField);
+        JLabel subtitle =
+                new JLabel(
+                        "Update student information"
+                );
+
+        subtitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        subtitle.setForeground(
+                new Color(185, 210, 198)
+        );
+
+        titlePanel.add(title);
+
+        titlePanel.add(
+                Box.createVerticalStrut(3)
+        );
+
+        titlePanel.add(subtitle);
+
+        JLabel icon =
+                new JLabel("✎");
+
+        icon.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        28
+                )
+        );
+
+        icon.setForeground(
+                new Color(170, 220, 190)
+        );
+
+        header.add(
+                titlePanel,
+                BorderLayout.WEST
+        );
+
+        header.add(
+                icon,
+                BorderLayout.EAST
+        );
+
+        add(
+                header,
+                BorderLayout.NORTH
+        );
+    }
+
+    // =========================================================
+    // FORM
+    // =========================================================
+    private void createForm() {
+
+        JPanel outerPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        outerPanel.setBackground(BG);
+
+        outerPanel.setBorder(
+                new EmptyBorder(
+                        20,
+                        25,
+                        20,
+                        25
+                )
+        );
+
+        // =====================================================
+        // WHITE CARD
+        // =====================================================
+        JPanel formCard =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        formCard.setBackground(
+                CARD_BG
+        );
+
+        formCard.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR,
+                                1,
+                                true
+                        ),
+                        BorderFactory.createEmptyBorder(
+                                22,
+                                25,
+                                22,
+                                25
+                        )
+                )
+        );
+
+        // =====================================================
+        // FIELDS PANEL
+        // =====================================================
+        JPanel fieldsPanel =
+                new JPanel(
+                        new GridBagLayout()
+                );
+
+        fieldsPanel.setOpaque(false);
+
+        GridBagConstraints gbc =
+                new GridBagConstraints();
+
+        gbc.fill =
+                GridBagConstraints.NONE;
+
+        gbc.anchor =
+                GridBagConstraints.WEST;
+
+        gbc.insets =
+                new Insets(
+                        6,
+                        5,
+                        6,
+                        5
+                );
+
+        // =====================================================
+        // STUDENT ID
+        // =====================================================
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Student ID",
+                idField,
+                0
+        );
+
+        // =====================================================
+        // FULL NAME
+        // =====================================================
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Full Name",
+                nameField,
+                1
+        );
+
+        // =====================================================
+        // AGE
+        // =====================================================
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Age",
+                ageField,
+                2
+        );
+
+        // =====================================================
+        // GENDER
+        // =====================================================
+        styleComboBox(
+                genderBox
+        );
+
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Gender",
+                genderBox,
+                3
+        );
+
+        // =====================================================
+        // ADDRESS
+        // =====================================================
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Address",
+                addressField,
+                4
+        );
+
+        // =====================================================
+        // PHONE
+        // =====================================================
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Phone Number",
+                phoneField,
+                5
+        );
+
+        // =====================================================
+        // EMAIL
+        // =====================================================
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Email Address",
+                emailField,
+                6
+        );
 
         // =====================================================
         // BUTTONS
         // =====================================================
+        JButton cancelButton =
+                createCancelButton();
 
         JButton updateButton =
-                new JButton("Update Student");
+                createUpdateButton();
 
-        JButton cancelButton =
-                new JButton("Cancel");
-
-        updateButton.addActionListener(
-                e -> updateStudent()
-        );
-
-        cancelButton.addActionListener(
-                e -> dispose()
-        );
-
-        JPanel actions =
+        JPanel buttonPanel =
                 new JPanel(
                         new FlowLayout(
-                                FlowLayout.RIGHT
+                                FlowLayout.RIGHT,
+                                10,
+                                0
                         )
                 );
 
-        actions.setBorder(
-                BorderFactory.createEmptyBorder(
-                        0, 20, 15, 20
+        buttonPanel.setOpaque(false);
+
+        buttonPanel.add(
+                cancelButton
+        );
+
+        buttonPanel.add(
+                updateButton
+        );
+
+        // =====================================================
+        // ADD PANELS
+        // =====================================================
+        formCard.add(
+                fieldsPanel,
+                BorderLayout.CENTER
+        );
+
+        formCard.add(
+                buttonPanel,
+                BorderLayout.SOUTH
+        );
+
+        outerPanel.add(
+                formCard,
+                BorderLayout.CENTER
+        );
+
+        add(
+                outerPanel,
+                BorderLayout.CENTER
+        );
+
+        // Enter key = Save Changes
+        getRootPane().setDefaultButton(
+                updateButton
+        );
+    }
+
+    // =========================================================
+    // ADD ONE ROW
+    // LABEL LEFT + FIELD RIGHT
+    // =========================================================
+    private void addRow(
+            JPanel panel,
+            GridBagConstraints gbc,
+            String labelText,
+            JComponent field,
+            int row
+    ) {
+
+        // =====================================================
+        // LABEL
+        // =====================================================
+        JLabel label =
+                new JLabel(
+                        labelText
+                );
+
+        label.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        11
                 )
         );
 
-        actions.add(cancelButton);
-        actions.add(updateButton);
+        label.setForeground(
+                TEXT_DARK
+        );
+
+        label.setPreferredSize(
+                new Dimension(
+                        120,
+                        36
+                )
+        );
+
+        gbc.gridx = 0;
+        gbc.gridy = row;
+
+        gbc.weightx = 0;
+
+        gbc.fill =
+                GridBagConstraints.NONE;
+
+        gbc.anchor =
+                GridBagConstraints.WEST;
+
+        panel.add(
+                label,
+                gbc
+        );
 
         // =====================================================
-        // ADD COMPONENTS
+        // FIELD
         // =====================================================
+        if (field instanceof JTextField) {
 
-        add(form, BorderLayout.CENTER);
-        add(actions, BorderLayout.SOUTH);
+            styleTextField(
+                    (JTextField) field
+            );
+        }
 
-        // Press Enter to update
-        getRootPane().setDefaultButton(updateButton);
+        gbc.gridx = 1;
+        gbc.gridy = row;
+
+        gbc.weightx = 0;
+
+        gbc.fill =
+                GridBagConstraints.NONE;
+
+        gbc.anchor =
+                GridBagConstraints.WEST;
+
+        panel.add(
+                field,
+                gbc
+        );
+    }
+
+    // =========================================================
+    // TEXT FIELD STYLE
+    // =========================================================
+    private void styleTextField(
+            JTextField field
+    ) {
+
+        field.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        field.setForeground(
+                TEXT_DARK
+        );
+
+        field.setBackground(
+                Color.WHITE
+        );
+
+        field.setPreferredSize(
+                new Dimension(
+                        300,
+                        36
+                )
+        );
+
+        field.setMinimumSize(
+                new Dimension(
+                        300,
+                        36
+                )
+        );
+
+        field.setMaximumSize(
+                new Dimension(
+                        300,
+                        36
+                )
+        );
+
+        field.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR,
+                                1,
+                                true
+                        ),
+                        BorderFactory.createEmptyBorder(
+                                0,
+                                10,
+                                0,
+                                10
+                        )
+                )
+        );
+    }
+
+    // =========================================================
+    // COMBO BOX STYLE
+    // =========================================================
+    private void styleComboBox(
+            JComboBox<String> comboBox
+    ) {
+
+        comboBox.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        comboBox.setForeground(
+                TEXT_DARK
+        );
+
+        comboBox.setBackground(
+                Color.WHITE
+        );
+
+        comboBox.setPreferredSize(
+                new Dimension(
+                        120,
+                        36
+                )
+        );
+
+        comboBox.setMinimumSize(
+                new Dimension(
+                        120,
+                        36
+                )
+        );
+
+        comboBox.setMaximumSize(
+                new Dimension(
+                        120,
+                        36
+                )
+        );
+
+        comboBox.setBorder(
+                BorderFactory.createLineBorder(
+                        BORDER_COLOR,
+                        1,
+                        true
+                )
+        );
+    }
+
+    // =========================================================
+    // SAVE CHANGES BUTTON
+    // =========================================================
+    private JButton createUpdateButton() {
+
+        JButton button =
+                new JButton(
+                        "Save Changes"
+                );
+
+        button.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        button.setForeground(
+                Color.WHITE
+        );
+
+        button.setBackground(
+                ACCENT_GREEN
+        );
+
+        button.setFocusPainted(false);
+
+        button.setBorderPainted(false);
+
+        button.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        button.setPreferredSize(
+                new Dimension(
+                        130,
+                        38
+                )
+        );
+
+        button.addMouseListener(
+                new java.awt.event.MouseAdapter() {
+
+                    @Override
+                    public void mouseEntered(
+                            java.awt.event.MouseEvent e
+                    ) {
+
+                        button.setBackground(
+                                ACCENT_GREEN_HOVER
+                        );
+                    }
+
+                    @Override
+                    public void mouseExited(
+                            java.awt.event.MouseEvent e
+                    ) {
+
+                        button.setBackground(
+                                ACCENT_GREEN
+                        );
+                    }
+                }
+        );
+
+        button.addActionListener(
+                e -> updateStudent()
+        );
+
+        return button;
+    }
+
+    // =========================================================
+    // CANCEL BUTTON
+    // =========================================================
+    private JButton createCancelButton() {
+
+        JButton button =
+                new JButton(
+                        "Cancel"
+                );
+
+        button.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        button.setForeground(
+                TEXT_MUTED
+        );
+
+        button.setBackground(
+                Color.WHITE
+        );
+
+        button.setFocusPainted(false);
+
+        button.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        button.setPreferredSize(
+                new Dimension(
+                        90,
+                        38
+                )
+        );
+
+        button.setBorder(
+                BorderFactory.createLineBorder(
+                        BORDER_COLOR,
+                        1,
+                        true
+                )
+        );
+
+        button.addMouseListener(
+                new java.awt.event.MouseAdapter() {
+
+                    @Override
+                    public void mouseEntered(
+                            java.awt.event.MouseEvent e
+                    ) {
+
+                        button.setBackground(
+                                new Color(
+                                        241,
+                                        245,
+                                        249
+                                )
+                        );
+
+                        button.setForeground(
+                                TEXT_DARK
+                        );
+                    }
+
+                    @Override
+                    public void mouseExited(
+                            java.awt.event.MouseEvent e
+                    ) {
+
+                        button.setBackground(
+                                Color.WHITE
+                        );
+
+                        button.setForeground(
+                                TEXT_MUTED
+                        );
+                    }
+                }
+        );
+
+        button.addActionListener(
+                e -> dispose()
+        );
+
+        return button;
     }
 
     // =========================================================
     // LOAD STUDENT
     // =========================================================
-
-    public void loadStudent(int studentId) {
+    public void loadStudent(
+            int studentId
+    ) {
 
         Student student =
-                studentDAO.getStudentById(studentId);
+                studentDAO.getStudentById(
+                        studentId
+                );
 
         if (student == null) {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Student not found.",
+                    "Student record could not be found.",
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
+
+            dispose();
 
             return;
         }
 
         idField.setText(
-                String.valueOf(student.getStudentId())
+                String.valueOf(
+                        student.getStudentId()
+                )
         );
 
         nameField.setText(
@@ -159,7 +789,9 @@ public class UpdateStudentFrame extends JFrame {
         );
 
         ageField.setText(
-                String.valueOf(student.getAge())
+                String.valueOf(
+                        student.getAge()
+                )
         );
 
         genderBox.setSelectedItem(
@@ -177,15 +809,11 @@ public class UpdateStudentFrame extends JFrame {
         emailField.setText(
                 student.getEmail()
         );
-
-        // ID should not be changed
-        idField.setEditable(false);
     }
 
     // =========================================================
     // UPDATE STUDENT
     // =========================================================
-
     private void updateStudent() {
 
         String idText =
@@ -210,44 +838,41 @@ public class UpdateStudentFrame extends JFrame {
                 emailField.getText().trim();
 
         // =====================================================
-        // VALIDATION
+        // STUDENT ID
         // =====================================================
-
         if (idText.isEmpty()) {
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Student ID is required.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+            showWarning(
+                    "Please enter the student ID.",
+                    idField
             );
 
             return;
         }
 
+        // =====================================================
+        // NAME
+        // =====================================================
         if (name.isEmpty()) {
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please enter student name.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+            showWarning(
+                    "Please enter the student's full name.",
+                    nameField
             );
 
-            nameField.requestFocus();
             return;
         }
 
+        // =====================================================
+        // AGE
+        // =====================================================
         if (ageText.isEmpty()) {
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please enter student age.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+            showWarning(
+                    "Please enter the student's age.",
+                    ageField
             );
 
-            ageField.requestFocus();
             return;
         }
 
@@ -257,91 +882,93 @@ public class UpdateStudentFrame extends JFrame {
         try {
 
             studentId =
-                    Integer.parseInt(idText);
+                    Integer.parseInt(
+                            idText
+                    );
 
             age =
-                    Integer.parseInt(ageText);
+                    Integer.parseInt(
+                            ageText
+                    );
 
         } catch (NumberFormatException e) {
 
-            JOptionPane.showMessageDialog(
-                    this,
+            showWarning(
                     "Student ID and age must be valid numbers.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+                    ageField
             );
 
             return;
         }
 
+        // =====================================================
+        // ID VALIDATION
+        // =====================================================
         if (studentId <= 0) {
 
-            JOptionPane.showMessageDialog(
-                    this,
+            showWarning(
                     "Student ID must be greater than 0.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+                    idField
             );
 
             return;
         }
 
+        // =====================================================
+        // AGE VALIDATION
+        // =====================================================
         if (age <= 0 || age > 100) {
 
-            JOptionPane.showMessageDialog(
-                    this,
+            showWarning(
                     "Please enter a valid age between 1 and 100.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+                    ageField
             );
 
-            ageField.requestFocus();
             return;
         }
 
+        // =====================================================
+        // ADDRESS
+        // =====================================================
         if (address.isEmpty()) {
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please enter address.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+            showWarning(
+                    "Please enter a valid address.",
+                    addressField
             );
 
-            addressField.requestFocus();
             return;
         }
 
+        // =====================================================
+        // PHONE
+        // =====================================================
         if (phone.isEmpty()) {
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please enter phone number.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+            showWarning(
+                    "Please enter a phone number.",
+                    phoneField
             );
 
-            phoneField.requestFocus();
             return;
         }
 
+        // =====================================================
+        // EMAIL
+        // =====================================================
         if (email.isEmpty()) {
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please enter email.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+            showWarning(
+                    "Please enter an email address.",
+                    emailField
             );
 
-            emailField.requestFocus();
             return;
         }
 
         // =====================================================
-        // CREATE STUDENT OBJECT
+        // CREATE STUDENT
         // =====================================================
-
         Student student =
                 new Student(
                         studentId,
@@ -356,15 +983,16 @@ public class UpdateStudentFrame extends JFrame {
         // =====================================================
         // UPDATE DATABASE
         // =====================================================
-
         boolean success =
-                studentDAO.update(student);
+                studentDAO.update(
+                        student
+                );
 
         if (success) {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Student updated successfully!",
+                    "Student profile updated successfully!",
                     "Success",
                     JOptionPane.INFORMATION_MESSAGE
             );
@@ -375,20 +1003,52 @@ public class UpdateStudentFrame extends JFrame {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Student not found or update failed.",
-                    "Error",
+                    "Failed to update database records. Please try again.",
+                    "Database Error",
                     JOptionPane.ERROR_MESSAGE
             );
         }
     }
 
     // =========================================================
-    // MAIN METHOD - TESTING
+    // WARNING
     // =========================================================
+    private void showWarning(
+            String message,
+            JComponent fieldToFocus
+    ) {
 
-    public static void main(String[] args) {
+        JOptionPane.showMessageDialog(
+                this,
+                message,
+                "Validation Warning",
+                JOptionPane.WARNING_MESSAGE
+        );
+
+        if (fieldToFocus != null) {
+
+            fieldToFocus.requestFocus();
+        }
+    }
+
+    // =========================================================
+    // MAIN
+    // =========================================================
+    public static void main(
+            String[] args
+    ) {
 
         SwingUtilities.invokeLater(() -> {
+
+            try {
+
+                UIManager.setLookAndFeel(
+                        UIManager
+                                .getSystemLookAndFeelClassName()
+                );
+
+            } catch (Exception ignored) {
+            }
 
             UpdateStudentFrame frame =
                     new UpdateStudentFrame();
@@ -397,4 +1057,3 @@ public class UpdateStudentFrame extends JFrame {
         });
     }
 }
-

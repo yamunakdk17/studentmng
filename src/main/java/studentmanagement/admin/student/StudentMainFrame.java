@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
+import studentmanagement.admin.MainFrame;
 
 public class StudentMainFrame extends JFrame {
 
@@ -322,9 +323,71 @@ public class StudentMainFrame extends JFrame {
 
         mainPanel.add(topPanel, BorderLayout.NORTH);
         mainPanel.add(centerPanel, BorderLayout.CENTER);
+// -----------------------------------------------------
+// -----------------------------------------------------
+// BACK TO DASHBOARD - SMALL COLORED BUTTON
+// -----------------------------------------------------
 
+        JButton backButton =
+                new JButton("← BACK TO DASHBOARD");
+
+        backButton.setFont(
+                new Font("Arial", Font.BOLD, 11)
+        );
+
+        backButton.setForeground(Color.WHITE);
+
+        backButton.setBackground(
+                new Color(24, 190, 126)
+        );
+
+        backButton.setFocusPainted(false);
+
+        backButton.setBorder(
+                BorderFactory.createEmptyBorder(
+                        7, 12, 7, 12
+                )
+        );
+
+        backButton.setCursor(
+                Cursor.getPredefinedCursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+// Keep button at its natural small size
+        backButton.setPreferredSize(
+                new Dimension(155, 32)
+        );
+
+        backButton.addActionListener(e -> {
+
+            new MainFrame().setVisible(true);
+
+            dispose();
+        });
+
+// Bottom-left
+        JPanel bottomPanel =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.LEFT,
+                                0,
+                                0
+                        )
+                );
+
+        bottomPanel.setOpaque(false);
+
+        bottomPanel.add(backButton);
+
+        mainPanel.add(
+                bottomPanel,
+                BorderLayout.SOUTH
+        );
         setContentPane(mainPanel);
     }
+
 
     // =========================================================
     // STAT CARD
@@ -823,4 +886,5 @@ public class StudentMainFrame extends JFrame {
             frame.setVisible(true);
         });
     }
+
 }

@@ -1,155 +1,120 @@
+package studentmanagement.admin.student;
 
-        package studentmanagement.admin.student;
-
-import studentmanagement.dao.StudentDAO;
-import studentmanagement.model.Student;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.util.List;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
 
 public class ViewStudentsFrame extends JFrame {
 
-    private JTable table;
-
-    // =========================================================
-    // CONSTRUCTOR
-    // =========================================================
+    private static final Color PRIMARY = new Color(28, 51, 43);
+    private static final Color BG = new Color(242, 246, 243);
+    private static final Color CARD_BG = Color.WHITE;
+    private static final Color TEXT_DARK = new Color(10, 15, 12);
+    private static final Color TEXT_MUTED = new Color(55, 65, 75);
+    private static final Color BORDER_COLOR = new Color(205, 215, 210);
 
     public ViewStudentsFrame() {
-
-        setTitle("View Students");
-        setSize(900, 500);
+        setTitle("View All Students");
+        setSize(720, 480);
+        setMinimumSize(new Dimension(650, 400));
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout());
 
-        initUI();
-    }
+        // Header Panel
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(PRIMARY);
+        headerPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
 
-    // =========================================================
-    // UI
-    // =========================================================
+        JLabel titleLabel = new JLabel("Student Records");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        titleLabel.setForeground(Color.WHITE);
 
-    private void initUI() {
+        JLabel subtitleLabel = new JLabel("Browse and search all registered student profiles");
+        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        subtitleLabel.setForeground(new Color(180, 205, 195));
 
-        String[] columns = {
-                "ID",
-                "Name",
-                "Age",
-                "Gender",
-                "Address",
-                "Phone",
-                "Email"
+        JPanel headerTextStack = new JPanel();
+        headerTextStack.setLayout(new BoxLayout(headerTextStack, BoxLayout.Y_AXIS));
+        headerTextStack.setOpaque(false);
+        headerTextStack.add(titleLabel);
+        headerTextStack.add(Box.createVerticalStrut(2));
+        headerTextStack.add(subtitleLabel);
+
+        headerPanel.add(headerTextStack, BorderLayout.WEST);
+        add(headerPanel, BorderLayout.NORTH);
+
+        // Center Content Panel with Table
+        JPanel contentPanel = new JPanel(new BorderLayout(0, 10));
+        contentPanel.setBackground(CARD_BG);
+        contentPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
+
+        // Top bar of content (Search)
+        JPanel searchBarPanel = new JPanel(new BorderLayout());
+        searchBarPanel.setOpaque(false);
+
+        JTextField searchField = new JTextField();
+        searchField.setPreferredSize(new Dimension(220, 32));
+        searchField.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                BorderFactory.createEmptyBorder(4, 8, 4, 8)
+        ));
+
+        JPanel searchWrap = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        searchWrap.setOpaque(false);
+        JLabel searchLbl = new JLabel("Search:");
+        searchLbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        searchLbl.setForeground(TEXT_DARK);
+        searchWrap.add(searchLbl);
+        searchWrap.add(searchField);
+
+        searchBarPanel.add(searchWrap, BorderLayout.EAST);
+        contentPanel.add(searchBarPanel, BorderLayout.NORTH);
+
+        // Table setup
+        String[] columns = {"ID", "Full Name", "Age", "Gender", "Address", "Phone", "Email"};
+        Object[][] data = {
+                {"STU-001", "Ram Sharma", "20", "Male", "Kathmandu", "9841000000", "ram@gmail.com"},
+                {"STU-002", "Sita Thapa", "19", "Female", "Lalitpur", "9812000000", "sita@gmail.com"}
         };
 
-        DefaultTableModel model =
-                new DefaultTableModel(columns, 0) {
+        DefaultTableModel model = new DefaultTableModel(data, columns);
+        JTable table = new JTable(model);
+        table.setRowHeight(26);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 11));
+        table.getTableHeader().setBackground(new Color(235, 240, 238));
+        table.setSelectionBackground(new Color(210, 240, 220));
 
-                    @Override
-                    public boolean isCellEditable(
-                            int row,
-                            int column) {
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 1));
+        contentPanel.add(scrollPane, BorderLayout.CENTER);
 
-                        return false;
-                    }
-                };
+        // Wrapper panel with background padding
+        JPanel wrapperPanel = new JPanel(new BorderLayout());
+        wrapperPanel.setBackground(BG);
+        wrapperPanel.setBorder(new EmptyBorder(12, 15, 12, 15));
+        wrapperPanel.add(contentPanel, BorderLayout.CENTER);
+        add(wrapperPanel, BorderLayout.CENTER);
 
-        table = new JTable(model);
+        // Footer Panel
+        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 12));
+        footerPanel.setBackground(BG);
+        footerPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, BORDER_COLOR));
 
-        table.setRowHeight(35);
-        table.setFont(
-                new Font("Arial", Font.PLAIN, 13)
-        );
+        JButton closeButton = new JButton("Close");
+        closeButton.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        closeButton.setForeground(TEXT_MUTED);
+        closeButton.setBackground(new Color(230, 235, 232));
+        closeButton.setFocusPainted(false);
+        closeButton.setBorderPainted(false);
+        closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        closeButton.setPreferredSize(new Dimension(100, 34));
+        closeButton.addActionListener(e -> dispose());
 
-        table.getTableHeader().setFont(
-                new Font("Arial", Font.BOLD, 13)
-        );
-
-        table.getTableHeader().setPreferredSize(
-                new Dimension(0, 35)
-        );
-
-        // Column widths
-
-        table.getColumnModel()
-                .getColumn(0)
-                .setPreferredWidth(50);
-
-        table.getColumnModel()
-                .getColumn(1)
-                .setPreferredWidth(140);
-
-        table.getColumnModel()
-                .getColumn(2)
-                .setPreferredWidth(50);
-
-        table.getColumnModel()
-                .getColumn(3)
-                .setPreferredWidth(80);
-
-        table.getColumnModel()
-                .getColumn(4)
-                .setPreferredWidth(150);
-
-        table.getColumnModel()
-                .getColumn(5)
-                .setPreferredWidth(120);
-
-        table.getColumnModel()
-                .getColumn(6)
-                .setPreferredWidth(180);
-
-        loadStudents(model);
-
-        add(
-                new JScrollPane(table),
-                BorderLayout.CENTER
-        );
-    }
-
-    // =========================================================
-    // LOAD STUDENTS
-    // =========================================================
-
-    private void loadStudents(
-            DefaultTableModel model) {
-
-        StudentDAO studentDAO =
-                new StudentDAO();
-
-        List<Student> students =
-                studentDAO.getAllStudents();
-
-        for (Student student : students) {
-
-            model.addRow(
-                    new Object[]{
-                            student.getStudentId(),
-                            student.getName(),
-                            student.getAge(),
-                            student.getGender(),
-                            student.getAddress(),
-                            student.getPhone(),
-                            student.getEmail()
-                    }
-            );
-        }
-    }
-
-    // =========================================================
-    // MAIN METHOD - TESTING
-    // =========================================================
-
-    public static void main(String[] args) {
-
-        SwingUtilities.invokeLater(() -> {
-
-            ViewStudentsFrame frame =
-                    new ViewStudentsFrame();
-
-            frame.setVisible(true);
-        });
+        footerPanel.add(closeButton);
+        add(footerPanel, BorderLayout.SOUTH);
     }
 }
-

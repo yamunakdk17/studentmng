@@ -105,7 +105,7 @@ public class LoginFrame extends JFrame {
         loginButton.setFont(new Font("Arial", Font.BOLD, 15));
         loginButton.setPreferredSize(new Dimension(150, 45));
 
-        loginButton.setBackground(new Color(46, 125, 50));
+        loginButton.setBackground(new Color(6, 83, 43));
         loginButton.setForeground(Color.WHITE);
 
         loginButton.setFocusPainted(false);

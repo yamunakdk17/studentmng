@@ -6,14 +6,15 @@ import javax.swing.table.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import studentmanagement.admin.MainFrame;
 
 public class MarksPanel extends JFrame {
 
     // =========================
     // COLORS
     // =========================
-    private final Color GREEN = new Color(34, 197, 94);
-    private final Color DARK_GREEN = new Color(22, 163, 74);
+    private final Color GREEN = new Color(23, 124, 60);
+    private final Color DARK_GREEN = new Color(17, 124, 56);
     private final Color RED = new Color(239, 68, 68);
     private final Color BLUE = new Color(59, 130, 246);
     private final Color PURPLE = new Color(139, 92, 246);
@@ -1306,7 +1307,10 @@ public class MarksPanel extends JFrame {
         );
 
 
-        // FOOTER
+        // =========================
+// FOOTER
+// =========================
+
         JPanel footer =
                 new JPanel(new BorderLayout());
 
@@ -1314,13 +1318,17 @@ public class MarksPanel extends JFrame {
 
         footer.setBorder(
                 new EmptyBorder(
-                        15,
+                        10,
                         0,
                         0,
                         0
                 )
         );
 
+
+// =========================
+// SHOWING LABEL
+// =========================
 
         showingLabel =
                 new JLabel(
@@ -1338,17 +1346,90 @@ public class MarksPanel extends JFrame {
         showingLabel.setForeground(MUTED);
 
 
-        footer.add(
-                showingLabel,
-                BorderLayout.WEST
+// =========================
+// BACK TO DASHBOARD
+// =========================
+
+        JButton backButton =
+                new JButton("← BACK TO DASHBOARD");
+
+        backButton.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        11
+                )
         );
 
+        backButton.setForeground(Color.WHITE);
+
+        backButton.setBackground(DARK_GREEN);
+
+        backButton.setFocusPainted(false);
+
+        backButton.setBorderPainted(false);
+
+        backButton.setPreferredSize(
+                new Dimension(
+                        150,
+                        30
+                )
+        );
+
+        backButton.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        backButton.addActionListener(e -> {
+
+            MainFrame dashboard =
+                    new MainFrame();
+
+            dashboard.setVisible(true);
+
+            dispose();
+        });
+
+
+// =========================
+// LEFT FOOTER
+// =========================
+
+        JPanel leftFooter =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.LEFT,
+                                0,
+                                0
+                        )
+                );
+
+        leftFooter.setBackground(Color.WHITE);
+
+        leftFooter.add(backButton);
+
+        leftFooter.add(
+                Box.createHorizontalStrut(15)
+        );
+
+        leftFooter.add(showingLabel);
+
+
+// =========================
+// FOOTER LAYOUT
+// =========================
+
+        footer.add(
+                leftFooter,
+                BorderLayout.WEST
+        );
 
         footer.add(
                 createPagination(),
                 BorderLayout.EAST
         );
-
 
         panel.add(
                 footer,

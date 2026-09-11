@@ -7,6 +7,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import studentmanagement.admin.MainFrame;
 
 public class CoursePanel extends JFrame {
 
@@ -14,7 +15,7 @@ public class CoursePanel extends JFrame {
     // COLORS
     // =========================================================
 
-    private final Color PRIMARY = new Color(34, 139, 94);
+    private final Color PRIMARY = new Color(28, 113, 77);
     private final Color TEXT = new Color(45, 45, 45);
     private final Color LIGHT_TEXT = new Color(120, 120, 120);
     private final Color BORDER = new Color(225, 225, 225);
@@ -896,16 +897,84 @@ public class CoursePanel extends JFrame {
         );
 
         // =====================================================
-        // ADD TO FRAME
         // =====================================================
+// ADD TO FRAME
+// =====================================================
 
         mainPanel.add(
                 centerPanel,
                 BorderLayout.CENTER
         );
 
-        mainPanel.add(
+// =========================================================
+// BACK TO DASHBOARD
+// =========================================================
+
+        JButton backButton =
+                new JButton("← BACK TO DASHBOARD");
+
+        backButton.setFont(
+                new Font(
+                        "Arial",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        backButton.setForeground(Color.WHITE);
+        backButton.setBackground(PRIMARY);
+        backButton.setFocusPainted(false);
+        backButton.setBorderPainted(false);
+
+        backButton.setPreferredSize(
+                new Dimension(160, 35)
+        );
+
+        backButton.setCursor(
+                new Cursor(Cursor.HAND_CURSOR)
+        );
+
+        backButton.addActionListener(e -> {
+
+            MainFrame dashboard =
+                    new MainFrame();
+
+            dashboard.setVisible(true);
+
+            dispose();
+        });
+
+        JPanel backPanel =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.LEFT,
+                                0,
+                                5
+                        )
+                );
+
+        backPanel.setOpaque(false);
+        backPanel.add(backButton);
+
+        JPanel bottomPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        bottomPanel.setOpaque(false);
+
+        bottomPanel.add(
                 footerPanel,
+                BorderLayout.NORTH
+        );
+
+        bottomPanel.add(
+                backPanel,
+                BorderLayout.SOUTH
+        );
+
+        mainPanel.add(
+                bottomPanel,
                 BorderLayout.SOUTH
         );
 
@@ -2138,5 +2207,6 @@ public class CoursePanel extends JFrame {
                             .setVisible(true);
                 }
         );
+
     }
 }

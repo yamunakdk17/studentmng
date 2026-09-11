@@ -5,10 +5,27 @@ import studentmanagement.dao.StudentDAO;
 import studentmanagement.model.Student;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class AddStudentFrame extends JFrame {
 
+    // =========================================================
+    // COLORS - MATCH DASHBOARD
+    // =========================================================
+    private static final Color PRIMARY = new Color(28, 51, 43);
+    private static final Color ACCENT_GREEN = new Color(40, 115, 78);
+    private static final Color ACCENT_GREEN_HOVER = new Color(48, 138, 93);
+    private static final Color BG = new Color(245, 247, 246);
+    private static final Color CARD_BG = Color.WHITE;
+    private static final Color TEXT_DARK = new Color(15, 23, 42);
+    private static final Color TEXT_MUTED = new Color(100, 116, 139);
+    private static final Color BORDER_COLOR = new Color(226, 232, 240);
+
+    // =========================================================
+    // FIELDS
+    // =========================================================
+    private final JTextField studentIdField = new JTextField();
     private final JTextField nameField = new JTextField();
     private final JTextField ageField = new JTextField();
 
@@ -26,146 +43,801 @@ public class AddStudentFrame extends JFrame {
     private final StudentDAO studentDAO = new StudentDAO();
 
     // =========================================================
-    // CONSTRUCTOR FOR StudentMainFrame
+    // CONSTRUCTOR
     // =========================================================
     public AddStudentFrame() {
         this(null);
     }
 
-    // =========================================================
-    // CONSTRUCTOR FOR EXISTING MainFrame
-    // =========================================================
     public AddStudentFrame(MainFrame parent) {
 
         setTitle("Add Student");
-        setSize(520, 380);
-        setLocationRelativeTo(parent);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        // Center the form
-        JPanel form = new JPanel(
-                new GridLayout(6, 2, 10, 10)
+        setSize(620, 660);
+
+        setMinimumSize(
+                new Dimension(580, 600)
         );
 
-        form.setBorder(
+        setLocationRelativeTo(parent);
+
+        setDefaultCloseOperation(
+                JFrame.DISPOSE_ON_CLOSE
+        );
+
+        setLayout(
+                new BorderLayout()
+        );
+
+        getContentPane().setBackground(BG);
+
+        createHeader();
+        createForm();
+    }
+
+    // =========================================================
+    // HEADER
+    // =========================================================
+    private void createHeader() {
+
+        JPanel header =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        header.setBackground(PRIMARY);
+
+        header.setBorder(
                 BorderFactory.createEmptyBorder(
-                        25, 30, 15, 30
+                        18,
+                        25,
+                        18,
+                        25
                 )
         );
 
-        // -----------------------------------------------------
-        // Name
-        // -----------------------------------------------------
-        form.add(new JLabel("Name:"));
-        form.add(nameField);
+        JPanel titlePanel =
+                new JPanel();
 
-        // -----------------------------------------------------
-        // Age
-        // -----------------------------------------------------
-        form.add(new JLabel("Age:"));
-        form.add(ageField);
+        titlePanel.setLayout(
+                new BoxLayout(
+                        titlePanel,
+                        BoxLayout.Y_AXIS
+                )
+        );
 
-        // -----------------------------------------------------
-        // Gender
-        // -----------------------------------------------------
-        form.add(new JLabel("Gender:"));
-        form.add(genderBox);
+        titlePanel.setOpaque(false);
 
-        // -----------------------------------------------------
-        // Address
-        // -----------------------------------------------------
-        form.add(new JLabel("Address:"));
-        form.add(addressField);
+        JLabel title =
+                new JLabel(
+                        "Add Student"
+                );
 
-        // -----------------------------------------------------
-        // Phone
-        // -----------------------------------------------------
-        form.add(new JLabel("Phone:"));
-        form.add(phoneField);
+        title.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        20
+                )
+        );
 
-        // -----------------------------------------------------
-        // Email
-        // -----------------------------------------------------
-        form.add(new JLabel("Email:"));
-        form.add(emailField);
+        title.setForeground(Color.WHITE);
+
+        JLabel subtitle =
+                new JLabel(
+                        "Create a new student record"
+                );
+
+        subtitle.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        subtitle.setForeground(
+                new Color(185, 210, 198)
+        );
+
+        titlePanel.add(title);
+
+        titlePanel.add(
+                Box.createVerticalStrut(3)
+        );
+
+        titlePanel.add(subtitle);
+
+        JLabel icon =
+                new JLabel("＋");
+
+        icon.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        28
+                )
+        );
+
+        icon.setForeground(
+                new Color(170, 220, 190)
+        );
+
+        header.add(
+                titlePanel,
+                BorderLayout.WEST
+        );
+
+        header.add(
+                icon,
+                BorderLayout.EAST
+        );
+
+        add(
+                header,
+                BorderLayout.NORTH
+        );
+    }
+
+    // =========================================================
+    // FORM
+    // =========================================================
+    private void createForm() {
+
+        JPanel outerPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        outerPanel.setBackground(BG);
+
+        outerPanel.setBorder(
+                new EmptyBorder(
+                        20,
+                        25,
+                        20,
+                        25
+                )
+        );
+
+        // =====================================================
+        // WHITE CARD
+        // =====================================================
+        JPanel formCard =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        formCard.setBackground(
+                CARD_BG
+        );
+
+        formCard.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR,
+                                1,
+                                true
+                        ),
+                        BorderFactory.createEmptyBorder(
+                                22,
+                                25,
+                                22,
+                                25
+                        )
+                )
+        );
+
+        // =====================================================
+        // FIELDS PANEL
+        // =====================================================
+        JPanel fieldsPanel =
+                new JPanel(
+                        new GridBagLayout()
+                );
+
+        fieldsPanel.setOpaque(false);
+
+        GridBagConstraints gbc =
+                new GridBagConstraints();
+
+        gbc.fill =
+                GridBagConstraints.NONE;
+
+        gbc.anchor =
+                GridBagConstraints.WEST;
+
+        gbc.insets =
+                new Insets(
+                        6,
+                        5,
+                        6,
+                        5
+                );
+
+        // =====================================================
+        // STUDENT ID
+        // =====================================================
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Student ID",
+                studentIdField,
+                0
+        );
+
+        // =====================================================
+        // FULL NAME
+        // =====================================================
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Full Name",
+                nameField,
+                1
+        );
+
+        // =====================================================
+        // AGE
+        // =====================================================
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Age",
+                ageField,
+                2
+        );
+
+        // =====================================================
+        // GENDER
+        // =====================================================
+        styleComboBox(
+                genderBox
+        );
+
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Gender",
+                genderBox,
+                3
+        );
+
+        // =====================================================
+        // ADDRESS
+        // =====================================================
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Address",
+                addressField,
+                4
+        );
+
+        // =====================================================
+        // PHONE
+        // =====================================================
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Phone Number",
+                phoneField,
+                5
+        );
+
+        // =====================================================
+        // EMAIL
+        // =====================================================
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Email Address",
+                emailField,
+                6
+        );
 
         // =====================================================
         // BUTTONS
         // =====================================================
-        JButton saveButton = new JButton("Save Student");
-        JButton cancelButton = new JButton("Cancel");
+        JButton cancelButton =
+                createCancelButton();
 
-        saveButton.addActionListener(e -> saveStudent());
+        JButton saveButton =
+                createSaveButton();
 
-        cancelButton.addActionListener(e -> dispose());
+        JPanel buttonPanel =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.RIGHT,
+                                10,
+                                0
+                        )
+                );
 
-        JPanel actions = new JPanel(
-                new FlowLayout(FlowLayout.RIGHT)
+        buttonPanel.setOpaque(false);
+
+        buttonPanel.add(
+                cancelButton
         );
 
-        actions.setBorder(
-                BorderFactory.createEmptyBorder(
-                        0, 20, 15, 20
-                )
+        buttonPanel.add(
+                saveButton
         );
 
-        actions.add(cancelButton);
-        actions.add(saveButton);
-
         // =====================================================
-        // ADD COMPONENTS TO FRAME
+        // ADD PANELS
         // =====================================================
-        add(form, BorderLayout.CENTER);
-        add(actions, BorderLayout.SOUTH);
+        formCard.add(
+                fieldsPanel,
+                BorderLayout.CENTER
+        );
 
-        // Make Enter key save the form
-        getRootPane().setDefaultButton(saveButton);
+        formCard.add(
+                buttonPanel,
+                BorderLayout.SOUTH
+        );
+
+        outerPanel.add(
+                formCard,
+                BorderLayout.CENTER
+        );
+
+        add(
+                outerPanel,
+                BorderLayout.CENTER
+        );
+
+        // Enter key = Save Student
+        getRootPane().setDefaultButton(
+                saveButton
+        );
     }
 
     // =========================================================
-    // SAVE STUDENT
+    // ADD ONE ROW
+    // LABEL LEFT + FIELD RIGHT
+    // =========================================================
+    private void addRow(
+            JPanel panel,
+            GridBagConstraints gbc,
+            String labelText,
+            JComponent field,
+            int row
+    ) {
+
+        // =====================================================
+        // LABEL
+        // =====================================================
+        JLabel label =
+                new JLabel(
+                        labelText
+                );
+
+        label.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        11
+                )
+        );
+
+        label.setForeground(
+                TEXT_DARK
+        );
+
+        label.setPreferredSize(
+                new Dimension(
+                        120,
+                        36
+                )
+        );
+
+        gbc.gridx = 0;
+        gbc.gridy = row;
+
+        gbc.weightx = 0;
+
+        gbc.fill =
+                GridBagConstraints.NONE;
+
+        gbc.anchor =
+                GridBagConstraints.WEST;
+
+        panel.add(
+                label,
+                gbc
+        );
+
+        // =====================================================
+        // FIELD
+        // =====================================================
+        if (field instanceof JTextField) {
+
+            styleTextField(
+                    (JTextField) field
+            );
+        }
+
+        gbc.gridx = 1;
+        gbc.gridy = row;
+
+        gbc.weightx = 0;
+
+        gbc.fill =
+                GridBagConstraints.NONE;
+
+        gbc.anchor =
+                GridBagConstraints.WEST;
+
+        panel.add(
+                field,
+                gbc
+        );
+    }
+
+    // =========================================================
+    // TEXT FIELD STYLE
+    // =========================================================
+    private void styleTextField(
+            JTextField field
+    ) {
+
+        field.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        field.setForeground(
+                TEXT_DARK
+        );
+
+        field.setBackground(
+                Color.WHITE
+        );
+
+        field.setPreferredSize(
+                new Dimension(
+                        300,
+                        36
+                )
+        );
+
+        field.setMinimumSize(
+                new Dimension(
+                        300,
+                        36
+                )
+        );
+
+        field.setMaximumSize(
+                new Dimension(
+                        300,
+                        36
+                )
+        );
+
+        field.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR,
+                                1,
+                                true
+                        ),
+                        BorderFactory.createEmptyBorder(
+                                0,
+                                10,
+                                0,
+                                10
+                        )
+                )
+        );
+    }
+
+    // =========================================================
+    // COMBO BOX STYLE
+    // =========================================================
+    private void styleComboBox(
+            JComboBox<String> comboBox
+    ) {
+
+        comboBox.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        comboBox.setForeground(
+                TEXT_DARK
+        );
+
+        comboBox.setBackground(
+                Color.WHITE
+        );
+
+        comboBox.setPreferredSize(
+                new Dimension(
+                        120,
+                        36
+                )
+        );
+
+        comboBox.setMinimumSize(
+                new Dimension(
+                        120,
+                        36
+                )
+        );
+
+        comboBox.setMaximumSize(
+                new Dimension(
+                        120,
+                        36
+                )
+        );
+
+        comboBox.setBorder(
+                BorderFactory.createLineBorder(
+                        BORDER_COLOR,
+                        1,
+                        true
+                )
+        );
+    }
+
+    // =========================================================
+    // SAVE BUTTON
+    // =========================================================
+    private JButton createSaveButton() {
+
+        JButton button =
+                new JButton(
+                        "Save Student"
+                );
+
+        button.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        button.setForeground(
+                Color.WHITE
+        );
+
+        button.setBackground(
+                ACCENT_GREEN
+        );
+
+        button.setFocusPainted(false);
+
+        button.setBorderPainted(false);
+
+        button.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        button.setPreferredSize(
+                new Dimension(
+                        130,
+                        38
+                )
+        );
+
+        button.addMouseListener(
+                new java.awt.event.MouseAdapter() {
+
+                    @Override
+                    public void mouseEntered(
+                            java.awt.event.MouseEvent e
+                    ) {
+
+                        button.setBackground(
+                                ACCENT_GREEN_HOVER
+                        );
+                    }
+
+                    @Override
+                    public void mouseExited(
+                            java.awt.event.MouseEvent e
+                    ) {
+
+                        button.setBackground(
+                                ACCENT_GREEN
+                        );
+                    }
+                }
+        );
+
+        button.addActionListener(
+                e -> saveStudent()
+        );
+
+        return button;
+    }
+
+    // =========================================================
+    // CANCEL BUTTON
+    // =========================================================
+    private JButton createCancelButton() {
+
+        JButton button =
+                new JButton(
+                        "Cancel"
+                );
+
+        button.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        button.setForeground(
+                TEXT_MUTED
+        );
+
+        button.setBackground(
+                Color.WHITE
+        );
+
+        button.setFocusPainted(false);
+
+        button.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        button.setPreferredSize(
+                new Dimension(
+                        90,
+                        38
+                )
+        );
+
+        button.setBorder(
+                BorderFactory.createLineBorder(
+                        BORDER_COLOR,
+                        1,
+                        true
+                )
+        );
+
+        button.addMouseListener(
+                new java.awt.event.MouseAdapter() {
+
+                    @Override
+                    public void mouseEntered(
+                            java.awt.event.MouseEvent e
+                    ) {
+
+                        button.setBackground(
+                                new Color(
+                                        241,
+                                        245,
+                                        249
+                                )
+                        );
+
+                        button.setForeground(
+                                TEXT_DARK
+                        );
+                    }
+
+                    @Override
+                    public void mouseExited(
+                            java.awt.event.MouseEvent e
+                    ) {
+
+                        button.setBackground(
+                                Color.WHITE
+                        );
+
+                        button.setForeground(
+                                TEXT_MUTED
+                        );
+                    }
+                }
+        );
+
+        button.addActionListener(
+                e -> dispose()
+        );
+
+        return button;
+    }
+
+    // =========================================================
+    // SAVE STUDENT LOGIC
     // =========================================================
     private void saveStudent() {
 
-        // Get values
-        String name = nameField.getText().trim();
-        String ageText = ageField.getText().trim();
+        String idText =
+                studentIdField.getText().trim();
+
+        String name =
+                nameField.getText().trim();
+
+        String ageText =
+                ageField.getText().trim();
+
         String gender =
                 (String) genderBox.getSelectedItem();
+
         String address =
                 addressField.getText().trim();
+
         String phone =
                 phoneField.getText().trim();
+
         String email =
                 emailField.getText().trim();
 
         // =====================================================
-        // VALIDATION
+        // STUDENT ID
         // =====================================================
+        if (idText.isEmpty()) {
 
-        if (name.isEmpty()) {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please enter student name.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+            showWarning(
+                    "Please enter the student ID.",
+                    studentIdField
             );
 
-            nameField.requestFocus();
             return;
         }
 
-        if (ageText.isEmpty()) {
+        int studentId;
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please enter student age.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+        try {
+
+            studentId =
+                    Integer.parseInt(
+                            idText
+                    );
+
+        } catch (NumberFormatException e) {
+
+            showWarning(
+                    "Student ID must be a valid number.",
+                    studentIdField
             );
 
-            ageField.requestFocus();
+            return;
+        }
+
+        // =====================================================
+        // NAME
+        // =====================================================
+        if (name.isEmpty()) {
+
+            showWarning(
+                    "Please enter the student's full name.",
+                    nameField
+            );
+
+            return;
+        }
+
+        // =====================================================
+        // AGE
+        // =====================================================
+        if (ageText.isEmpty()) {
+
+            showWarning(
+                    "Please enter the student's age.",
+                    ageField
+            );
+
             return;
         }
 
@@ -173,91 +845,91 @@ public class AddStudentFrame extends JFrame {
 
         try {
 
-            age = Integer.parseInt(ageText);
+            age =
+                    Integer.parseInt(
+                            ageText
+                    );
 
         } catch (NumberFormatException e) {
 
-            JOptionPane.showMessageDialog(
-                    this,
+            showWarning(
                     "Age must be a valid number.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+                    ageField
             );
 
-            ageField.requestFocus();
             return;
         }
 
+        // =====================================================
+        // AGE VALIDATION
+        // =====================================================
         if (age <= 0 || age > 100) {
 
-            JOptionPane.showMessageDialog(
-                    this,
+            showWarning(
                     "Please enter a valid age between 1 and 100.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+                    ageField
             );
 
-            ageField.requestFocus();
             return;
         }
 
+        // =====================================================
+        // ADDRESS
+        // =====================================================
         if (address.isEmpty()) {
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please enter address.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+            showWarning(
+                    "Please enter a valid address.",
+                    addressField
             );
 
-            addressField.requestFocus();
             return;
         }
 
+        // =====================================================
+        // PHONE
+        // =====================================================
         if (phone.isEmpty()) {
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please enter phone number.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+            showWarning(
+                    "Please enter a phone number.",
+                    phoneField
             );
 
-            phoneField.requestFocus();
             return;
         }
 
+        // =====================================================
+        // EMAIL
+        // =====================================================
         if (email.isEmpty()) {
 
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please enter email.",
-                    "Validation Error",
-                    JOptionPane.WARNING_MESSAGE
+            showWarning(
+                    "Please enter an email address.",
+                    emailField
             );
 
-            emailField.requestFocus();
             return;
         }
 
         // =====================================================
-        // CREATE STUDENT OBJECT
+        // CREATE STUDENT
         // =====================================================
-
-        Student student = new Student(
-                name,
-                age,
-                gender,
-                address,
-                phone,
-                email
-        );
+        Student student =
+                new Student(
+                        studentId,
+                        name,
+                        age,
+                        gender,
+                        address,
+                        phone,
+                        email
+                );
 
         // =====================================================
-        // SAVE TO DATABASE
+        // SAVE DATABASE
         // =====================================================
-
-        boolean success = studentDAO.add(student);
+        boolean success = studentDAO.addStudent(student);
 
         if (success) {
 
@@ -268,48 +940,54 @@ public class AddStudentFrame extends JFrame {
                     JOptionPane.INFORMATION_MESSAGE
             );
 
-            clearFields();
-
             dispose();
 
         } else {
 
             JOptionPane.showMessageDialog(
                     this,
-                    "Failed to add student.\n"
-                            + "Please check the database connection.",
-                    "Error",
+                    "Failed to save student record to the database. Please try again.",
+                    "Database Error",
                     JOptionPane.ERROR_MESSAGE
             );
         }
     }
 
     // =========================================================
-    // CLEAR FORM
+    // WARNING
     // =========================================================
-    private void clearFields() {
+    private void showWarning(
+            String message,
+            JComponent fieldToFocus
+    ) {
 
-        nameField.setText("");
-        ageField.setText("");
-        genderBox.setSelectedIndex(0);
-        addressField.setText("");
-        phoneField.setText("");
-        emailField.setText("");
+        JOptionPane.showMessageDialog(
+                this,
+                message,
+                "Validation Warning",
+                JOptionPane.WARNING_MESSAGE
+        );
 
-        nameField.requestFocus();
+        if (fieldToFocus != null) {
+
+            fieldToFocus.requestFocus();
+        }
     }
 
     // =========================================================
-    // MAIN METHOD - FOR TESTING ONLY
+    // MAIN
     // =========================================================
-    public static void main(String[] args) {
+    public static void main(
+            String[] args
+    ) {
 
         SwingUtilities.invokeLater(() -> {
 
             try {
 
                 UIManager.setLookAndFeel(
-                        UIManager.getSystemLookAndFeelClassName()
+                        UIManager
+                                .getSystemLookAndFeelClassName()
                 );
 
             } catch (Exception ignored) {
@@ -318,7 +996,6 @@ public class AddStudentFrame extends JFrame {
             AddStudentFrame frame =
                     new AddStudentFrame();
 
-            frame.setLocationRelativeTo(null);
             frame.setVisible(true);
         });
     }

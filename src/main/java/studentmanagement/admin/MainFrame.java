@@ -1,2519 +1,1017 @@
-        package studentmanagement.admin;
+package studentmanagement.admin;
 
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 
-import studentmanagement.admin.course.AddCourseFrame;
-import studentmanagement.admin.course.CoursePanel;
-import studentmanagement.admin.course.UpdateCourseFrame;
-import studentmanagement.admin.course.ViewCoursesFrame;
-
-import studentmanagement.admin.marks.AddMarksFrame;
-import studentmanagement.admin.marks.DeleteMarksFrame;
-import studentmanagement.admin.marks.MarksPanel;
-import studentmanagement.admin.marks.ViewMarksFrame;
-
-import studentmanagement.admin.student.AddStudentFrame;
-import studentmanagement.admin.student.DeleteStudentFrame;
-import studentmanagement.admin.student.StudentMainFrame;
-import studentmanagement.admin.student.UpdateStudentFrame;
-import studentmanagement.admin.student.ViewStudentsFrame;
-
-import studentmanagement.admin.subject.AddSubjectFrame;
-import studentmanagement.admin.subject.SubjectPanel;
-import studentmanagement.admin.subject.UpdateSubjectFrame;
-import studentmanagement.admin.subject.ViewSubjectsFrame;
-
+import studentmanagement.admin.attendance.AttendancePanel;
+import studentmanagement.admin.course.*;
+import studentmanagement.admin.marks.*;
+import studentmanagement.admin.student.*;
+import studentmanagement.admin.subject.*;
 import studentmanagement.dao.AttendanceDAO;
-import studentmanagement.dao.CourseDAO;
-import studentmanagement.dao.MarksDAO;
-import studentmanagement.dao.StudentDAO;
-import studentmanagement.dao.SubjectDAO;
-
 public class MainFrame extends JFrame {
 
-    // =========================================================
-    // COLORS
-    // =========================================================
+    private static final Color PRIMARY = new Color(28, 51, 43);     // Deep dark green sidebar/topbar
+    private static final Color ACCENT_GREEN = new Color(40, 115, 78); // Active button green
+    private static final Color BG = new Color(242, 246, 243);        // Main content background
+    private static final Color CARD_BG = Color.WHITE;
+    private static final Color TEXT_DARK = new Color(10, 15, 12);    // Enhanced high-contrast dark black text
+    private static final Color TEXT_MUTED = new Color(55, 65, 75);   // Darker muted text for crystal-clear readability
+    private static final Color BORDER_COLOR = new Color(205, 215, 210);
 
-    private static final Color SIDEBAR = new Color(28, 35, 45);
-    private static final Color BG = Color.decode("#E8EFE9");
-    private static final Color CARD = Color.WHITE;
-    private static final Color TEXT = new Color(45, 52, 60);
-    private static final Color MUTED = new Color(110, 118, 128);
-    private static final Color GREEN = new Color(24, 190, 126);
-    private static final Color BORDER = new Color(225, 229, 234);
-
-    private final JPanel contentPanel =
-            new JPanel(new BorderLayout());
-
-    // =========================================================
-    // CONSTRUCTOR
-    // =========================================================
+    private JLabel dateLabel;
 
     public MainFrame() {
-
         setTitle("Student Management System");
-
-        setSize(1280, 800);
-
-        setMinimumSize(
-                new Dimension(1050, 680)
-        );
-
+        setSize(1180, 820);
+        setMinimumSize(new Dimension(1100, 750));
         setLocationRelativeTo(null);
-
-        setDefaultCloseOperation(
-                JFrame.EXIT_ON_CLOSE
-        );
-
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        createSidebar();
-        createMainArea();
+        createTopBar();
+        createLayoutWithDashboard();
     }
 
-    // =========================================================
-    // SIDEBAR
-    // =========================================================
+    private ImageIcon loadIcon(String path, int width, int height) {
+        try {
+            java.net.URL imgURL = getClass().getResource(path);
+            if (imgURL != null) {
+                ImageIcon icon = new ImageIcon(imgURL);
+                Image img = icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH);
+                return new ImageIcon(img);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load icon: " + path);
+        }
+        return null;
+    }
 
-    private void createSidebar() {
+    private void createTopBar() {
+        JPanel topBar = new JPanel(new BorderLayout());
+        topBar.setPreferredSize(new Dimension(0, 55));
+        topBar.setBackground(PRIMARY);
+        topBar.setBorder(BorderFactory.createEmptyBorder(6, 15, 6, 15));
 
-        JPanel sidebar =
-                new JPanel(new BorderLayout());
+        JPanel leftBrand = new JPanel();
+        leftBrand.setLayout(new BoxLayout(leftBrand, BoxLayout.X_AXIS));
+        leftBrand.setOpaque(false);
 
-        sidebar.setPreferredSize(
-                new Dimension(205, 0)
-        );
+        JLabel logoIcon = new JLabel();
+        ImageIcon gradIcon = loadIcon("/images/grd.png", 20, 20);
+        if (gradIcon != null) {
+            logoIcon.setIcon(gradIcon);
+        } else {
+            logoIcon.setText("🎓 ");
+            logoIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+        }
 
-        sidebar.setBackground(SIDEBAR);
+        JPanel brandText = new JPanel();
+        brandText.setLayout(new BoxLayout(brandText, BoxLayout.Y_AXIS));
+        brandText.setOpaque(false);
 
-        sidebar.setBorder(
-                new EmptyBorder(20, 14, 20, 14)
-        );
-
-        // -----------------------------------------------------
-        // BRAND
-        // -----------------------------------------------------
-
-        JPanel brand = new JPanel();
-
-        brand.setOpaque(false);
-
-        brand.setLayout(
-                new BoxLayout(
-                        brand,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        JLabel logo = new JLabel("◆");
-
-        logo.setForeground(GREEN);
-
-        logo.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        25
-                )
-        );
-
-        logo.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        JLabel title =
-                new JLabel("Student Management");
-
+        JLabel title = new JLabel("Student Management System");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 13));
         title.setForeground(Color.WHITE);
 
-        title.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        17
-                )
-        );
+        JLabel subtitle = new JLabel("ADMIN PANEL");
+        subtitle.setFont(new Font("Segoe UI", Font.BOLD, 8));
+        subtitle.setForeground(new Color(160, 185, 175));
 
-        title.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
+        brandText.add(title);
+        brandText.add(Box.createVerticalStrut(1));
+        brandText.add(subtitle);
 
-        JLabel sub =
-                new JLabel("ADMIN PANEL");
+        leftBrand.add(logoIcon);
+        leftBrand.add(Box.createHorizontalStrut(6));
+        leftBrand.add(brandText);
 
-        sub.setForeground(
-                new Color(155, 165, 178)
-        );
+        JPanel rightPanel = new JPanel();
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.X_AXIS));
+        rightPanel.setOpaque(false);
 
-        sub.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        10
-                )
-        );
+        JLabel onlineDot = new JLabel("● ");
+        onlineDot.setForeground(new Color(80, 220, 140));
+        JLabel onlineText = new JLabel("System Online      ");
+        onlineText.setForeground(new Color(210, 225, 218));
+        onlineText.setFont(new Font("Segoe UI", Font.PLAIN, 11));
 
-        sub.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
+        JLabel userIcon = new JLabel("👤 ");
+        userIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 11));
+        JLabel adminText = new JLabel(" Admin ▾");
+        adminText.setForeground(Color.WHITE);
+        adminText.setFont(new Font("Segoe UI", Font.PLAIN, 11));
 
-        brand.add(logo);
+        rightPanel.add(onlineDot);
+        rightPanel.add(onlineText);
+        rightPanel.add(userIcon);
+        rightPanel.add(adminText);
 
-        brand.add(
-                Box.createVerticalStrut(4)
-        );
+        topBar.add(leftBrand, BorderLayout.WEST);
+        topBar.add(rightPanel, BorderLayout.EAST);
 
-        brand.add(title);
-
-        brand.add(
-                Box.createVerticalStrut(4)
-        );
-
-        brand.add(sub);
-
-        sidebar.add(
-                brand,
-                BorderLayout.NORTH
-        );
-
-        // -----------------------------------------------------
-        // MENU
-        // -----------------------------------------------------
-
-        JPanel menu = new JPanel();
-
-        menu.setOpaque(false);
-
-        menu.setLayout(
-                new BoxLayout(
-                        menu,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        menu.setBorder(
-                new EmptyBorder(
-                        32,
-                        0,
-                        0,
-                        0
-                )
-        );
-
-        menu.add(
-                menuButton(
-                        "⌂",
-                        "Dashboard",
-                        this::showDashboard,
-                        true
-                )
-        );
-
-        menu.add(
-                Box.createVerticalStrut(5)
-        );
-
-        menu.add(
-                menuButton(
-                        "♙",
-                        "Students",
-                        this::showStudentMenu,
-                        false
-                )
-        );
-
-        menu.add(
-                Box.createVerticalStrut(5)
-        );
-
-        menu.add(
-                menuButton(
-                        "▣",
-                        "Courses",
-                        this::showCourseMenu,
-                        false
-                )
-        );
-
-        menu.add(
-                Box.createVerticalStrut(5)
-        );
-
-        menu.add(
-                menuButton(
-                        "□",
-                        "Subjects",
-                        this::showSubjectMenu,
-                        false
-                )
-        );
-
-        menu.add(
-                Box.createVerticalStrut(5)
-        );
-
-        menu.add(
-                menuButton(
-                        "◈",
-                        "Marks",
-                        this::showMarksMenu,
-                        false
-                )
-        );
-
-        menu.add(
-                Box.createVerticalStrut(5)
-        );
-
-        menu.add(
-                menuButton(
-                        "⚙",
-                        "Settings",
-                        this::showSettings,
-                        false
-                )
-        );
-
-        menu.add(
-                Box.createVerticalGlue()
-        );
-
-        menu.add(
-                menuButton(
-                        "⇥",
-                        "Exit",
-                        this::exitApplication,
-                        false
-                )
-        );
-
-        sidebar.add(
-                menu,
-                BorderLayout.CENTER
-        );
-
-        add(
-                sidebar,
-                BorderLayout.WEST
-        );
+        add(topBar, BorderLayout.NORTH);
     }
 
-    // =========================================================
-    // MENU BUTTON
-    // =========================================================
+    private void createLayoutWithDashboard() {
+        JPanel mainContainer = new JPanel(new BorderLayout());
 
-    private JButton menuButton(
-            String icon,
-            String text,
-            Runnable action,
-            boolean active) {
+        JPanel sidebar = new JPanel();
+        sidebar.setPreferredSize(new Dimension(165, 0)); // Compact sidebar width
+        sidebar.setBackground(PRIMARY);
+        sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
+        sidebar.setBorder(BorderFactory.createEmptyBorder(10, 8, 10, 8));
 
-        JButton button =
-                new JButton(
-                        "  " + icon + "   " + text
+        JButton dashboardBtn = createMenuButton("Dashboard", loadIcon("/images/home.png", 14, 14), true);
+        JButton studentsBtn  = createMenuButton("Students    ▾", loadIcon("/images/us.png", 14, 14), false);
+        JButton coursesBtn   = createMenuButton("Courses      ▾", loadIcon("/images/book.png", 14, 14), false);
+        JButton subjectsBtn  = createMenuButton("Subjects", loadIcon("/images/file.png", 14, 14), false);
+        JButton marksBtn     = createMenuButton("Marks       ▾", loadIcon("/images/report.png", 14, 14), false);
+        JButton btnSidebarAttendance = createMenuButton("Attendance", loadIcon("/images/report.png", 14, 14), false);
+        JButton reportsBtn   = createMenuButton("Reports     ▾", loadIcon("/images/report.png", 14, 14), false);
+        JButton settingsBtn  = createMenuButton("Settings", loadIcon("/images/setting.png", 14, 14), false);
+        JButton logoutBtn    = createMenuButton("Logout", loadIcon("/images/grd.png", 14, 14), false);
+
+        JButton refreshBtn = new JButton("↻ Refresh");
+        refreshBtn.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        refreshBtn.setFocusPainted(false);
+        refreshBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        refreshBtn.setBackground(Color.WHITE);
+        refreshBtn.setForeground(ACCENT_GREEN);
+        refreshBtn.setBorder(BorderFactory.createLineBorder(BORDER_COLOR));
+        refreshBtn.setPreferredSize(new Dimension(90, 32));
+
+        refreshBtn.addActionListener(e -> {
+            refreshDashboard();
+        });
+
+
+
+
+        sidebar.add(dashboardBtn);
+        sidebar.add(Box.createVerticalStrut(3));
+        sidebar.add(studentsBtn);
+        sidebar.add(Box.createVerticalStrut(3));
+        sidebar.add(coursesBtn);
+        sidebar.add(Box.createVerticalStrut(3));
+        sidebar.add(subjectsBtn);
+        sidebar.add(Box.createVerticalStrut(3));
+        sidebar.add(marksBtn);
+        sidebar.add(Box.createVerticalStrut(3));
+        sidebar.add(reportsBtn);
+        sidebar.add(Box.createVerticalStrut(3));
+        sidebar.add(btnSidebarAttendance);
+        sidebar.add(Box.createVerticalStrut(3));
+        sidebar.add(settingsBtn);
+        sidebar.add(Box.createVerticalGlue());
+        sidebar.add(logoutBtn);
+
+        studentsBtn.addActionListener(e -> {
+            new StudentMainFrame().setVisible(true);
+        });
+
+        coursesBtn.addActionListener(e -> {
+            new CoursePanel().setVisible(true);
+        });
+
+        subjectsBtn.addActionListener(e -> {
+            new SubjectPanel().setVisible(true);
+        });
+
+        marksBtn.addActionListener(e -> {
+            new MarksPanel().setVisible(true);
+        });
+
+        btnSidebarAttendance.addActionListener(e -> {
+            new AttendancePanel().setVisible(true);
+        });
+        logoutBtn.addActionListener(e -> {
+            int confirm = JOptionPane.showConfirmDialog(
+                    this,
+                    "Are you sure you want to logout?",
+                    "Logout",
+                    JOptionPane.YES_NO_OPTION
+            );
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                System.exit(0);
+            }
+        });
+
+
+        JPanel dashboardContent = createDashboardContentPanel();
+        JScrollPane scrollPane = new JScrollPane(dashboardContent);
+        scrollPane.setBorder(null);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(16);
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); // Prevent horizontal clipping
+
+        mainContainer.add(sidebar, BorderLayout.WEST);
+        mainContainer.add(scrollPane, BorderLayout.CENTER);
+
+        add(mainContainer, BorderLayout.CENTER);
+    }
+
+    private void refreshDashboard() {
+
+        // Remove the current dashboard UI
+        getContentPane().removeAll();
+
+        // Recreate top bar
+        createTopBar();
+
+        // Recreate sidebar and dashboard
+        createLayoutWithDashboard();
+
+        // Refresh UI
+        revalidate();
+        repaint();
+    }
+    private JButton createMenuButton(String text, ImageIcon icon, boolean active) {
+        JButton button = new JButton(text);
+        if (icon != null) {
+            button.setIcon(icon);
+            button.setIconTextGap(6);
+        }
+        button.setFont(new Font("Segoe UI", active ? Font.BOLD : Font.PLAIN, 11));
+        button.setForeground(Color.WHITE);
+        button.setBackground(active ? ACCENT_GREEN : PRIMARY);
+        button.setOpaque(true);
+        button.setContentAreaFilled(true);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setHorizontalAlignment(SwingConstants.LEFT);
+        button.setMaximumSize(new Dimension(149, 34));
+        button.setPreferredSize(new Dimension(149, 34));
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return button;
+    }
+
+    private JPanel createDashboardContentPanel() {
+        JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        content.setBackground(BG);
+        content.setBorder(BorderFactory.createEmptyBorder(12, 16, 12, 16));
+
+        JPanel headerRow = new JPanel(new BorderLayout());
+        headerRow.setOpaque(false);
+        headerRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 40));
+
+        JPanel greetPanel = new JPanel();
+        greetPanel.setLayout(new BoxLayout(greetPanel, BoxLayout.Y_AXIS));
+        greetPanel.setOpaque(false);
+
+        JLabel welcomeLabel = new JLabel("Welcome back, Admin!");
+        welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 17));
+        welcomeLabel.setForeground(TEXT_DARK);
+
+        JLabel subWelcome = new JLabel("Manage students, courses, subjects and marks from one place.");
+        subWelcome.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        subWelcome.setForeground(TEXT_MUTED);
+
+        greetPanel.add(welcomeLabel);
+        greetPanel.add(Box.createVerticalStrut(1));
+        greetPanel.add(subWelcome);
+
+        JPanel datePanel = new JPanel();
+        datePanel.setLayout(new BoxLayout(datePanel, BoxLayout.Y_AXIS));
+        datePanel.setOpaque(false);
+
+        dateLabel = new JLabel("📅 " + LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE, dd MMM yyyy   hh:mm:ss a")));
+        dateLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        dateLabel.setForeground(TEXT_MUTED);
+        dateLabel.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+        datePanel.add(dateLabel);
+
+        headerRow.add(greetPanel, BorderLayout.WEST);
+        headerRow.add(datePanel, BorderLayout.EAST);
+
+        content.add(headerRow);
+        content.add(Box.createVerticalStrut(12));
+
+        Timer timer = new Timer(1000, event -> {
+            String updatedDate = LocalDateTime.now().format(DateTimeFormatter.ofPattern("EEEE, dd MMM yyyy   hh:mm:ss a"));
+            if (dateLabel != null) dateLabel.setText("📅 " + updatedDate);
+        });
+        timer.start();
+
+        // Statistics Grid
+        JPanel statsGrid = new JPanel(new GridLayout(1, 4, 10, 0));
+        statsGrid.setOpaque(false);
+        statsGrid.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
+
+        statsGrid.add(createClickableStatCard(loadIcon("/images/us.png", 18, 18), "Total Students", "25", "+9% from last month", new Color(210, 240, 220), new Color(15, 75, 45), () -> new ViewStudentsFrame().setVisible(true)));
+        statsGrid.add(createClickableStatCard(loadIcon("/images/book.png", 18, 18), "Total Courses", "5", "+2% from last month", new Color(220, 235, 250), new Color(20, 70, 140), () -> new ViewCoursesFrame(this).setVisible(true)));
+        statsGrid.add(createClickableStatCard(loadIcon("/images/file.png", 18, 18), "Total Subjects", "8", "+5% from last month", new Color(240, 225, 245), new Color(90, 30, 110), () -> new ViewSubjectsFrame(this).setVisible(true)));
+        statsGrid.add(createClickableStatCard(loadIcon("/images/report.png", 18, 18), "Total Marks Records", "45", "+7% from last month", new Color(255, 225, 225), new Color(130, 30, 30), () -> new ViewMarksFrame(this).setVisible(true)));
+
+        content.add(statsGrid);
+        content.add(Box.createVerticalStrut(12));
+
+        // Attendance Section
+        JPanel attendanceWrapper = createCardWrapper("Attendance Overview & Breakdown", createCombinedAttendancePanel());
+        attendanceWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 135));
+        content.add(attendanceWrapper);
+        content.add(Box.createVerticalStrut(12));
+
+        // Main Dashboard Split Grid (Left: Quick Access + Administrative Tools, Right: Recent Activity)
+        JPanel lowerSplit = new JPanel(new BorderLayout(12, 0));
+        lowerSplit.setOpaque(false);
+
+        // Left Column Stack
+        JPanel leftColumnStack = new JPanel();
+        leftColumnStack.setLayout(new BoxLayout(leftColumnStack, BoxLayout.Y_AXIS));
+        leftColumnStack.setOpaque(false);
+
+        JPanel quickAccessWrapper = createQuickAccessWrapper("Quick Access", "Perform common operations quickly.", createQuickAccessGridPanel());
+        quickAccessWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 135));
+
+        JPanel adminToolsWrapper = createQuickAccessWrapper("Administrative Tools", "Manage courses, subjects and marks efficiently.", createAdminTools3BoxGridPanel());
+        adminToolsWrapper.setMaximumSize(new Dimension(Integer.MAX_VALUE, 215));
+
+        leftColumnStack.add(quickAccessWrapper);
+        leftColumnStack.add(Box.createVerticalStrut(12));
+        leftColumnStack.add(adminToolsWrapper);
+
+        // Right Column: Recent Activity Box with expanded sizing to prevent clipping
+        JPanel recentActivityWrapper = createCardWrapperWithAction("Recent Activity", "View All", createRecentActivityPanel());
+        recentActivityWrapper.setPreferredSize(new Dimension(330, 362));
+        recentActivityWrapper.setMaximumSize(new Dimension(330, 362));
+
+        lowerSplit.add(leftColumnStack, BorderLayout.CENTER);
+        lowerSplit.add(recentActivityWrapper, BorderLayout.EAST);
+
+        content.add(lowerSplit);
+        content.add(Box.createVerticalStrut(12));
+
+        JPanel footer = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        footer.setOpaque(false);
+        JLabel footerText = new JLabel("“Better Education Brighter Future”   🎓");
+        footerText.setFont(new Font("Segoe UI", Font.ITALIC, 11));
+        footerText.setForeground(TEXT_MUTED);
+        footer.add(footerText);
+        content.add(footer);
+
+        return content;
+    }
+
+    private JPanel createCombinedAttendancePanel() {
+
+        AttendanceDAO attendanceDAO = new AttendanceDAO();
+
+        int total = attendanceDAO.getTotalRecords();
+        int present = attendanceDAO.countByStatus("Present");
+        int absent = attendanceDAO.countByStatus("Absent");
+        int onLeave = attendanceDAO.countByStatus("On Leave");
+
+        int presentPercent = 0;
+        int absentPercent = 0;
+        int leavePercent = 0;
+
+        if (total > 0) {
+            presentPercent = (int) Math.round(present * 100.0 / total);
+            absentPercent = (int) Math.round(absent * 100.0 / total);
+            leavePercent = (int) Math.round(onLeave * 100.0 / total);
+        }
+
+        JPanel panel = new JPanel(new GridLayout(1, 2, 15, 0));
+        panel.setOpaque(false);
+        panel.setBorder(
+                BorderFactory.createEmptyBorder(2, 0, 0, 0)
+        );
+
+        // =====================================================
+        // LEFT SIDE - RING CHART
+        // =====================================================
+
+        JPanel leftSide = new JPanel(
+                new FlowLayout(FlowLayout.LEFT, 10, 0)
+        );
+        leftSide.setOpaque(false);
+
+        final int finalPresentPercent = presentPercent;
+
+        JPanel ringChart = new JPanel() {
+
+            @Override
+            protected void paintComponent(Graphics g) {
+
+                super.paintComponent(g);
+
+                Graphics2D g2 =
+                        (Graphics2D) g.create();
+
+                g2.setRenderingHint(
+                        RenderingHints.KEY_ANTIALIASING,
+                        RenderingHints.VALUE_ANTIALIAS_ON
                 );
 
-        button.setAlignmentX(
-                Component.LEFT_ALIGNMENT
+                int size =
+                        Math.min(getWidth(), getHeight()) - 6;
+
+                int x =
+                        (getWidth() - size) / 2;
+
+                int y =
+                        (getHeight() - size) / 2;
+
+                int thickness = 8;
+
+                // Background circle
+                g2.setColor(
+                        new Color(220, 235, 225)
+                );
+
+                g2.setStroke(
+                        new BasicStroke(
+                                thickness,
+                                BasicStroke.CAP_ROUND,
+                                BasicStroke.JOIN_ROUND
+                        )
+                );
+
+                g2.drawOval(
+                        x + thickness / 2,
+                        y + thickness / 2,
+                        size - thickness,
+                        size - thickness
+                );
+
+                // Present percentage
+                g2.setColor(ACCENT_GREEN);
+
+                int angle =
+                        (int) Math.round(
+                                360 * finalPresentPercent / 100.0
+                        );
+
+                g2.drawArc(
+                        x + thickness / 2,
+                        y + thickness / 2,
+                        size - thickness,
+                        size - thickness,
+                        90,
+                        -angle
+                );
+
+                g2.dispose();
+            }
+        };
+
+        ringChart.setPreferredSize(
+                new Dimension(65, 65)
         );
 
-        button.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        44
-                )
+        ringChart.setOpaque(false);
+        ringChart.setLayout(
+                new GridBagLayout()
         );
 
-        button.setPreferredSize(
-                new Dimension(
-                        177,
-                        44
-                )
-        );
+        JLabel centerLabel =
+                new JLabel(
+                        presentPercent + "%"
+                );
 
-        button.setHorizontalAlignment(
-                SwingConstants.LEFT
-        );
-
-        button.setFont(
+        centerLabel.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
                         12
                 )
         );
 
-        button.setForeground(
-                active
-                        ? Color.WHITE
-                        : new Color(190, 198, 208)
-        );
+        centerLabel.setForeground(TEXT_DARK);
 
-        button.setBackground(
-                active
-                        ? new Color(41, 68, 65)
-                        : SIDEBAR
-        );
-
-        button.setBorder(
-                active
-                        ? BorderFactory.createLineBorder(
-                        new Color(55, 104, 94)
-                )
-                        : BorderFactory.createEmptyBorder()
-        );
-
-        button.setFocusPainted(false);
-
-        button.setCursor(
-                Cursor.getPredefinedCursor(
-                        Cursor.HAND_CURSOR
-                )
-        );
-
-        button.addActionListener(
-                e -> action.run()
-        );
-
-        return button;
-    }
-
-    // =========================================================
-    // MAIN AREA
-    // =========================================================
-
-    private void createMainArea() {
-
-        JPanel main =
-                new JPanel(new BorderLayout());
-
-        main.setBackground(BG);
+        ringChart.add(centerLabel);
 
         // =====================================================
-        // HEADER
+        // ATTENDANCE TEXT
         // =====================================================
 
-        JPanel header =
-                new JPanel(new BorderLayout());
+        JPanel textPanel = new JPanel();
 
-        header.setBackground(Color.WHITE);
-
-        header.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createMatteBorder(
-                                0,
-                                0,
-                                1,
-                                0,
-                                BORDER
-                        ),
-                        new EmptyBorder(
-                                12,
-                                28,
-                                12,
-                                28
-                        )
-                )
-        );
-
-        JLabel heading =
-                new JLabel(
-                        "Student Management Dashboard"
-                );
-
-        heading.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        21
-                )
-        );
-
-        heading.setForeground(TEXT);
-
-        header.add(
-                heading,
-                BorderLayout.WEST
-        );
-
-        // -----------------------------------------------------
-        // DATE + STATUS
-        // -----------------------------------------------------
-
-        JPanel headerRight =
-                new JPanel();
-
-        headerRight.setOpaque(false);
-
-        headerRight.setLayout(
+        textPanel.setLayout(
                 new BoxLayout(
-                        headerRight,
+                        textPanel,
                         BoxLayout.Y_AXIS
                 )
         );
 
-        DateTimeFormatter formatter =
-                DateTimeFormatter.ofPattern(
-                        "dd MMM yyyy  |  hh:mm a"
-                );
+        textPanel.setOpaque(false);
 
-        String currentDate =
-                LocalDateTime.now()
-                        .format(formatter);
-
-        JLabel dateLabel =
+        JLabel percentLbl =
                 new JLabel(
-                        "▣  " + currentDate
+                        presentPercent +
+                                "% Overall Attendance"
                 );
 
-        dateLabel.setFont(
+        percentLbl.setFont(
                 new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        11
-                )
-        );
-
-        dateLabel.setForeground(MUTED);
-
-        dateLabel.setAlignmentX(
-                Component.RIGHT_ALIGNMENT
-        );
-
-        JLabel status =
-                new JLabel(
-                        "●  System Online"
-                );
-
-        status.setForeground(
-                new Color(45, 155, 105)
-        );
-
-        status.setFont(
-                new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.BOLD,
                         11
                 )
         );
 
-        status.setAlignmentX(
-                Component.RIGHT_ALIGNMENT
-        );
-
-        headerRight.add(dateLabel);
-
-        headerRight.add(
-                Box.createVerticalStrut(4)
-        );
-
-        headerRight.add(status);
-
-        header.add(
-                headerRight,
-                BorderLayout.EAST
-        );
-
-        main.add(
-                header,
-                BorderLayout.NORTH
-        );
-
-        // =====================================================
-        // CONTENT
-        // =====================================================
-
-        contentPanel.setBackground(BG);
-
-        main.add(
-                contentPanel,
-                BorderLayout.CENTER
-        );
-
-        add(
-                main,
-                BorderLayout.CENTER
-        );
-
-        showDashboard();
-    }
-
-    // =========================================================
-    // DASHBOARD
-    // =========================================================
-
-    private void showDashboard() {
-
-        contentPanel.removeAll();
-
-        JPanel page =
-                new JPanel();
-
-        page.setBackground(BG);
-
-        page.setBorder(
-                new EmptyBorder(
-                        20,
-                        28,
-                        18,
-                        28
-                )
-        );
-
-        page.setLayout(
-                new BoxLayout(
-                        page,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        JLabel welcome =
-                new JLabel(
-                        "Welcome back, Admin!"
-                );
-
-        welcome.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        26
-                )
-        );
-
-        welcome.setForeground(TEXT);
-
-        welcome.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        page.add(welcome);
-
-        JLabel desc =
-                new JLabel(
-                        "Manage students, courses, subjects and marks from one place."
-                );
-
-        desc.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        13
-                )
-        );
-
-        desc.setForeground(MUTED);
-
-        desc.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        page.add(
-                Box.createVerticalStrut(4)
-        );
-
-        page.add(desc);
-
-        page.add(
-                Box.createVerticalStrut(18)
-        );
-
-        // =====================================================
-        // STATISTICS
-        // =====================================================
-
-        JPanel stats =
-                new JPanel(
-                        new GridLayout(
-                                1,
-                                4,
-                                14,
-                                0
-                        )
-                );
-
-        stats.setOpaque(false);
-
-        stats.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        stats.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        78
-                )
-        );
-
-        stats.add(
-                statCard(
-                        loadIcon("/images/us.png"),
-                        "Total Students",
-                        safeStudentCount()
-                )
-        );
-
-        stats.add(
-                statCard(
-                        loadIcon("/images/grd.png"),
-                        "Total Courses",
-                        safeCourseCount()
-                )
-        );
-
-        stats.add(
-                statCard(
-                        loadIcon("/images/book.png"),
-                        "Total Subjects",
-                        safeSubjectCount()
-                )
-        );
-
-        stats.add(
-                statCard(
-                        loadIcon("/images/file.png"),
-                        "Total Marks",
-                        safeMarksCount()
-                )
-        );
-
-        page.add(stats);
-
-        page.add(
-                Box.createVerticalStrut(16)
-        );
-
-        // =====================================================
-        // ATTENDANCE
-        // =====================================================
-
-        JPanel attendance =
-                createAttendanceOverview();
-
-        attendance.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        page.add(attendance);
-
-        page.add(
-                Box.createVerticalStrut(18)
-        );
-
-        // =====================================================
-        // BOTTOM DASHBOARD
-        // =====================================================
-
-        JPanel bottom =
-                new JPanel(
-                        new GridLayout(
-                                1,
-                                2,
-                                16,
-                                0
-                        )
-                );
-
-        bottom.setOpaque(false);
-
-        bottom.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        // -----------------------------------------------------
-        // LEFT COLUMN
-        // -----------------------------------------------------
-
-        JPanel leftColumn =
-                new JPanel();
-
-        leftColumn.setOpaque(false);
-
-        leftColumn.setLayout(
-                new BoxLayout(
-                        leftColumn,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        JPanel quickAccess =
-                createQuickAccess();
-
-        quickAccess.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        quickAccess.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        155
-                )
-        );
-
-        leftColumn.add(quickAccess);
-
-        leftColumn.add(
-                Box.createVerticalStrut(16)
-        );
-
-        JPanel adminHeader =
-                new JPanel();
-
-        adminHeader.setOpaque(false);
-
-        adminHeader.setLayout(
-                new BoxLayout(
-                        adminHeader,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        adminHeader.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        JLabel adminTitle =
-                new JLabel(
-                        "Administrative Tools"
-                );
-
-        adminTitle.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        18
-                )
-        );
-
-        adminTitle.setForeground(TEXT);
-
-        adminTitle.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        JLabel adminDescription =
-                new JLabel(
-                        "Manage courses, subjects and marks efficiently."
-                );
-
-        adminDescription.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        11
-                )
-        );
-
-        adminDescription.setForeground(MUTED);
-
-        adminDescription.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        adminHeader.add(adminTitle);
-
-        adminHeader.add(
-                Box.createVerticalStrut(3)
-        );
-
-        adminHeader.add(adminDescription);
-
-        leftColumn.add(adminHeader);
-
-        leftColumn.add(
-                Box.createVerticalStrut(9)
-        );
-
-        JPanel tools =
-                new JPanel(
-                        new GridLayout(
-                                1,
-                                3,
-                                10,
-                                0
-                        )
-                );
-
-        tools.setOpaque(false);
-
-        tools.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        tools.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        220
-                )
-        );
-
-        // -----------------------------------------------------
-        // COURSE
-        // -----------------------------------------------------
-
-        tools.add(
-                managementCard(
-                        "Course Management",
-                        "Manage courses",
-                        new String[]{
-                                "＋  Add Course",
-                                "◉  View Courses",
-                                "✎  Update Course"
-                        },
-                        new Runnable[]{
-                                () -> new AddCourseFrame(this)
-                                        .setVisible(true),
-
-                                () -> new ViewCoursesFrame(this)
-                                        .setVisible(true),
-
-                                () -> new UpdateCourseFrame(this)
-                                        .setVisible(true)
-                        }
-                )
-        );
-
-        // -----------------------------------------------------
-        // SUBJECT
-        // -----------------------------------------------------
-
-        tools.add(
-                managementCard(
-                        "Subject Management",
-                        "Manage subjects",
-                        new String[]{
-                                "＋  Add Subject",
-                                "◉  View Subjects",
-                                "✎  Update Subject"
-                        },
-                        new Runnable[]{
-                                () -> new AddSubjectFrame(this)
-                                        .setVisible(true),
-
-                                () -> new ViewSubjectsFrame(this)
-                                        .setVisible(true),
-
-                                () -> new UpdateSubjectFrame(this)
-                                        .setVisible(true)
-                        }
-                )
-        );
-
-        // -----------------------------------------------------
-        // MARKS
-        // -----------------------------------------------------
-
-        tools.add(
-                managementCard(
-                        "Marks Management",
-                        "Manage student marks",
-                        new String[]{
-                                "＋  Add Marks",
-                                "◉  View Marks",
-                                "⌫  Delete Marks"
-                        },
-                        new Runnable[]{
-                                () -> new AddMarksFrame(this)
-                                        .setVisible(true),
-
-                                () -> new ViewMarksFrame(this)
-                                        .setVisible(true),
-
-                                () -> new DeleteMarksFrame(this)
-                                        .setVisible(true)
-                        }
-                )
-        );
-
-        leftColumn.add(tools);
-
-        // -----------------------------------------------------
-        // RIGHT COLUMN
-        // -----------------------------------------------------
-
-        JPanel recentActivity =
-                createRecentActivity();
-
-        recentActivity.setPreferredSize(
-                new Dimension(0, 395)
-        );
-
-        recentActivity.setMinimumSize(
-                new Dimension(260, 395)
-        );
-
-        recentActivity.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        395
-                )
-        );
-
-        bottom.add(leftColumn);
-
-        bottom.add(recentActivity);
-
-        page.add(bottom);
-
-        page.add(
-                Box.createVerticalStrut(16)
-        );
-
-        // =====================================================
-        // FOOTER
-        // =====================================================
-
-        JLabel footer =
-                new JLabel(
-                        "\"Better Education Brighter Future\"",
-                        SwingConstants.CENTER
-                );
-
-        footer.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.ITALIC,
-                        11
-                )
-        );
-
-        footer.setForeground(MUTED);
-
-        footer.setAlignmentX(
-                Component.CENTER_ALIGNMENT
-        );
-
-        page.add(footer);
-
-        // =====================================================
-        // SCROLL
-        // =====================================================
-
-        JScrollPane scroll =
-                new JScrollPane(page);
-
-        scroll.setBorder(null);
-
-        scroll.setBackground(BG);
-
-        scroll.getVerticalScrollBar()
-                .setUnitIncrement(14);
-
-        scroll.getHorizontalScrollBar()
-                .setUnitIncrement(14);
-
-        contentPanel.add(
-                scroll,
-                BorderLayout.CENTER
-        );
-
-        contentPanel.revalidate();
-        contentPanel.repaint();
-    }
-
-    // =========================================================
-    // LOAD ICON SAFELY
-    // =========================================================
-
-    private ImageIcon loadIcon(String path) {
-
-        java.net.URL url =
-                getClass().getResource(path);
-
-        if (url != null) {
-            return new ImageIcon(url);
+        percentLbl.setForeground(TEXT_DARK);
+
+        String description;
+
+        if (total == 0) {
+            description =
+                    "No attendance records yet.";
+        } else if (presentPercent >= 75) {
+            description =
+                    "Attendance is good.";
+        } else {
+            description =
+                    "Attendance needs improvement.";
         }
 
-        return new ImageIcon();
-    }
-
-    // =========================================================
-    // DATABASE COUNTS
-    // =========================================================
-
-    private int safeStudentCount() {
-
-        try {
-            return new StudentDAO().count();
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    private int safeCourseCount() {
-
-        try {
-            return new CourseDAO().count();
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    private int safeSubjectCount() {
-
-        try {
-            return new SubjectDAO().count();
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    private int safeMarksCount() {
-
-        try {
-            return new MarksDAO().count();
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    // =========================================================
-    // STAT CARD
-    // =========================================================
-
-    private JPanel statCard(
-            ImageIcon icon,
-            String title,
-            int value) {
-
-        JPanel card =
-                new JPanel(
-                        new BorderLayout(8, 0)
-                );
-
-        card.setBackground(CARD);
-
-        card.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDER
-                        ),
-                        new EmptyBorder(
-                                10,
-                                12,
-                                10,
-                                12
-                        )
-                )
-        );
-
-        JLabel iconLabel =
-                new JLabel(
-                        icon,
-                        SwingConstants.CENTER
-                );
-
-        iconLabel.setPreferredSize(
-                new Dimension(38, 45)
-        );
-
-        card.add(
-                iconLabel,
-                BorderLayout.WEST
-        );
-
-        JPanel text =
-                new JPanel();
-
-        text.setOpaque(false);
-
-        text.setLayout(
-                new BoxLayout(
-                        text,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        JLabel titleLabel =
-                new JLabel(title);
-
-        titleLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        10
-                )
-        );
-
-        titleLabel.setForeground(MUTED);
-
-        JLabel valueLabel =
-                new JLabel(
-                        String.valueOf(value)
-                );
-
-        valueLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        22
-                )
-        );
-
-        valueLabel.setForeground(TEXT);
-
-        text.add(titleLabel);
-
-        text.add(
-                Box.createVerticalStrut(2)
-        );
-
-        text.add(valueLabel);
-
-        card.add(
-                text,
-                BorderLayout.CENTER
-        );
-
-        return card;
-    }
-
-    // =========================================================
-    // ATTENDANCE OVERVIEW
-    // =========================================================
-
-    private JPanel createAttendanceOverview() {
-
-        AttendanceDAO dao =
-                new AttendanceDAO();
-
-        int present = 0;
-        int absent = 0;
-        int leave = 0;
-
-        try {
-
-            present =
-                    dao.getPercentage("Present");
-
-            absent =
-                    dao.getPercentage("Absent");
-
-            leave =
-                    dao.getPercentage("On Leave");
-
-        } catch (Exception e) {
-
-            System.out.println(
-                    "Unable to load attendance: "
-                            + e.getMessage()
-            );
-        }
-
-        JPanel outer =
-                new JPanel(
-                        new BorderLayout(
-                                25,
-                                0
-                        )
-                );
-
-        outer.setBackground(Color.WHITE);
-
-        outer.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDER
-                        ),
-                        new EmptyBorder(
-                                15,
-                                20,
-                                15,
-                                20
-                        )
-                )
-        );
-
-        outer.setPreferredSize(
-                new Dimension(0, 145)
-        );
-
-        outer.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        145
-                )
-        );
-
-        JPanel donutPanel =
-                new JPanel(
-                        new BorderLayout()
-                );
-
-        donutPanel.setOpaque(false);
-
-        AttendanceCircle circle =
-                new AttendanceCircle(present);
-
-        circle.setPreferredSize(
-                new Dimension(115, 115)
-        );
-
-        donutPanel.add(
-                circle,
-                BorderLayout.CENTER
-        );
-
-        outer.add(
-                donutPanel,
-                BorderLayout.WEST
-        );
-
-        JPanel information =
-                new JPanel();
-
-        information.setOpaque(false);
-
-        information.setLayout(
-                new BoxLayout(
-                        information,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        JLabel heading =
-                new JLabel(
-                        "Attendance Overview"
-                );
-
-        heading.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        17
-                )
-        );
-
-        heading.setForeground(TEXT);
-
-        JLabel percentage =
-                new JLabel(
-                        present + "% Overall Attendance"
-                );
-
-        percentage.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        15
-                )
-        );
-
-        percentage.setForeground(GREEN);
-
-        JLabel message =
-                new JLabel(
-                        present < 75
-                                ? "Attendance needs improvement."
-                                : "Attendance is good."
-                );
-
-        message.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        11
-                )
-        );
-
-        message.setForeground(MUTED);
-
-        information.add(heading);
-
-        information.add(
-                Box.createVerticalStrut(9)
-        );
-
-        information.add(percentage);
-
-        information.add(
-                Box.createVerticalStrut(4)
-        );
-
-        information.add(message);
-
-        outer.add(
-                information,
-                BorderLayout.CENTER
-        );
-
-        JPanel breakdown =
-                new JPanel();
-
-        breakdown.setOpaque(false);
-
-        breakdown.setLayout(
-                new BoxLayout(
-                        breakdown,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        JLabel breakdownTitle =
-                new JLabel(
-                        "Attendance Breakdown"
-                );
-
-        breakdownTitle.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        13
-                )
-        );
-
-        breakdownTitle.setForeground(TEXT);
-
-        breakdown.add(breakdownTitle);
-
-        breakdown.add(
-                Box.createVerticalStrut(8)
-        );
-
-        breakdown.add(
-                attendanceRow(
-                        "Present",
-                        present
-                )
-        );
-
-        breakdown.add(
-                Box.createVerticalStrut(7)
-        );
-
-        breakdown.add(
-                attendanceRow(
-                        "Absent",
-                        absent
-                )
-        );
-
-        breakdown.add(
-                Box.createVerticalStrut(7)
-        );
-
-        breakdown.add(
-                attendanceRow(
-                        "On Leave",
-                        leave
-                )
-        );
-
-        outer.add(
-                breakdown,
-                BorderLayout.EAST
-        );
-
-        return outer;
-    }
-
-    // =========================================================
-    // ATTENDANCE ROW
-    // =========================================================
-
-    private JPanel attendanceRow(
-            String label,
-            int percentage) {
-
-        JPanel row =
-                new JPanel(
-                        new BorderLayout(
-                                10,
-                                0
-                        )
-                );
-
-        row.setOpaque(false);
-
-        row.setPreferredSize(
-                new Dimension(330, 22)
-        );
-
-        row.setMaximumSize(
-                new Dimension(330, 22)
-        );
-
-        JLabel name =
-                new JLabel(label);
-
-        name.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        11
-                )
-        );
-
-        name.setForeground(TEXT);
-
-        JProgressBar bar =
-                new JProgressBar(0, 100);
-
-        bar.setValue(
-                Math.max(
-                        0,
-                        Math.min(
-                                100,
-                                percentage
-                        )
-                )
-        );
-
-        bar.setBorderPainted(false);
-
-        bar.setForeground(GREEN);
-
-        bar.setBackground(
-                new Color(
-                        232,
-                        239,
-                        233
-                )
-        );
-
-        JLabel value =
-                new JLabel(
-                        percentage + "%"
-                );
-
-        value.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        11
-                )
-        );
-
-        value.setForeground(TEXT);
-
-        row.add(
-                name,
-                BorderLayout.WEST
-        );
-
-        row.add(
-                bar,
-                BorderLayout.CENTER
-        );
-
-        row.add(
-                value,
-                BorderLayout.EAST
-        );
-
-        return row;
-    }
-
-    // =========================================================
-    // ATTENDANCE CIRCLE
-    // =========================================================
-
-    private static class AttendanceCircle
-            extends JPanel {
-
-        private final int percentage;
-
-        public AttendanceCircle(
-                int percentage) {
-
-            this.percentage =
-                    Math.max(
-                            0,
-                            Math.min(
-                                    100,
-                                    percentage
-                            )
-                    );
-
-            setOpaque(false);
-        }
-
-        @Override
-        protected void paintComponent(
-                Graphics g) {
-
-            super.paintComponent(g);
-
-            Graphics2D g2 =
-                    (Graphics2D) g.create();
-
-            g2.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON
-            );
-
-            int size =
-                    Math.min(
-                            getWidth(),
-                            getHeight()
-                    ) - 20;
-
-            int x =
-                    (getWidth() - size) / 2;
-
-            int y =
-                    (getHeight() - size) / 2;
-
-            g2.setStroke(
-                    new BasicStroke(
-                            9,
-                            BasicStroke.CAP_ROUND,
-                            BasicStroke.JOIN_ROUND
-                    )
-            );
-
-            g2.setColor(
-                    new Color(
-                            232,
-                            239,
-                            233
-                    )
-            );
-
-            g2.drawArc(
-                    x,
-                    y,
-                    size,
-                    size,
-                    90,
-                    -360
-            );
-
-            g2.setColor(GREEN);
-
-            int angle =
-                    (int) Math.round(
-                            percentage * 3.6
-                    );
-
-            g2.drawArc(
-                    x,
-                    y,
-                    size,
-                    size,
-                    90,
-                    -angle
-            );
-
-            String text =
-                    percentage + "%";
-
-            g2.setFont(
-                    new Font(
-                            "SansSerif",
-                            Font.BOLD,
-                            18
-                    )
-            );
-
-            FontMetrics fm =
-                    g2.getFontMetrics();
-
-            int textX =
-                    (getWidth()
-                            - fm.stringWidth(text))
-                            / 2;
-
-            int textY =
-                    (getHeight()
-                            - fm.getHeight())
-                            / 2
-                            + fm.getAscent();
-
-            g2.setColor(TEXT);
-
-            g2.drawString(
-                    text,
-                    textX,
-                    textY
-            );
-
-            g2.dispose();
-        }
-    }
-
-    // =========================================================
-    // QUICK ACCESS
-    // =========================================================
-
-    private JPanel createQuickAccess() {
-
-        JPanel panel =
-                new JPanel(
-                        new BorderLayout(0, 8)
-                );
-
-        panel.setBackground(Color.WHITE);
-
-        panel.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDER
-                        ),
-                        new EmptyBorder(
-                                12,
-                                14,
-                                12,
-                                14
-                        )
-                )
-        );
-
-        JPanel headingPanel =
-                new JPanel();
-
-        headingPanel.setOpaque(false);
-
-        headingPanel.setLayout(
-                new BoxLayout(
-                        headingPanel,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        JLabel title =
-                new JLabel(
-                        "Quick Access"
-                );
-
-        title.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        15
-                )
-        );
-
-        title.setForeground(TEXT);
-
-        JLabel description =
-                new JLabel(
-                        "Perform common operations quickly."
-                );
-
-        description.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        10
-                )
-        );
-
-        description.setForeground(MUTED);
-
-        headingPanel.add(title);
-
-        headingPanel.add(
-                Box.createVerticalStrut(2)
-        );
-
-        headingPanel.add(description);
-
-        panel.add(
-                headingPanel,
-                BorderLayout.NORTH
-        );
-
-        JPanel content =
-                new JPanel(
-                        new GridLayout(
-                                1,
-                                4,
-                                8,
-                                0
-                        )
-                );
-
-        content.setOpaque(false);
-
-        // IMPORTANT:
-        // Student frames now use no-argument constructors.
-
-        content.add(
-                smallActionCard(
-                        "＋",
-                        "Add Student",
-                        "Create student",
-                        () -> new AddStudentFrame()
-                                .setVisible(true),
-                        true
-                )
-        );
-
-        content.add(
-                smallActionCard(
-                        "☷",
-                        "View Students",
-                        "Browse students",
-                        () -> new ViewStudentsFrame()
-                                .setVisible(true),
-                        false
-                )
-        );
-
-        content.add(
-                smallActionCard(
-                        "✎",
-                        "Update Student",
-                        "Edit details",
-                        () -> openUpdateStudent(),
-                        false
-                )
-        );
-
-         content.add(
-                smallActionCard(
-                        "⌫",
-                        "Delete Student",
-                        "Remove student",
-                        () -> new DeleteStudentFrame()
-                                .setVisible(true),
-                        false
-                    )
-        );
-
-        panel.add(
-                content,
-                BorderLayout.CENTER
-        );
-
-        return panel;
-    }
-
-    // =========================================================
-    // UPDATE STUDENT
-    // =========================================================
-
-    private void openUpdateStudent() {
-
-        String input =
-                JOptionPane.showInputDialog(
-                        this,
-                        "Enter Student ID:",
-                        "Update Student",
-                        JOptionPane.QUESTION_MESSAGE
-                );
-
-        if (input == null) {
-            return;
-        }
-
-        input = input.trim();
-
-        if (input.isEmpty()) {
-            return;
-        }
-
-        try {
-
-            int studentId =
-                    Integer.parseInt(input);
-
-            UpdateStudentFrame frame =
-                    new UpdateStudentFrame();
-
-            frame.loadStudent(studentId);
-
-            frame.setVisible(true);
-
-        } catch (NumberFormatException e) {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please enter a valid Student ID.",
-                    "Invalid ID",
-                    JOptionPane.WARNING_MESSAGE
-            );
-        }
-    }
-
-    // =========================================================
-    // SMALL ACTION CARD
-    // =========================================================
-
-    private JPanel smallActionCard(
-            String icon,
-            String title,
-            String subtitle,
-            Runnable action,
-            boolean primary) {
-
-        JPanel card =
-                new JPanel();
-
-        card.setLayout(
-                new BoxLayout(
-                        card,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        card.setBackground(
-                primary
-                        ? new Color(
-                        237,
-                        253,
-                        247
-                )
-                        : new Color(
-                        248,
-                        249,
-                        250
-                )
-        );
-
-        card.setBorder(
-                BorderFactory.createLineBorder(
-                        primary
-                                ? new Color(
-                                152,
-                                229,
-                                202
-                        )
-                                : BORDER
-                )
-        );
-
-        JLabel iconLabel =
-                new JLabel(
-                        icon,
-                        SwingConstants.CENTER
-                );
-
-        iconLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        20
-                )
-        );
-
-        iconLabel.setForeground(
-                primary
-                        ? GREEN
-                        : MUTED
-        );
-
-        iconLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
-        );
-
-        JLabel titleLabel =
-                new JLabel(
-                        title,
-                        SwingConstants.CENTER
-                );
-
-        titleLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        9
-                )
-        );
-
-        titleLabel.setForeground(TEXT);
-
-        titleLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
-        );
-
-        JLabel subtitleLabel =
-                new JLabel(
-                        subtitle,
-                        SwingConstants.CENTER
-                );
-
-        subtitleLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        8
-                )
-        );
-
-        subtitleLabel.setForeground(MUTED);
-
-        subtitleLabel.setAlignmentX(
-                Component.CENTER_ALIGNMENT
-        );
-
-        card.add(
-                Box.createVerticalGlue()
-        );
-
-        card.add(iconLabel);
-
-        card.add(
-                Box.createVerticalStrut(3)
-        );
-
-        card.add(titleLabel);
-
-        card.add(
-                Box.createVerticalStrut(2)
-        );
-
-        card.add(subtitleLabel);
-
-        card.add(
-                Box.createVerticalGlue()
-        );
-
-        card.setCursor(
-                Cursor.getPredefinedCursor(
-                        Cursor.HAND_CURSOR
-                )
-        );
-
-        card.addMouseListener(
-                new java.awt.event.MouseAdapter() {
-
-                    @Override
-                    public void mouseClicked(
-                            java.awt.event.MouseEvent e) {
-
-                        action.run();
-                    }
-                }
-        );
-
-        return card;
-    }
-
-    // =========================================================
-    // RECENT ACTIVITY
-    // =========================================================
-
-    private JPanel createRecentActivity() {
-
-        JPanel panel =
-                new JPanel(
-                        new BorderLayout()
-                );
-
-        panel.setBackground(Color.WHITE);
-
-        panel.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDER
-                        ),
-                        new EmptyBorder(
-                                14,
-                                16,
-                                14,
-                                16
-                        )
-                )
-        );
-
-        JPanel header =
-                new JPanel(
-                        new BorderLayout()
-                );
-
-        header.setOpaque(false);
-
-        JLabel title =
-                new JLabel(
-                        "Recent Activity"
-                );
-
-        title.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        16
-                )
-        );
-
-        title.setForeground(TEXT);
-
-        JLabel viewAll =
-                new JLabel(
-                        "View All"
-                );
-
-        viewAll.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        9
-                )
-        );
-
-        viewAll.setForeground(GREEN);
-
-        header.add(
-                title,
-                BorderLayout.WEST
-        );
-
-        header.add(
-                viewAll,
-                BorderLayout.EAST
-        );
-
-        panel.add(
-                header,
-                BorderLayout.NORTH
-        );
-
-        JPanel list =
-                new JPanel();
-
-        list.setOpaque(false);
-
-        list.setLayout(
-                new BoxLayout(
-                        list,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        list.add(
-                activityRow(
-                        "●",
-                        "New student added",
-                        "Ram Sharma (STU-025)",
-                        "2 hours ago"
-                )
-        );
-
-        list.add(
-                Box.createVerticalStrut(14)
-        );
-
-        list.add(
-                activityRow(
-                        "✎",
-                        "Student updated",
-                        "Sita Thapa (STU-054)",
-                        "4 hours ago"
-                )
-        );
-
-        list.add(
-                Box.createVerticalStrut(14)
-        );
-
-        list.add(
-                activityRow(
-                        "▣",
-                        "New course added",
-                        "BCA",
-                        "1 day ago"
-                )
-        );
-
-        list.add(
-                Box.createVerticalStrut(14)
-        );
-
-        list.add(
-                activityRow(
-                        "◈",
-                        "New subject added",
-                        "Database Management",
-                        "1 day ago"
-                )
-        );
-
-        list.add(
-                Box.createVerticalStrut(14)
-        );
-
-        list.add(
-                activityRow(
-                        "⌫",
-                        "Marks deleted",
-                        "STU-012 - Mathematics",
-                        "2 days ago"
-                )
-        );
-
-        panel.add(
-                list,
-                BorderLayout.CENTER
-        );
-
-        return panel;
-    }
-
-    // =========================================================
-    // ACTIVITY ROW
-    // =========================================================
-
-    private JPanel activityRow(
-            String icon,
-            String title,
-            String description,
-            String time) {
-
-        JPanel row =
-                new JPanel(
-                        new BorderLayout(
-                                10,
-                                0
-                        )
-                );
-
-        row.setOpaque(false);
-
-        JLabel iconLabel =
-                new JLabel(
-                        icon,
-                        SwingConstants.CENTER
-                );
-
-        iconLabel.setPreferredSize(
-                new Dimension(
-                        28,
-                        28
-                )
-        );
-
-        iconLabel.setForeground(GREEN);
-
-        iconLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        13
-                )
-        );
-
-        JPanel center =
-                new JPanel();
-
-        center.setOpaque(false);
-
-        center.setLayout(
-                new BoxLayout(
-                        center,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        JLabel titleLabel =
-                new JLabel(title);
-
-        titleLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        11
-                )
-        );
-
-        titleLabel.setForeground(TEXT);
-
-        JLabel descriptionLabel =
+        JLabel descLbl =
                 new JLabel(description);
 
-        descriptionLabel.setFont(
+        descLbl.setFont(
                 new Font(
-                        "SansSerif",
+                        "Segoe UI",
                         Font.PLAIN,
-                        9
+                        10
                 )
         );
 
-        descriptionLabel.setForeground(MUTED);
+        descLbl.setForeground(TEXT_MUTED);
 
-        center.add(titleLabel);
+        textPanel.add(percentLbl);
 
-        center.add(
-                Box.createVerticalStrut(3)
-        );
-
-        center.add(descriptionLabel);
-
-        JLabel timeLabel =
-                new JLabel(time);
-
-        timeLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        8
-                )
-        );
-
-        timeLabel.setForeground(MUTED);
-
-        row.add(
-                iconLabel,
-                BorderLayout.WEST
-        );
-
-        row.add(
-                center,
-                BorderLayout.CENTER
-        );
-
-        row.add(
-                timeLabel,
-                BorderLayout.EAST
-        );
-
-        return row;
-    }
-
-    // =========================================================
-    // MANAGEMENT CARD
-    // =========================================================
-
-    private JPanel managementCard(
-            String title,
-            String subtitle,
-            String[] names,
-            Runnable[] actions) {
-
-        JPanel card =
-                new JPanel();
-
-        card.setBackground(CARD);
-
-        card.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDER
-                        ),
-                        new EmptyBorder(
-                                12,
-                                12,
-                                12,
-                                12
-                        )
-                )
-        );
-
-        card.setLayout(
-                new BoxLayout(
-                        card,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        JLabel titleLabel =
-                new JLabel(title);
-
-        titleLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        13
-                )
-        );
-
-        titleLabel.setForeground(TEXT);
-
-        titleLabel.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        JLabel subtitleLabel =
-                new JLabel(subtitle);
-
-        subtitleLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        9
-                )
-        );
-
-        subtitleLabel.setForeground(MUTED);
-
-        subtitleLabel.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
-
-        card.add(titleLabel);
-
-        card.add(
+        textPanel.add(
                 Box.createVerticalStrut(2)
         );
 
-        card.add(subtitleLabel);
+        textPanel.add(descLbl);
 
-        card.add(
-                Box.createVerticalStrut(9)
+        leftSide.add(ringChart);
+        leftSide.add(textPanel);
+
+        // =====================================================
+        // RIGHT SIDE - ATTENDANCE BARS
+        // =====================================================
+
+        JPanel rightSide =
+                new JPanel(
+                        new GridLayout(
+                                3,
+                                1,
+                                0,
+                                4
+                        )
+                );
+
+        rightSide.setOpaque(false);
+
+        rightSide.add(
+                createBarRow(
+                        "Present",
+                        presentPercent + "%",
+                        new Color(40, 115, 78),
+                        presentPercent / 100.0
+                )
         );
 
-        for (int i = 0;
-             i < names.length;
-             i++) {
+        rightSide.add(
+                createBarRow(
+                        "Absent",
+                        absentPercent + "%",
+                        new Color(200, 80, 80),
+                        absentPercent / 100.0
+                )
+        );
 
-            JButton button =
-                    new JButton(names[i]);
+        rightSide.add(
+                createBarRow(
+                        "On Leave",
+                        leavePercent + "%",
+                        new Color(150, 150, 150),
+                        leavePercent / 100.0
+                )
+        );
 
-            button.setAlignmentX(
-                    Component.LEFT_ALIGNMENT
-            );
+        panel.add(leftSide);
+        panel.add(rightSide);
 
-            button.setMaximumSize(
-                    new Dimension(
-                            Integer.MAX_VALUE,
-                            31
-                    )
-            );
+        return panel;
+    }
+    private JPanel createQuickAccessWrapper(String title, String subtitle, JPanel innerPanel) {
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setBackground(CARD_BG);
+        wrapper.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
 
-            button.setPreferredSize(
-                    new Dimension(
-                            200,
-                            31
-                    )
-            );
+        JPanel headerPanel = new JPanel();
+        headerPanel.setLayout(new BoxLayout(headerPanel, BoxLayout.Y_AXIS));
+        headerPanel.setOpaque(false);
 
-            button.setHorizontalAlignment(
-                    SwingConstants.LEFT
-            );
+        JLabel titleLbl = new JLabel(title);
+        titleLbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        titleLbl.setForeground(TEXT_DARK);
 
-            button.setFont(
-                    new Font(
-                            "SansSerif",
-                            Font.BOLD,
-                            9
-                    )
-            );
+        JLabel subLbl = new JLabel(subtitle);
+        subLbl.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        subLbl.setForeground(TEXT_MUTED);
 
-            button.setFocusPainted(false);
+        headerPanel.add(titleLbl);
+        headerPanel.add(subLbl);
+        headerPanel.add(Box.createVerticalStrut(6));
 
-            button.setBackground(
-                    i == 0
-                            ? GREEN
-                            : new Color(
-                            248,
-                            249,
-                            250
-                    )
-            );
+        wrapper.add(headerPanel, BorderLayout.NORTH);
+        wrapper.add(innerPanel, BorderLayout.CENTER);
 
-            button.setForeground(
-                    i == 0
-                            ? Color.WHITE
-                            : TEXT
-            );
+        return wrapper;
+    }
 
-            button.setBorder(
-                    BorderFactory.createLineBorder(
-                            i == 0
-                                    ? GREEN
-                                    : BORDER
-                    )
-            );
+    private JPanel createCardWrapperWithAction(String title, String actionText, JPanel innerPanel) {
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setBackground(CARD_BG);
+        wrapper.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
 
-            int index = i;
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setOpaque(false);
 
-            button.addActionListener(
-                    e -> actions[index].run()
-            );
+        JLabel titleLbl = new JLabel(title);
+        titleLbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        titleLbl.setForeground(TEXT_DARK);
 
-            card.add(button);
-
-            if (i < names.length - 1) {
-
-                card.add(
-                        Box.createVerticalStrut(5)
-                );
+        JLabel actionLbl = new JLabel(actionText);
+        actionLbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        actionLbl.setForeground(ACCENT_GREEN);
+        actionLbl.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        actionLbl.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                new ViewStudentsFrame().setVisible(true);
             }
+        });
+
+        headerPanel.add(titleLbl, BorderLayout.WEST);
+        headerPanel.add(actionLbl, BorderLayout.EAST);
+
+        JPanel topBox = new JPanel();
+        topBox.setLayout(new BoxLayout(topBox, BoxLayout.Y_AXIS));
+        topBox.setOpaque(false);
+        topBox.add(headerPanel);
+        topBox.add(Box.createVerticalStrut(6));
+
+        wrapper.add(topBox, BorderLayout.NORTH);
+        wrapper.add(innerPanel, BorderLayout.CENTER);
+
+        return wrapper;
+    }
+
+    private JPanel createQuickAccessGridPanel() {
+        JPanel panel = new JPanel(new GridLayout(1, 4, 8, 0));
+        panel.setOpaque(false);
+
+        panel.add(createActionCard(
+                loadIcon("/images/add person.png", 18, 18),
+                "Add Student", "Create new student",
+                new Color(40, 115, 78), Color.WHITE, new Color(230, 245, 235),
+                () -> new AddStudentFrame().setVisible(true)
+        ));
+
+        panel.add(createActionCard(
+                loadIcon("/images/search person.png", 18, 18),
+                "View Students", "Browse records",
+                new Color(230, 247, 238), new Color(15, 75, 45), new Color(55, 65, 75),
+                () -> new ViewStudentsFrame().setVisible(true)
+        ));
+
+        panel.add(createActionCard(
+                loadIcon("/images/update.png", 18, 18),
+                "Update Student", "Edit details",
+                new Color(235, 243, 255), new Color(15, 55, 120), new Color(55, 65, 75),
+                () -> new UpdateStudentFrame().setVisible(true)
+        ));
+
+        panel.add(createActionCard(
+                loadIcon("/images/delete.png", 18, 18),
+                "Delete Student", "Remove record",
+                new Color(255, 238, 238), new Color(130, 25, 25), new Color(55, 65, 75),
+                () -> new DeleteStudentFrame().setVisible(true)
+        ));
+
+        return panel;
+    }
+
+    private JPanel createAdminTools3BoxGridPanel() {
+        JPanel panel = new JPanel(new GridLayout(1, 3, 8, 0));
+        panel.setOpaque(false);
+
+        panel.add(createAdminToolBox(
+                loadIcon("/images/book.png", 18, 18),
+                "Course Management", "Manage courses",
+                new String[]{"+ Add Course", "View Courses", "Update Course"},
+                new Runnable[]{
+                        () -> new AddCourseFrame(this).setVisible(true),
+                        () -> new ViewCoursesFrame(this).setVisible(true),
+                        () -> new UpdateCourseFrame(this).setVisible(true)
+                }
+        ));
+
+        panel.add(createAdminToolBox(
+                loadIcon("/images/file.png", 18, 18),
+                "Subject Management", "Manage subjects",
+                new String[]{"+ Add Subject", "View Subjects", "Update Subject"},
+                new Runnable[]{
+                        () -> new AddSubjectFrame(this).setVisible(true),
+                        () -> new ViewSubjectsFrame(this).setVisible(true),
+                        () -> new UpdateSubjectFrame(this).setVisible(true)
+                }
+        ));
+
+        panel.add(createAdminToolBox(
+                loadIcon("/images/report.png", 18, 18),
+                "Marks Management", "Manage student marks",
+                new String[]{"+ Add Marks", "View Marks", "Delete Marks"},
+                new Runnable[]{
+                        () -> new AddMarksFrame(this).setVisible(true),
+                        () -> new ViewMarksFrame(this).setVisible(true),
+                        () -> new DeleteMarksFrame(this).setVisible(true)
+                }
+        ));
+
+        return panel;
+    }
+
+    private JPanel createAdminToolBox(ImageIcon icon, String title, String subtitle, String[] links, Runnable[] actions) {
+        JPanel box = new JPanel();
+        box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
+        box.setBackground(Color.WHITE);
+        box.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(205, 215, 210), 1),
+                BorderFactory.createEmptyBorder(8, 10, 8, 10)
+        ));
+
+        JPanel headerRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        headerRow.setOpaque(false);
+
+        JLabel iconLbl = new JLabel();
+        if (icon != null) iconLbl.setIcon(icon);
+        JPanel iconWrapper = new JPanel(new GridBagLayout());
+        iconWrapper.setBackground(new Color(230, 247, 238));
+        iconWrapper.setPreferredSize(new Dimension(24, 24));
+        iconWrapper.add(iconLbl);
+
+        JPanel textStack = new JPanel();
+        textStack.setLayout(new BoxLayout(textStack, BoxLayout.Y_AXIS));
+        textStack.setOpaque(false);
+
+        JLabel titleLbl = new JLabel(title);
+        titleLbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        titleLbl.setForeground(TEXT_DARK);
+
+        JLabel subLbl = new JLabel(subtitle);
+        subLbl.setFont(new Font("Segoe UI", Font.PLAIN, 9));
+        subLbl.setForeground(TEXT_MUTED);
+
+        textStack.add(titleLbl);
+        textStack.add(subLbl);
+        headerRow.add(iconWrapper);
+        headerRow.add(textStack);
+
+        box.add(headerRow);
+        box.add(Box.createVerticalStrut(6));
+        box.add(new JSeparator(SwingConstants.HORIZONTAL));
+        box.add(Box.createVerticalStrut(5));
+
+        for (int i = 0; i < links.length; i++) {
+            JLabel linkLbl = new JLabel(links[i]);
+            linkLbl.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            linkLbl.setForeground(ACCENT_GREEN);
+            linkLbl.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            linkLbl.setBorder(BorderFactory.createEmptyBorder(3, 2, 3, 0));
+            final Runnable action = actions[i];
+            linkLbl.addMouseListener(new java.awt.event.MouseAdapter() {
+                public void mouseClicked(java.awt.event.MouseEvent e) { action.run(); }
+            });
+            box.add(linkLbl);
         }
+
+        box.add(Box.createVerticalGlue());
+        return box;
+    }
+
+    private JPanel createActionCard(ImageIcon icon, String title, String subtitle, Color bg, Color fg, Color subFg, Runnable action) {
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBackground(bg);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(195, 210, 200), 1),
+                BorderFactory.createEmptyBorder(6, 6, 6, 6)
+        ));
+        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        card.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) { action.run(); }
+        });
+
+        JPanel iconPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        iconPanel.setOpaque(false);
+        JLabel iconLbl = new JLabel();
+        if (icon != null) {
+            iconLbl.setIcon(icon);
+        }
+        iconPanel.add(iconLbl);
+
+        JLabel t = new JLabel(title);
+        t.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        t.setForeground(fg);
+        t.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel s = new JLabel(subtitle);
+        s.setFont(new Font("Segoe UI", Font.PLAIN, 9));
+        s.setForeground(subFg);
+        s.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        card.add(Box.createVerticalGlue());
+        card.add(iconPanel);
+        card.add(Box.createVerticalStrut(3));
+        card.add(t);
+        card.add(Box.createVerticalStrut(1));
+        card.add(s);
+        card.add(Box.createVerticalGlue());
 
         return card;
     }
 
-    // =========================================================
-    // STUDENT MENU
-    // =========================================================
-
-    private void showStudentMenu() {
-
-        StudentMainFrame studentFrame =
-                new StudentMainFrame();
-
-        studentFrame.setVisible(true);
-
-        dispose();
+    private JPanel createClickableStatCard(ImageIcon icon, String title, String value, String trend, Color iconBgColor, Color iconFgColor, Runnable action) {
+        JPanel card = createStatCard(icon, title, value, trend, iconBgColor, iconFgColor);
+        card.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        card.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) { action.run(); }
+        });
+        return card;
     }
 
-    // =========================================================
-    // COURSE MENU
-    // =========================================================
+    private JPanel createStatCard(ImageIcon icon, String title, String value, String trend, Color iconBgColor, Color iconFgColor) {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBackground(CARD_BG);
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
 
-    private void showCourseMenu() {
+        JPanel topRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        topRow.setOpaque(false);
 
-        CoursePanel coursePanel =
-                new CoursePanel();
-
-        coursePanel.setVisible(true);
-
-        dispose();
-    }
-
-    // =========================================================
-    // SUBJECT MENU
-    // =========================================================
-
-    private void showSubjectMenu() {
-
-        SubjectPanel subjectPanel =
-                new SubjectPanel();
-
-        subjectPanel.setVisible(true);
-    }
-
-    // =========================================================
-    // MARKS MENU
-    // =========================================================
-
-    private void showMarksMenu() {
-
-        MarksPanel marksPanel =
-                new MarksPanel();
-
-        marksPanel.setVisible(true);
-    }
-
-    // =========================================================
-    // SETTINGS
-    // =========================================================
-
-    private void showSettings() {
-
-        JOptionPane.showMessageDialog(
-                this,
-                "Settings module will be available here.",
-                "Settings",
-                JOptionPane.INFORMATION_MESSAGE
-        );
-    }
-
-    // =========================================================
-    // EXIT
-    // =========================================================
-
-    private void exitApplication() {
-
-        int choice =
-                JOptionPane.showConfirmDialog(
-                        this,
-                        "Are you sure you want to exit?",
-                        "Exit",
-                        JOptionPane.YES_NO_OPTION
-                );
-
-        if (choice ==
-                JOptionPane.YES_OPTION) {
-
-            System.exit(0);
+        JLabel iconLbl = new JLabel();
+        if (icon != null) {
+            iconLbl.setIcon(icon);
         }
+        JPanel iconWrapper = new JPanel(new GridBagLayout());
+        iconWrapper.setBackground(iconBgColor);
+        iconWrapper.setPreferredSize(new Dimension(26, 26));
+        iconWrapper.add(iconLbl);
+
+        JLabel titleLbl = new JLabel("  " + title);
+        titleLbl.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        titleLbl.setForeground(TEXT_MUTED);
+
+        topRow.add(iconWrapper);
+        topRow.add(titleLbl);
+
+        JPanel centerRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        centerRow.setOpaque(false);
+        JLabel valLbl = new JLabel(value);
+        valLbl.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        valLbl.setForeground(TEXT_DARK);
+        centerRow.add(valLbl);
+
+        JPanel bottomRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        bottomRow.setOpaque(false);
+        JLabel trendLbl = new JLabel(trend);
+        trendLbl.setFont(new Font("Segoe UI", Font.PLAIN, 9));
+        trendLbl.setForeground(new Color(20, 100, 55));
+        bottomRow.add(trendLbl);
+
+        card.add(topRow, BorderLayout.NORTH);
+        card.add(centerRow, BorderLayout.CENTER);
+        card.add(bottomRow, BorderLayout.SOUTH);
+
+        return card;
+    }
+
+    private JPanel createCardWrapper(String title, JPanel innerPanel) {
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.setBackground(CARD_BG);
+        wrapper.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR, 1),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+
+        JLabel titleLbl = new JLabel(title);
+        titleLbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        titleLbl.setForeground(TEXT_DARK);
+        wrapper.add(titleLbl, BorderLayout.NORTH);
+        wrapper.add(innerPanel, BorderLayout.CENTER);
+
+        return wrapper;
+    }
+
+    private JPanel createBarRow(String label, String value, Color barColor, double ratio) {
+        JPanel row = new JPanel(new BorderLayout(6, 0));
+        row.setOpaque(false);
+
+        JLabel lbl = new JLabel(label);
+        lbl.setPreferredSize(new Dimension(50, 16));
+        lbl.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        lbl.setForeground(TEXT_MUTED);
+
+        JPanel barBg = new JPanel(null);
+        barBg.setOpaque(false);
+        JPanel barFill = new JPanel();
+        barFill.setBackground(barColor);
+        barFill.setBounds(0, 3, (int)(110 * ratio), 7);
+        barBg.add(barFill);
+
+        JLabel valLbl = new JLabel(value);
+        valLbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        valLbl.setForeground(TEXT_DARK);
+
+        row.add(lbl, BorderLayout.WEST);
+        row.add(barBg, BorderLayout.CENTER);
+        row.add(valLbl, BorderLayout.EAST);
+
+        return row;
+    }
+
+    private JPanel createRecentActivityPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setOpaque(false);
+        panel.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, 0));
+
+        panel.add(createActivityRow("➕", "New student added", "Ram Sharma (STU-025)", "2h ago", new Color(40, 115, 78), new Color(230, 245, 235)));
+        panel.add(Box.createVerticalStrut(8));
+        panel.add(createActivityRow("✏", "Student updated", "Sita Thapa (STU-014)", "4h ago", new Color(30, 100, 180), new Color(230, 240, 255)));
+        panel.add(Box.createVerticalStrut(8));
+        panel.add(createActivityRow("📖", "New course added", "BCA Program", "1d ago", new Color(110, 40, 140), new Color(245, 235, 250)));
+        panel.add(Box.createVerticalStrut(8));
+        panel.add(createActivityRow("🗑", "Mark deleted", "STU-012 - Math", "1d ago", new Color(170, 40, 40), new Color(255, 235, 235)));
+        panel.add(Box.createVerticalStrut(8));
+        panel.add(createActivityRow("➕", "New subject added", "Database Management", "2d ago", new Color(40, 115, 78), new Color(230, 245, 235)));
+
+        return panel;
+    }
+
+    private JPanel createActivityRow(String symbol, String title, String desc, String time, Color fgColor, Color bgCircle) {
+        JPanel row = new JPanel(new BorderLayout(8, 0));
+        row.setOpaque(false);
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+        row.setPreferredSize(new Dimension(0, 38));
+
+        JLabel iconLbl = new JLabel(symbol);
+        iconLbl.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 11));
+        iconLbl.setForeground(fgColor);
+
+        JPanel iconWrapper = new JPanel(new GridBagLayout());
+        iconWrapper.setBackground(bgCircle);
+        iconWrapper.setPreferredSize(new Dimension(28, 28));
+        iconWrapper.add(iconLbl);
+
+        JPanel textPanel = new JPanel();
+        textPanel.setLayout(new BoxLayout(textPanel, BoxLayout.Y_AXIS));
+        textPanel.setOpaque(false);
+
+        JLabel tLbl = new JLabel(title);
+        tLbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        tLbl.setForeground(TEXT_DARK);
+
+        JLabel dLbl = new JLabel(desc);
+        dLbl.setFont(new Font("Segoe UI", Font.PLAIN, 9));
+        dLbl.setForeground(TEXT_MUTED);
+
+        textPanel.add(tLbl);
+        textPanel.add(Box.createVerticalStrut(1));
+        textPanel.add(dLbl);
+
+        JLabel timeLbl = new JLabel(time);
+        timeLbl.setFont(new Font("Segoe UI", Font.PLAIN, 9));
+        timeLbl.setForeground(TEXT_MUTED);
+
+        row.add(iconWrapper, BorderLayout.WEST);
+        row.add(textPanel, BorderLayout.CENTER);
+        row.add(timeLbl, BorderLayout.EAST);
+
+        return row;
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            new MainFrame().setVisible(true);
+        });
     }
 }
