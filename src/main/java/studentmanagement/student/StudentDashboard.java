@@ -817,7 +817,7 @@ public class StudentDashboard extends JFrame {
 
         detailsPanel.add(
                 createDetailRow(
-                        "Phone",
+                        "name",
                         getPhone()
                 )
         );

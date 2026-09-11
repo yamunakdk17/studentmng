@@ -38,6 +38,19 @@ public class UpdateStudentFrame extends JFrame {
     private final JTextField addressField = new JTextField();
     private final JTextField phoneField = new JTextField();
     private final JTextField emailField = new JTextField();
+    private final JTextField courseField = new JTextField();
+
+    private final JComboBox<String> semesterBox =
+            new JComboBox<>(new String[]{
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7",
+                    "8"
+            });
 
     private final StudentDAO studentDAO = new StudentDAO();
 
@@ -48,10 +61,10 @@ public class UpdateStudentFrame extends JFrame {
 
         setTitle("Update Student");
 
-        setSize(620, 600);
+        setSize(620, 720);
 
         setMinimumSize(
-                new Dimension(580, 560)
+                new Dimension(580, 680)
         );
 
         setLocationRelativeTo(null);
@@ -244,9 +257,9 @@ public class UpdateStudentFrame extends JFrame {
 
         gbc.insets =
                 new Insets(
-                        6,
                         5,
-                        6,
+                        5,
+                        5,
                         5
                 );
 
@@ -286,9 +299,7 @@ public class UpdateStudentFrame extends JFrame {
         // =====================================================
         // GENDER
         // =====================================================
-        styleComboBox(
-                genderBox
-        );
+        styleComboBox(genderBox);
 
         addRow(
                 fieldsPanel,
@@ -329,6 +340,30 @@ public class UpdateStudentFrame extends JFrame {
                 "Email Address",
                 emailField,
                 6
+        );
+
+        // =====================================================
+        // COURSE
+        // =====================================================
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Course",
+                courseField,
+                7
+        );
+
+        // =====================================================
+        // SEMESTER
+        // =====================================================
+        styleComboBox(semesterBox);
+
+        addRow(
+                fieldsPanel,
+                gbc,
+                "Semester",
+                semesterBox,
+                8
         );
 
         // =====================================================
@@ -390,7 +425,6 @@ public class UpdateStudentFrame extends JFrame {
 
     // =========================================================
     // ADD ONE ROW
-    // LABEL LEFT + FIELD RIGHT
     // =========================================================
     private void addRow(
             JPanel panel,
@@ -400,9 +434,6 @@ public class UpdateStudentFrame extends JFrame {
             int row
     ) {
 
-        // =====================================================
-        // LABEL
-        // =====================================================
         JLabel label =
                 new JLabel(
                         labelText
@@ -427,16 +458,14 @@ public class UpdateStudentFrame extends JFrame {
                 )
         );
 
+        // =====================================================
+        // LABEL
+        // =====================================================
         gbc.gridx = 0;
         gbc.gridy = row;
-
         gbc.weightx = 0;
-
-        gbc.fill =
-                GridBagConstraints.NONE;
-
-        gbc.anchor =
-                GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
 
         panel.add(
                 label,
@@ -455,14 +484,9 @@ public class UpdateStudentFrame extends JFrame {
 
         gbc.gridx = 1;
         gbc.gridy = row;
-
         gbc.weightx = 0;
-
-        gbc.fill =
-                GridBagConstraints.NONE;
-
-        gbc.anchor =
-                GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.anchor = GridBagConstraints.WEST;
 
         panel.add(
                 field,
@@ -585,7 +609,7 @@ public class UpdateStudentFrame extends JFrame {
     }
 
     // =========================================================
-    // SAVE CHANGES BUTTON
+    // UPDATE BUTTON
     // =========================================================
     private JButton createUpdateButton() {
 
@@ -778,6 +802,9 @@ public class UpdateStudentFrame extends JFrame {
             return;
         }
 
+        // =====================================================
+        // LOAD BASIC INFORMATION
+        // =====================================================
         idField.setText(
                 String.valueOf(
                         student.getStudentId()
@@ -809,6 +836,28 @@ public class UpdateStudentFrame extends JFrame {
         emailField.setText(
                 student.getEmail()
         );
+
+        // =====================================================
+        // LOAD COURSE
+        // =====================================================
+        courseField.setText(
+                student.getCourse() == null
+                        ? ""
+                        : student.getCourse()
+        );
+
+        // =====================================================
+        // LOAD SEMESTER
+        // =====================================================
+        if (student.getSemester() >= 1 &&
+                student.getSemester() <= 8) {
+
+            semesterBox.setSelectedItem(
+                    String.valueOf(
+                            student.getSemester()
+                    )
+            );
+        }
     }
 
     // =========================================================
@@ -836,6 +885,12 @@ public class UpdateStudentFrame extends JFrame {
 
         String email =
                 emailField.getText().trim();
+
+        String course =
+                courseField.getText().trim();
+
+        String semesterText =
+                (String) semesterBox.getSelectedItem();
 
         // =====================================================
         // STUDENT ID
@@ -878,6 +933,7 @@ public class UpdateStudentFrame extends JFrame {
 
         int studentId;
         int age;
+        int semester;
 
         try {
 
@@ -891,10 +947,15 @@ public class UpdateStudentFrame extends JFrame {
                             ageText
                     );
 
+            semester =
+                    Integer.parseInt(
+                            semesterText
+                    );
+
         } catch (NumberFormatException e) {
 
             showWarning(
-                    "Student ID and age must be valid numbers.",
+                    "Student ID, age and semester must be valid numbers.",
                     ageField
             );
 
@@ -967,7 +1028,20 @@ public class UpdateStudentFrame extends JFrame {
         }
 
         // =====================================================
-        // CREATE STUDENT
+        // COURSE
+        // =====================================================
+        if (course.isEmpty()) {
+
+            showWarning(
+                    "Please enter the student's course.",
+                    courseField
+            );
+
+            return;
+        }
+
+        // =====================================================
+        // CREATE STUDENT OBJECT
         // =====================================================
         Student student =
                 new Student(
@@ -977,7 +1051,9 @@ public class UpdateStudentFrame extends JFrame {
                         gender,
                         address,
                         phone,
-                        email
+                        email,
+                        course,
+                        semester
                 );
 
         // =====================================================

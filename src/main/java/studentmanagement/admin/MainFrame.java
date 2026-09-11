@@ -17,8 +17,8 @@ public class MainFrame extends JFrame {
     private static final Color ACCENT_GREEN = new Color(40, 115, 78); // Active button green
     private static final Color BG = new Color(242, 246, 243);        // Main content background
     private static final Color CARD_BG = Color.WHITE;
-    private static final Color TEXT_DARK = new Color(10, 15, 12);    // Enhanced high-contrast dark black text
-    private static final Color TEXT_MUTED = new Color(55, 65, 75);   // Darker muted text for crystal-clear readability
+    private static final Color TEXT_DARK =  Color.BLACK;    // Enhanced high-contrast dark black text
+    private static final Color TEXT_MUTED = new Color(30, 30, 30);   // Darker muted text for crystal-clear readability
     private static final Color BORDER_COLOR = new Color(205, 215, 210);
 
     private JLabel dateLabel;
@@ -73,11 +73,11 @@ public class MainFrame extends JFrame {
         brandText.setOpaque(false);
 
         JLabel title = new JLabel("Student Management System");
-        title.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        title.setFont(new Font("Segoe UI", Font.BOLD, 14));
         title.setForeground(Color.WHITE);
 
         JLabel subtitle = new JLabel("ADMIN PANEL");
-        subtitle.setFont(new Font("Segoe UI", Font.BOLD, 8));
+        subtitle.setFont(new Font("Segoe UI", Font.BOLD, 9));
         subtitle.setForeground(new Color(160, 185, 175));
 
         brandText.add(title);
@@ -234,7 +234,7 @@ public class MainFrame extends JFrame {
             button.setIcon(icon);
             button.setIconTextGap(6);
         }
-        button.setFont(new Font("Segoe UI", active ? Font.BOLD : Font.PLAIN, 11));
+        button.setFont(new Font("Segoe UI", active ? Font.BOLD : Font.PLAIN, 12));
         button.setForeground(Color.WHITE);
         button.setBackground(active ? ACCENT_GREEN : PRIMARY);
         button.setOpaque(true);
@@ -263,11 +263,11 @@ public class MainFrame extends JFrame {
         greetPanel.setOpaque(false);
 
         JLabel welcomeLabel = new JLabel("Welcome back, Admin!");
-        welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 17));
+        welcomeLabel.setFont(new Font("Segoe UI", Font.BOLD, 19));
         welcomeLabel.setForeground(TEXT_DARK);
 
         JLabel subWelcome = new JLabel("Manage students, courses, subjects and marks from one place.");
-        subWelcome.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+        subWelcome.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         subWelcome.setForeground(TEXT_MUTED);
 
         greetPanel.add(welcomeLabel);
@@ -302,10 +302,10 @@ public class MainFrame extends JFrame {
         statsGrid.setOpaque(false);
         statsGrid.setMaximumSize(new Dimension(Integer.MAX_VALUE, 90));
 
-        statsGrid.add(createClickableStatCard(loadIcon("/images/us.png", 18, 18), "Total Students", "25", "+9% from last month", new Color(210, 240, 220), new Color(15, 75, 45), () -> new ViewStudentsFrame().setVisible(true)));
-        statsGrid.add(createClickableStatCard(loadIcon("/images/book.png", 18, 18), "Total Courses", "5", "+2% from last month", new Color(220, 235, 250), new Color(20, 70, 140), () -> new ViewCoursesFrame(this).setVisible(true)));
-        statsGrid.add(createClickableStatCard(loadIcon("/images/file.png", 18, 18), "Total Subjects", "8", "+5% from last month", new Color(240, 225, 245), new Color(90, 30, 110), () -> new ViewSubjectsFrame(this).setVisible(true)));
-        statsGrid.add(createClickableStatCard(loadIcon("/images/report.png", 18, 18), "Total Marks Records", "45", "+7% from last month", new Color(255, 225, 225), new Color(130, 30, 30), () -> new ViewMarksFrame(this).setVisible(true)));
+        statsGrid.add(createClickableStatCard(loadIcon("/images/us.png", 21, 21), "Total Students", "25", "+9% from last month", new Color(210, 240, 220), new Color(15, 75, 45), () -> new ViewStudentsFrame().setVisible(true)));
+        statsGrid.add(createClickableStatCard(loadIcon("/images/book.png", 21, 21), "Total Courses", "5", "+2% from last month", new Color(220, 235, 250), new Color(20, 70, 140), () -> new ViewCoursesFrame(this).setVisible(true)));
+        statsGrid.add(createClickableStatCard(loadIcon("/images/file.png", 21, 21), "Total Subjects", "8", "+5% from last month", new Color(240, 225, 245), new Color(90, 30, 110), () -> new ViewSubjectsFrame(this).setVisible(true)));
+        statsGrid.add(createClickableStatCard(loadIcon("/images/report.png", 21, 21), "Total Marks Records", "45", "+7% from last month", new Color(255, 225, 225), new Color(130, 30, 30), () -> new ViewMarksFrame(this).setVisible(true)));
 
         content.add(statsGrid);
         content.add(Box.createVerticalStrut(12));
@@ -752,18 +752,21 @@ public class MainFrame extends JFrame {
         box.setLayout(new BoxLayout(box, BoxLayout.Y_AXIS));
         box.setBackground(Color.WHITE);
         box.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(205, 215, 210), 1),
-                BorderFactory.createEmptyBorder(8, 10, 8, 10)
+                BorderFactory.createLineBorder(new Color(185, 205, 195), 1), // slightly sharper border
+                BorderFactory.createEmptyBorder(10, 12, 10, 12)
         ));
 
-        JPanel headerRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JPanel headerRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         headerRow.setOpaque(false);
 
         JLabel iconLbl = new JLabel();
         if (icon != null) iconLbl.setIcon(icon);
+
+        // Icon container background made distinct and punchy for better visibility
         JPanel iconWrapper = new JPanel(new GridBagLayout());
-        iconWrapper.setBackground(new Color(230, 247, 238));
-        iconWrapper.setPreferredSize(new Dimension(24, 24));
+        iconWrapper.setBackground(new Color(210, 238, 222)); // Deeper, more visible mint green accent
+        iconWrapper.setPreferredSize(new Dimension(36, 36));
+        iconWrapper.setBorder(BorderFactory.createLineBorder(new Color(170, 215, 190), 1));
         iconWrapper.add(iconLbl);
 
         JPanel textStack = new JPanel();
@@ -771,12 +774,12 @@ public class MainFrame extends JFrame {
         textStack.setOpaque(false);
 
         JLabel titleLbl = new JLabel(title);
-        titleLbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        titleLbl.setForeground(TEXT_DARK);
+        titleLbl.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        titleLbl.setForeground(new Color(10, 30, 20)); // High-contrast dark text
 
         JLabel subLbl = new JLabel(subtitle);
-        subLbl.setFont(new Font("Segoe UI", Font.PLAIN, 9));
-        subLbl.setForeground(TEXT_MUTED);
+        subLbl.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        subLbl.setForeground(new Color(50, 50, 50)); // Darker muted text for readability
 
         textStack.add(titleLbl);
         textStack.add(subLbl);
@@ -784,19 +787,21 @@ public class MainFrame extends JFrame {
         headerRow.add(textStack);
 
         box.add(headerRow);
-        box.add(Box.createVerticalStrut(6));
+        box.add(Box.createVerticalStrut(8));
         box.add(new JSeparator(SwingConstants.HORIZONTAL));
-        box.add(Box.createVerticalStrut(5));
+        box.add(Box.createVerticalStrut(6));
 
         for (int i = 0; i < links.length; i++) {
             JLabel linkLbl = new JLabel(links[i]);
-            linkLbl.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            linkLbl.setFont(new Font("Segoe UI", Font.BOLD, 11)); // Slightly bolder link text
             linkLbl.setForeground(ACCENT_GREEN);
             linkLbl.setCursor(new Cursor(Cursor.HAND_CURSOR));
             linkLbl.setBorder(BorderFactory.createEmptyBorder(3, 2, 3, 0));
             final Runnable action = actions[i];
             linkLbl.addMouseListener(new java.awt.event.MouseAdapter() {
                 public void mouseClicked(java.awt.event.MouseEvent e) { action.run(); }
+                public void mouseEntered(java.awt.event.MouseEvent e) { linkLbl.setForeground(new Color(20, 70, 45)); }
+                public void mouseExited(java.awt.event.MouseEvent e) { linkLbl.setForeground(ACCENT_GREEN); }
             });
             box.add(linkLbl);
         }
@@ -827,12 +832,12 @@ public class MainFrame extends JFrame {
         iconPanel.add(iconLbl);
 
         JLabel t = new JLabel(title);
-        t.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        t.setFont(new Font("Segoe UI", Font.BOLD, 12));
         t.setForeground(fg);
         t.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         JLabel s = new JLabel(subtitle);
-        s.setFont(new Font("Segoe UI", Font.PLAIN, 9));
+        s.setFont(new Font("Segoe UI", Font.PLAIN, 10));
         s.setForeground(subFg);
         s.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -873,11 +878,11 @@ public class MainFrame extends JFrame {
         }
         JPanel iconWrapper = new JPanel(new GridBagLayout());
         iconWrapper.setBackground(iconBgColor);
-        iconWrapper.setPreferredSize(new Dimension(26, 26));
+        iconWrapper.setPreferredSize(new Dimension(34, 34));
         iconWrapper.add(iconLbl);
 
         JLabel titleLbl = new JLabel("  " + title);
-        titleLbl.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+        titleLbl.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         titleLbl.setForeground(TEXT_MUTED);
 
         topRow.add(iconWrapper);
@@ -886,14 +891,14 @@ public class MainFrame extends JFrame {
         JPanel centerRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         centerRow.setOpaque(false);
         JLabel valLbl = new JLabel(value);
-        valLbl.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        valLbl.setFont(new Font("Segoe UI", Font.BOLD, 20));
         valLbl.setForeground(TEXT_DARK);
         centerRow.add(valLbl);
 
         JPanel bottomRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         bottomRow.setOpaque(false);
         JLabel trendLbl = new JLabel(trend);
-        trendLbl.setFont(new Font("Segoe UI", Font.PLAIN, 9));
+        trendLbl.setFont(new Font("Segoe UI", Font.PLAIN, 10));
         trendLbl.setForeground(new Color(20, 100, 55));
         bottomRow.add(trendLbl);
 

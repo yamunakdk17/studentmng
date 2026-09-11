@@ -1,5 +1,4 @@
-
-        package studentmanagement.student;
+package studentmanagement.student;
 
 import studentmanagement.model.User;
 
@@ -12,525 +11,179 @@ public class ResultFrame extends JFrame {
     private final User loggedInUser;
 
     // Colors
-    private final Color BACKGROUND =
-            new Color(238, 244, 255);
-
-    private final Color PURPLE =
-            new Color(108, 86, 166);
-
-    private final Color PURPLE_DARK =
-            new Color(91, 73, 145);
-
-    private final Color WHITE =
-            Color.WHITE;
-
-    private final Color TEXT =
-            new Color(55, 55, 70);
-
-    private final Color LIGHT_TEXT =
-            new Color(120, 120, 135);
-
-    private final Color BORDER =
-            new Color(225, 225, 235);
-
-    private final Color GREEN =
-            new Color(55, 155, 100);
-
-    private final Color LIGHT_GREEN =
-            new Color(225, 247, 233);
+    private final Color BACKGROUND = new Color(245, 247, 250);
+    private final Color PURPLE = new Color(108, 86, 166);
+    private final Color PURPLE_DARK = new Color(73, 57, 122);
+    private final Color PURPLE_LIGHT = new Color(240, 237, 250);
+    private final Color WHITE = Color.WHITE;
+    private final Color TEXT = new Color(40, 40, 55);
+    private final Color LIGHT_TEXT = new Color(110, 110, 125);
+    private final Color BORDER = new Color(230, 230, 240);
+    private final Color GREEN = new Color(40, 160, 90);
+    private final Color LIGHT_GREEN = new Color(230, 248, 238);
 
     public ResultFrame(User user) {
-
         this.loggedInUser = user;
 
         setTitle("Student Result");
-        setSize(950, 680);
-        setMinimumSize(
-                new Dimension(
-                        850,
-                        600
-                )
-        );
-
-        setDefaultCloseOperation(
-                JFrame.DISPOSE_ON_CLOSE
-        );
-
+        setSize(950, 700);
+        setMinimumSize(new Dimension(850, 600));
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
         createUI();
     }
 
-    /**
-     * Create Result UI.
-     */
     private void createUI() {
-
-        JPanel mainPanel =
-                new JPanel(
-                        new BorderLayout(
-                                20,
-                                20
-                        )
-                );
-
+        JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(BACKGROUND);
-
-        mainPanel.setBorder(
-                new EmptyBorder(
-                        30,
-                        40,
-                        25,
-                        40
-                )
-        );
 
         // ==========================================
         // HEADER
         // ==========================================
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(WHITE);
+        header.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, BORDER),
+                new EmptyBorder(20, 35, 20, 35)
+        ));
 
-        JPanel header =
-                new JPanel();
-
-        header.setLayout(
-                new BoxLayout(
-                        header,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        header.setBackground(BACKGROUND);
-
-        JLabel title =
-                new JLabel("Result");
-
-        title.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        28
-                )
-        );
-
+        JLabel title = new JLabel("Academic Results");
+        title.setFont(new Font("SansSerif", Font.BOLD, 24));
         title.setForeground(TEXT);
 
-        JLabel subtitle =
-                new JLabel(
-                        "Your academic performance"
-                );
-
-        subtitle.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
+        JLabel subtitle = new JLabel("Semester performance breakdown and grades");
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 13));
         subtitle.setForeground(LIGHT_TEXT);
 
-        header.add(title);
+        JPanel titlePanel = new JPanel();
+        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
+        titlePanel.setOpaque(false);
+        titlePanel.add(title);
+        titlePanel.add(Box.createVerticalStrut(4));
+        titlePanel.add(subtitle);
 
-        header.add(
-                Box.createVerticalStrut(5)
-        );
+        header.add(titlePanel, BorderLayout.WEST);
 
-        header.add(subtitle);
+        // Status Badge on Right Header
+        JLabel statusLabel = new JLabel("⭐ Semester Passed");
+        statusLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
+        statusLabel.setForeground(GREEN);
 
-        mainPanel.add(
-                header,
-                BorderLayout.NORTH
-        );
+        JPanel statusBadge = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 6));
+        statusBadge.setBackground(LIGHT_GREEN);
+        statusBadge.setBorder(new EmptyBorder(6, 12, 6, 12));
+        statusBadge.add(statusLabel);
+
+        JPanel headerRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 8));
+        headerRight.setOpaque(false);
+        headerRight.add(statusBadge);
+        header.add(headerRight, BorderLayout.EAST);
 
         // ==========================================
-        // RESULT CARD
+        // CONTENT AREA (Card Container)
         // ==========================================
+        JPanel contentContainer = new JPanel(new BorderLayout());
+        contentContainer.setBackground(BACKGROUND);
+        contentContainer.setBorder(new EmptyBorder(25, 35, 20, 35));
 
-        JPanel resultCard =
-                new JPanel();
-
-        resultCard.setLayout(
-                new BoxLayout(
-                        resultCard,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
+        JPanel resultCard = new JPanel();
+        resultCard.setLayout(new BoxLayout(resultCard, BoxLayout.Y_AXIS));
         resultCard.setBackground(WHITE);
+        resultCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER, 1, true),
+                new EmptyBorder(25, 30, 25, 30)
+        ));
 
-        resultCard.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDER
-                        ),
-                        new EmptyBorder(
-                                25,
-                                30,
-                                25,
-                                30
-                        )
-                )
-        );
+        // Table Header
+        JPanel tableHeader = new JPanel(new GridLayout(1, 3));
+        tableHeader.setBackground(PURPLE_DARK);
+        tableHeader.setBorder(new EmptyBorder(10, 15, 10, 15));
+        tableHeader.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
 
-        // ==========================================
-        // TABLE HEADER
-        // ==========================================
-
-        JPanel tableHeader =
-                new JPanel(
-                        new GridLayout(
-                                1,
-                                3
-                        )
-                );
-
-        tableHeader.setBackground(
-                PURPLE_DARK
-        );
-
-        tableHeader.setBorder(
-                new EmptyBorder(
-                        4,
-                        10,
-                        4,
-                        10
-                )
-        );
-
-        JLabel subjectHeader =
-                createHeaderLabel(
-                        "Subject"
-                );
-
-        JLabel marksHeader =
-                createHeaderLabel(
-                        "Marks"
-                );
-
-        JLabel gradeHeader =
-                createHeaderLabel(
-                        "Grade"
-                );
-
-        tableHeader.add(subjectHeader);
-        tableHeader.add(marksHeader);
-        tableHeader.add(gradeHeader);
+        tableHeader.add(createHeaderLabel("Subject", SwingConstants.LEFT));
+        tableHeader.add(createHeaderLabel("Marks", SwingConstants.CENTER));
+        tableHeader.add(createHeaderLabel("Grade", SwingConstants.CENTER));
 
         resultCard.add(tableHeader);
+        resultCard.add(Box.createVerticalStrut(5));
 
-        // ==========================================
-        // SUBJECT RESULTS
-        // ==========================================
+        // Result Rows
+        resultCard.add(createResultRow("Object Oriented Programming", "85 / 100", "A"));
+        resultCard.add(createResultRow("Networking", "78 / 100", "B+"));
+        resultCard.add(createResultRow("Operating System", "90 / 100", "A+"));
+        resultCard.add(createResultRow("Professional Ethics", "82 / 100", "A"));
 
-        resultCard.add(
-                createResultRow(
-                        "OOP",
-                        "85",
-                        "A"
-                )
-        );
+        resultCard.add(Box.createVerticalStrut(20));
 
-        resultCard.add(
-                createResultRow(
-                        "Networking",
-                        "78",
-                        "B+"
-                )
-        );
+        // Summary Card Section
+        JPanel summary = new JPanel(new GridLayout(1, 3, 15, 0));
+        summary.setBackground(PURPLE_LIGHT);
+        summary.setBorder(new EmptyBorder(18, 20, 18, 20));
+        summary.setMaximumSize(new Dimension(Integer.MAX_VALUE, 75));
 
-        resultCard.add(
-                createResultRow(
-                        "Operating System",
-                        "90",
-                        "A+"
-                )
-        );
-
-        resultCard.add(
-                createResultRow(
-                        "Ethics",
-                        "82",
-                        "A"
-                )
-        );
-
-        // ==========================================
-        // SUMMARY
-        // ==========================================
-
-        resultCard.add(
-                Box.createVerticalStrut(25)
-        );
-
-        JPanel summary =
-                new JPanel();
-
-        summary.setLayout(
-                new BoxLayout(
-                        summary,
-                        BoxLayout.Y_AXIS
-                )
-        );
-
-        summary.setBackground(
-                new Color(
-                        248,
-                        246,
-                        253
-                )
-        );
-
-        summary.setBorder(
-                new EmptyBorder(
-                        18,
-                        20,
-                        18,
-                        20
-                )
-        );
-
-        JLabel total =
-                new JLabel(
-                        "Total Marks: 335 / 400"
-                );
-
-        total.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        15
-                )
-        );
-
-        total.setForeground(TEXT);
-
-        JLabel percentage =
-                new JLabel(
-                        "Percentage: 83.75%"
-                );
-
-        percentage.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        15
-                )
-        );
-
-        percentage.setForeground(TEXT);
-
-        JLabel overallGrade =
-                new JLabel(
-                        "Overall Grade: A"
-                );
-
-        overallGrade.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        15
-                )
-        );
-
-        overallGrade.setForeground(PURPLE);
-
-        summary.add(total);
-
-        summary.add(
-                Box.createVerticalStrut(8)
-        );
-
-        summary.add(percentage);
-
-        summary.add(
-                Box.createVerticalStrut(8)
-        );
-
-        summary.add(overallGrade);
-
-        summary.setAlignmentX(
-                Component.LEFT_ALIGNMENT
-        );
+        summary.add(createSummaryItem("Total Marks", "335 / 400"));
+        summary.add(createSummaryItem("Percentage", "83.75%"));
+        summary.add(createSummaryItem("Overall Grade", "A"));
 
         resultCard.add(summary);
-
-        mainPanel.add(
-                resultCard,
-                BorderLayout.CENTER
-        );
+        contentContainer.add(resultCard, BorderLayout.CENTER);
 
         // ==========================================
-        // BOTTOM
+        // BOTTOM NAVIGATION
         // ==========================================
-
-        JPanel bottomPanel =
-                new JPanel(
-                        new BorderLayout()
-                );
-
-        bottomPanel.setBackground(
-                BACKGROUND
-        );
-
-        JButton backButton =
-                new JButton(
-                        "← Back to Dashboard"
-                );
-
-        backButton.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        13
-                )
-        );
-
+        JButton backButton = new JButton("← Back to Dashboard");
+        backButton.setFont(new Font("SansSerif", Font.BOLD, 13));
         backButton.setForeground(WHITE);
-
         backButton.setBackground(PURPLE);
-
         backButton.setFocusPainted(false);
-
-        backButton.setCursor(
-                new Cursor(
-                        Cursor.HAND_CURSOR
-                )
-        );
-
-        backButton.setBorder(
-                new EmptyBorder(
-                        12,
-                        20,
-                        12,
-                        20
-                )
-        );
+        backButton.setBorderPainted(false);
+        backButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        backButton.setBorder(new EmptyBorder(10, 20, 10, 20));
 
         backButton.addActionListener(e -> {
-
             dispose();
-
-            new StudentDashboard(
-                    loggedInUser
-            ).setVisible(true);
+            new StudentDashboard(loggedInUser).setVisible(true);
         });
 
-        bottomPanel.add(
-                backButton,
-                BorderLayout.WEST
-        );
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        bottomPanel.setBackground(BACKGROUND);
+        bottomPanel.setBorder(new EmptyBorder(0, 35, 20, 35));
+        bottomPanel.add(backButton);
 
-        mainPanel.add(
-                bottomPanel,
-                BorderLayout.SOUTH
-        );
+        mainPanel.add(header, BorderLayout.NORTH);
+        mainPanel.add(contentContainer, BorderLayout.CENTER);
+        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
 
         setContentPane(mainPanel);
     }
 
-    /**
-     * Create table header label.
-     */
-    private JLabel createHeaderLabel(
-            String text) {
-
-        JLabel label =
-                new JLabel(
-                        text,
-                        SwingConstants.CENTER
-                );
-
+    private JLabel createHeaderLabel(String text, int alignment) {
+        JLabel label = new JLabel(text, alignment);
         label.setForeground(WHITE);
-
-        label.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        14
-                )
-        );
-
+        label.setFont(new Font("SansSerif", Font.BOLD, 13));
         return label;
     }
 
-    /**
-     * Create result row.
-     */
-    private JPanel createResultRow(
-            String subject,
-            String marks,
-            String grade) {
-
-        JPanel row =
-                new JPanel(
-                        new GridLayout(
-                                1,
-                                3
-                        )
-                );
-
+    private JPanel createResultRow(String subject, String marks, String grade) {
+        JPanel row = new JPanel(new GridLayout(1, 3));
         row.setBackground(WHITE);
+        row.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 1, 0, BORDER),
+                new EmptyBorder(12, 15, 12, 15)
+        ));
+        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
 
-        row.setBorder(
-                BorderFactory.createMatteBorder(
-                        0,
-                        0,
-                        1,
-                        0,
-                        BORDER
-                )
-        );
-
-        row.setMaximumSize(
-                new Dimension(
-                        Integer.MAX_VALUE,
-                        55
-                )
-        );
-
-        JLabel subjectLabel =
-                new JLabel(subject);
-
-        subjectLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.PLAIN,
-                        14
-                )
-        );
-
+        JLabel subjectLabel = new JLabel(subject);
+        subjectLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
         subjectLabel.setForeground(TEXT);
 
-        JLabel marksLabel =
-                new JLabel(
-                        marks,
-                        SwingConstants.CENTER
-                );
-
-        marksLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        14
-                )
-        );
-
+        JLabel marksLabel = new JLabel(marks, SwingConstants.CENTER);
+        marksLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
         marksLabel.setForeground(TEXT);
 
-        JLabel gradeLabel =
-                new JLabel(
-                        grade,
-                        SwingConstants.CENTER
-                );
-
-        gradeLabel.setFont(
-                new Font(
-                        "SansSerif",
-                        Font.BOLD,
-                        14
-                )
-        );
-
+        JLabel gradeLabel = new JLabel(grade, SwingConstants.CENTER);
+        gradeLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
         gradeLabel.setForeground(PURPLE);
 
         row.add(subjectLabel);
@@ -540,16 +193,29 @@ public class ResultFrame extends JFrame {
         return row;
     }
 
-    /**
-     * Main method for testing.
-     */
+    private JPanel createSummaryItem(String title, String value) {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setOpaque(false);
+
+        JLabel titleLbl = new JLabel(title);
+        titleLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        titleLbl.setForeground(LIGHT_TEXT);
+        titleLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        JLabel valueLbl = new JLabel(value);
+        valueLbl.setFont(new Font("SansSerif", Font.BOLD, 15));
+        valueLbl.setForeground(PURPLE_DARK);
+        valueLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        panel.add(titleLbl);
+        panel.add(Box.createVerticalStrut(4));
+        panel.add(valueLbl);
+
+        return panel;
+    }
+
     public static void main(String[] args) {
-
-        SwingUtilities.invokeLater(() -> {
-
-            new ResultFrame(null)
-                    .setVisible(true);
-        });
+        SwingUtilities.invokeLater(() -> new ResultFrame(null).setVisible(true));
     }
 }
-

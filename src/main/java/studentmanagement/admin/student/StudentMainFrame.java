@@ -83,7 +83,7 @@ public class StudentMainFrame extends JFrame {
         JButton addButton = new JButton("+ Add Student");
         addButton.setFont(new Font("Arial", Font.BOLD, 14));
         addButton.setFocusPainted(false);
-        addButton.setBackground(new Color(103, 58, 183));
+        addButton.setBackground(new Color(22, 119, 60));
         addButton.setForeground(Color.WHITE);
         addButton.setBorder(new EmptyBorder(10, 18, 10, 18));
         addButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -338,7 +338,7 @@ public class StudentMainFrame extends JFrame {
         backButton.setForeground(Color.WHITE);
 
         backButton.setBackground(
-                new Color(24, 190, 126)
+                new Color(31, 147, 102)
         );
 
         backButton.setFocusPainted(false);
