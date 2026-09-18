@@ -15,10 +15,18 @@ public class AttendancePanel extends JFrame {
     private JTable attendanceTable;
     private DefaultTableModel tableModel;
 
-    private static final Color PRIMARY = new Color(28, 51, 43);
-    private static final Color BG = new Color(242, 246, 243);
-    private static final Color TEXT_MUTED = new Color(80, 90, 85);
-    private static final Color BORDER_COLOR = new Color(205, 215, 210);
+    // =========================================================
+    // COLOR PALETTE
+    // =========================================================
+
+    private static final Color PRIMARY = Color.decode("#7F7B7F");
+    private static final Color PRIMARY_HOVER = Color.decode("#696669");
+    private static final Color SECONDARY = Color.decode("#C7CED6");
+    private static final Color BG = Color.decode("#F6EDDD");
+    private static final Color BORDER_COLOR = Color.decode("#DBD9D9");
+    private static final Color CARD_BG = Color.decode("#FFFDF9");
+    private static final Color TEXT_DARK = Color.decode("#373537");
+    private static final Color TEXT_MUTED = Color.decode("#696669");
 
     private final AttendanceDAO attendanceDAO = new AttendanceDAO();
 
@@ -55,7 +63,7 @@ public class AttendancePanel extends JFrame {
 
         JLabel title = new JLabel("Attendance Management");
         title.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        title.setForeground(PRIMARY);
+        title.setForeground(TEXT_DARK);
 
         JLabel subtitle = new JLabel(
                 "Manage and track all student attendance"
@@ -83,10 +91,10 @@ public class AttendancePanel extends JFrame {
         JButton updateBtn = new JButton("Update Attendance");
         JButton refreshBtn = new JButton("Refresh");
 
-        styleButton(addBtn);
-        styleButton(viewBtn);
-        styleButton(updateBtn);
-        styleButton(refreshBtn);
+        styleButton(addBtn, true);
+        styleButton(viewBtn, false);
+        styleButton(updateBtn, false);
+        styleButton(refreshBtn, false);
 
         buttonPanel.add(addBtn);
         buttonPanel.add(viewBtn);
@@ -120,12 +128,20 @@ public class AttendancePanel extends JFrame {
                 new Font("Segoe UI", Font.PLAIN, 12)
         );
 
+        attendanceTable.setBackground(CARD_BG);
+        attendanceTable.setForeground(TEXT_DARK);
+        attendanceTable.setGridColor(BORDER_COLOR);
+        attendanceTable.setSelectionBackground(SECONDARY);
+        attendanceTable.setSelectionForeground(TEXT_DARK);
+
         attendanceTable.getTableHeader().setFont(
                 new Font("Segoe UI", Font.BOLD, 12)
         );
 
-        attendanceTable.getTableHeader().setBackground(PRIMARY);
-        attendanceTable.getTableHeader().setForeground(Color.WHITE);
+        attendanceTable.getTableHeader().setBackground(SECONDARY);
+        attendanceTable.getTableHeader().setForeground(TEXT_DARK);
+
+        attendanceTable.getTableHeader().setOpaque(true);
 
         attendanceTable.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION
@@ -135,6 +151,12 @@ public class AttendancePanel extends JFrame {
 
         JScrollPane scrollPane =
                 new JScrollPane(attendanceTable);
+
+        scrollPane.setBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR)
+        );
+
+        scrollPane.getViewport().setBackground(CARD_BG);
 
         JPanel centerPanel =
                 new JPanel(new BorderLayout(10, 10));
@@ -243,6 +265,8 @@ public class AttendancePanel extends JFrame {
                 new GridLayout(5, 2, 10, 10)
         );
 
+        panel.setBackground(CARD_BG);
+
         panel.add(new JLabel("Attendance ID:"));
         panel.add(new JLabel(attendanceId));
 
@@ -342,7 +366,7 @@ public class AttendancePanel extends JFrame {
         JPanel mainPanel =
                 new JPanel(new BorderLayout(10, 10));
 
-        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBackground(BG);
 
         mainPanel.setBorder(
                 BorderFactory.createEmptyBorder(
@@ -365,7 +389,7 @@ public class AttendancePanel extends JFrame {
                 )
         );
 
-        title.setForeground(PRIMARY);
+        title.setForeground(TEXT_DARK);
 
         mainPanel.add(
                 title,
@@ -379,7 +403,7 @@ public class AttendancePanel extends JFrame {
         JPanel formPanel =
                 new JPanel(new GridBagLayout());
 
-        formPanel.setBackground(Color.WHITE);
+        formPanel.setBackground(BG);
 
         GridBagConstraints gbc =
                 new GridBagConstraints();
@@ -397,6 +421,8 @@ public class AttendancePanel extends JFrame {
         JLabel studentLabel =
                 new JLabel("Student:");
 
+        studentLabel.setForeground(TEXT_DARK);
+
         JComboBox<Student> studentComboBox =
                 new JComboBox<>();
 
@@ -410,6 +436,9 @@ public class AttendancePanel extends JFrame {
 
             studentComboBox.addItem(student);
         }
+
+        studentComboBox.setBackground(CARD_BG);
+        studentComboBox.setForeground(TEXT_DARK);
 
         studentComboBox.setRenderer(
                 new DefaultListCellRenderer() {
@@ -430,6 +459,14 @@ public class AttendancePanel extends JFrame {
                                 isSelected,
                                 cellHasFocus
                         );
+
+                        setBackground(
+                                isSelected
+                                        ? SECONDARY
+                                        : CARD_BG
+                        );
+
+                        setForeground(TEXT_DARK);
 
                         if (value instanceof Student) {
 
@@ -487,8 +524,12 @@ public class AttendancePanel extends JFrame {
         JLabel dateLabel =
                 new JLabel("Date:");
 
+        dateLabel.setForeground(TEXT_DARK);
+
         JTextField dateField =
                 new JTextField(currentDate);
+
+        styleTextField(dateField);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -514,6 +555,8 @@ public class AttendancePanel extends JFrame {
         JLabel statusLabel =
                 new JLabel("Status:");
 
+        statusLabel.setForeground(TEXT_DARK);
+
         String[] statuses = {
                 "Present",
                 "Absent",
@@ -522,6 +565,9 @@ public class AttendancePanel extends JFrame {
 
         JComboBox<String> statusComboBox =
                 new JComboBox<>(statuses);
+
+        statusComboBox.setBackground(CARD_BG);
+        statusComboBox.setForeground(TEXT_DARK);
 
         statusComboBox.setSelectedItem(
                 currentStatus
@@ -562,7 +608,7 @@ public class AttendancePanel extends JFrame {
                         )
                 );
 
-        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.setBackground(BG);
 
         JButton cancelButton =
                 new JButton("Cancel");
@@ -570,8 +616,8 @@ public class AttendancePanel extends JFrame {
         JButton updateButton =
                 new JButton("Update Attendance");
 
-        styleButton(cancelButton);
-        styleButton(updateButton);
+        styleButton(cancelButton, false);
+        styleButton(updateButton, true);
 
         buttonPanel.add(cancelButton);
         buttonPanel.add(updateButton);
@@ -700,7 +746,7 @@ public class AttendancePanel extends JFrame {
         JPanel mainPanel =
                 new JPanel(new BorderLayout(10, 10));
 
-        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBackground(BG);
 
         mainPanel.setBorder(
                 BorderFactory.createEmptyBorder(
@@ -719,7 +765,7 @@ public class AttendancePanel extends JFrame {
                 )
         );
 
-        title.setForeground(PRIMARY);
+        title.setForeground(TEXT_DARK);
 
         mainPanel.add(
                 title,
@@ -733,7 +779,7 @@ public class AttendancePanel extends JFrame {
         JPanel formPanel =
                 new JPanel(new GridBagLayout());
 
-        formPanel.setBackground(Color.WHITE);
+        formPanel.setBackground(BG);
 
         GridBagConstraints gbc =
                 new GridBagConstraints();
@@ -751,6 +797,8 @@ public class AttendancePanel extends JFrame {
         JLabel studentLabel =
                 new JLabel("Student:");
 
+        studentLabel.setForeground(TEXT_DARK);
+
         JComboBox<Student> studentComboBox =
                 new JComboBox<>();
 
@@ -764,6 +812,9 @@ public class AttendancePanel extends JFrame {
 
             studentComboBox.addItem(student);
         }
+
+        studentComboBox.setBackground(CARD_BG);
+        studentComboBox.setForeground(TEXT_DARK);
 
         studentComboBox.setRenderer(
                 new DefaultListCellRenderer() {
@@ -784,6 +835,14 @@ public class AttendancePanel extends JFrame {
                                 isSelected,
                                 cellHasFocus
                         );
+
+                        setBackground(
+                                isSelected
+                                        ? SECONDARY
+                                        : CARD_BG
+                        );
+
+                        setForeground(TEXT_DARK);
 
                         if (value instanceof Student) {
 
@@ -826,10 +885,14 @@ public class AttendancePanel extends JFrame {
         JLabel dateLabel =
                 new JLabel("Date:");
 
+        dateLabel.setForeground(TEXT_DARK);
+
         JTextField dateField =
                 new JTextField(
                         LocalDate.now().toString()
                 );
+
+        styleTextField(dateField);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -855,6 +918,8 @@ public class AttendancePanel extends JFrame {
         JLabel statusLabel =
                 new JLabel("Status:");
 
+        statusLabel.setForeground(TEXT_DARK);
+
         String[] statuses = {
                 "Present",
                 "Absent",
@@ -863,6 +928,9 @@ public class AttendancePanel extends JFrame {
 
         JComboBox<String> statusComboBox =
                 new JComboBox<>(statuses);
+
+        statusComboBox.setBackground(CARD_BG);
+        statusComboBox.setForeground(TEXT_DARK);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
@@ -899,7 +967,7 @@ public class AttendancePanel extends JFrame {
                         )
                 );
 
-        buttonPanel.setBackground(Color.WHITE);
+        buttonPanel.setBackground(BG);
 
         JButton cancelButton =
                 new JButton("Cancel");
@@ -907,8 +975,8 @@ public class AttendancePanel extends JFrame {
         JButton saveButton =
                 new JButton("Save Attendance");
 
-        styleButton(cancelButton);
-        styleButton(saveButton);
+        styleButton(cancelButton, false);
+        styleButton(saveButton, true);
 
         buttonPanel.add(cancelButton);
         buttonPanel.add(saveButton);
@@ -1020,7 +1088,7 @@ public class AttendancePanel extends JFrame {
     // BUTTON STYLE
     // =========================================================
 
-    private void styleButton(JButton button) {
+    private void styleButton(JButton button, boolean primary) {
 
         button.setFont(
                 new Font(
@@ -1036,16 +1104,61 @@ public class AttendancePanel extends JFrame {
                 new Cursor(Cursor.HAND_CURSOR)
         );
 
-        button.setBackground(Color.WHITE);
-        button.setForeground(PRIMARY);
+        if (primary) {
 
-        button.setBorder(
+            button.setBackground(PRIMARY);
+            button.setForeground(Color.WHITE);
+
+            button.setBorder(
+                    BorderFactory.createEmptyBorder(
+                            8, 14, 8, 14
+                    )
+            );
+
+        } else {
+
+            button.setBackground(SECONDARY);
+            button.setForeground(TEXT_DARK);
+
+            button.setBorder(
+                    BorderFactory.createCompoundBorder(
+                            BorderFactory.createLineBorder(
+                                    BORDER_COLOR
+                            ),
+                            BorderFactory.createEmptyBorder(
+                                    7, 12, 7, 12
+                            )
+                    )
+            );
+        }
+    }
+
+
+    // =========================================================
+    // TEXT FIELD STYLE
+    // =========================================================
+
+    private void styleTextField(JTextField field) {
+
+        field.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        field.setBackground(CARD_BG);
+        field.setForeground(TEXT_DARK);
+        field.setCaretColor(TEXT_DARK);
+
+        field.setBorder(
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(
                                 BORDER_COLOR
                         ),
                         BorderFactory.createEmptyBorder(
-                                7, 12, 7, 12
+                                6, 8, 6, 8
                         )
                 )
         );

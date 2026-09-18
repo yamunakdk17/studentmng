@@ -12,9 +12,9 @@ public class Student {
     private String course;
     private int semester;
 
-    // =========================================================
+
     // DEFAULT CONSTRUCTOR
-    // =========================================================
+
     public Student() {
     }
 
@@ -33,10 +33,10 @@ public class Student {
         this.email = email;
     }
 
-    // =========================================================
+
     // CONSTRUCTOR - WITH ID
     // Keeps compatibility with existing code
-    // =========================================================
+
     public Student(int studentId, String name, int age,
                    String gender, String address,
                    String phone, String email) {
@@ -50,9 +50,8 @@ public class Student {
         this.email = email;
     }
 
-    // =========================================================
+
     // CONSTRUCTOR - WITHOUT ID + COURSE + SEMESTER
-    // =========================================================
     public Student(String name, int age, String gender,
                    String address, String phone, String email,
                    String course, int semester) {
@@ -67,9 +66,9 @@ public class Student {
         this.semester = semester;
     }
 
-    // =========================================================
+
     // CONSTRUCTOR - WITH ID + COURSE + SEMESTER
-    // =========================================================
+
     public Student(int studentId, String name, int age,
                    String gender, String address,
                    String phone, String email,
@@ -86,9 +85,9 @@ public class Student {
         this.semester = semester;
     }
 
-    // =========================================================
+
     // STUDENT ID
-    // =========================================================
+
     public int getStudentId() {
         return studentId;
     }
@@ -97,9 +96,9 @@ public class Student {
         this.studentId = studentId;
     }
 
-    // =========================================================
+
     // NAME
-    // =========================================================
+
     public String getName() {
         return name;
     }
@@ -108,9 +107,9 @@ public class Student {
         this.name = name;
     }
 
-    // =========================================================
+
     // AGE
-    // =========================================================
+
     public int getAge() {
         return age;
     }
@@ -119,9 +118,9 @@ public class Student {
         this.age = age;
     }
 
-    // =========================================================
+
     // GENDER
-    // =========================================================
+
     public String getGender() {
         return gender;
     }
@@ -130,9 +129,9 @@ public class Student {
         this.gender = gender;
     }
 
-    // =========================================================
+
     // ADDRESS
-    // =========================================================
+
     public String getAddress() {
         return address;
     }
@@ -141,9 +140,8 @@ public class Student {
         this.address = address;
     }
 
-    // =========================================================
     // PHONE
-    // =========================================================
+
     public String getPhone() {
         return phone;
     }
@@ -152,9 +150,8 @@ public class Student {
         this.phone = phone;
     }
 
-    // =========================================================
     // EMAIL
-    // =========================================================
+
     public String getEmail() {
         return email;
     }
@@ -163,9 +160,7 @@ public class Student {
         this.email = email;
     }
 
-    // =========================================================
     // COURSE
-    // =========================================================
     public String getCourse() {
         return course;
     }
@@ -174,9 +169,9 @@ public class Student {
         this.course = course;
     }
 
-    // =========================================================
+
     // SEMESTER
-    // =========================================================
+
     public int getSemester() {
         return semester;
     }
@@ -185,9 +180,9 @@ public class Student {
         this.semester = semester;
     }
 
-    // =========================================================
+
     // TO STRING
-    // =========================================================
+
     @Override
     public String toString() {
         return name;

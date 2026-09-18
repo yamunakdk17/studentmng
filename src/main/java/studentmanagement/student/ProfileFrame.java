@@ -1,5 +1,7 @@
 package studentmanagement.student;
 
+import studentmanagement.dao.StudentDAO;
+import studentmanagement.model.Student;
 import studentmanagement.model.User;
 
 import javax.swing.*;
@@ -8,269 +10,1196 @@ import java.awt.*;
 
 public class ProfileFrame extends JFrame {
 
+    // =========================================================
+    // USER / DATABASE
+    // =========================================================
+
     private final User loggedInUser;
+    private final StudentDAO studentDAO;
 
-    // =========================
-    // COLORS (Modernized Palette)
-    // =========================
-    private final Color BACKGROUND = new Color(245, 247, 250);
-    private final Color PURPLE_DARK = new Color(73, 57, 122);
-    private final Color PURPLE = new Color(108, 86, 166);
-    private final Color PURPLE_LIGHT = new Color(240, 237, 250);
+    private Student student;
 
-    private final Color TEXT = new Color(40, 40, 55);
-    private final Color LIGHT_TEXT = new Color(110, 110, 125);
-    private final Color BORDER = new Color(230, 230, 240);
+    // =========================================================
+    // COLORS
+    // =========================================================
 
-    private final Color WHITE = Color.WHITE;
-    private final Color GREEN = new Color(40, 160, 90);
-    private final Color LIGHT_GREEN = new Color(230, 248, 238);
+    private static final Color BACKGROUND =
+            new Color(245, 247, 250);
+
+    private static final Color WHITE =
+            Color.WHITE;
+
+    private static final Color TEXT =
+            new Color(35, 40, 38);
+
+    private static final Color LIGHT_TEXT =
+            new Color(105, 115, 110);
+
+    private static final Color BORDER =
+            new Color(226, 232, 240);
+
+    private static final Color DARK_GREEN =
+            new Color(28, 51, 43);
+
+    private static final Color GREEN =
+            new Color(16, 185, 129);
+
+    private static final Color LIGHT_GREEN =
+            new Color(236, 253, 245);
+
+    // =========================================================
+    // LABELS
+    // =========================================================
+
+    private JLabel nameValue;
+    private JLabel idValue;
+    private JLabel phoneValue;
+    private JLabel emailValue;
+    private JLabel genderValue;
+    private JLabel courseValue;
+    private JLabel attendanceValue;
+
+    // =========================================================
+    // CONSTRUCTOR
+    // =========================================================
 
     public ProfileFrame(User user) {
+
         this.loggedInUser = user;
+        this.studentDAO = new StudentDAO();
 
         setTitle("My Profile");
-        setSize(950, 680);
-        setMinimumSize(new Dimension(850, 600));
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+
+        setSize(850, 620);
+
+        setMinimumSize(
+                new Dimension(750, 550)
+        );
+
+        setDefaultCloseOperation(
+                JFrame.DISPOSE_ON_CLOSE
+        );
+
         setLocationRelativeTo(null);
+
+        loadStudent();
 
         createUI();
     }
 
-    private void createUI() {
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(BACKGROUND);
+    // =========================================================
+    // LOAD STUDENT
+    // =========================================================
 
-        // =====================================================
-        // HEADER WITH ACCENT BANNER
-        // =====================================================
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(WHITE);
-        header.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, BORDER),
-                new EmptyBorder(20, 35, 20, 35)
-        ));
+    private void loadStudent() {
 
-        JLabel title = new JLabel("My Profile");
-        title.setFont(new Font("SansSerif", Font.BOLD, 24));
-        title.setForeground(TEXT);
+        if (loggedInUser == null) {
+            return;
+        }
 
-        JLabel subtitle = new JLabel("View your student information and account details");
-        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        subtitle.setForeground(LIGHT_TEXT);
+        int studentId =
+                loggedInUser.getStudentId();
 
-        JPanel titlePanel = new JPanel();
-        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
-        titlePanel.setOpaque(false);
-        titlePanel.add(title);
-        titlePanel.add(Box.createVerticalStrut(4));
-        titlePanel.add(subtitle);
-
-        header.add(titlePanel, BorderLayout.WEST);
-
-        // Quick action button in header
-        JButton editButton = new JButton("Edit Profile");
-        editButton.setFont(new Font("SansSerif", Font.BOLD, 12));
-        editButton.setForeground(PURPLE);
-        editButton.setBackground(PURPLE_LIGHT);
-        editButton.setFocusPainted(false);
-        editButton.setBorder(new EmptyBorder(8, 16, 8, 16));
-        editButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        JPanel headerRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 5));
-        headerRight.setOpaque(false);
-        headerRight.add(editButton);
-        header.add(headerRight, BorderLayout.EAST);
-
-        // =====================================================
-        // CONTENT AREA (Grid Layout for Balance)
-        // =====================================================
-        JPanel content = new JPanel(new BorderLayout(25, 0));
-        content.setBackground(BACKGROUND);
-        content.setBorder(new EmptyBorder(25, 35, 20, 35));
-
-        // =====================================================
-        // LEFT PROFILE CARD
-        // =====================================================
-        JPanel profileCard = new JPanel();
-        profileCard.setLayout(new BoxLayout(profileCard, BoxLayout.Y_AXIS));
-        profileCard.setBackground(WHITE);
-        profileCard.setPreferredSize(new Dimension(280, 0));
-        profileCard.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER, 1, true),
-                new EmptyBorder(30, 20, 30, 20)
-        ));
-
-        // Profile Image with ring effect
-        JLabel profileImage = new JLabel("PHOTO");
-        profileImage.setPreferredSize(new Dimension(120, 120));
-        profileImage.setMaximumSize(new Dimension(120, 120));
-        profileImage.setHorizontalAlignment(SwingConstants.CENTER);
-        profileImage.setOpaque(true);
-        profileImage.setBackground(PURPLE_LIGHT);
-        profileImage.setForeground(PURPLE_DARK);
-        profileImage.setFont(new Font("SansSerif", Font.BOLD, 14));
-        profileImage.setAlignmentX(Component.CENTER_ALIGNMENT);
+        if (studentId <= 0) {
+            return;
+        }
 
         try {
-            java.net.URL imageURL = getClass().getResource("/images/profile.png");
-            if (imageURL != null) {
-                Image image = new ImageIcon(imageURL).getImage().getScaledInstance(120, 120, Image.SCALE_SMOOTH);
-                profileImage.setIcon(new ImageIcon(image));
-                profileImage.setText("");
-            }
-        } catch (Exception ignored) {}
 
-        profileCard.add(profileImage);
-        profileCard.add(Box.createVerticalStrut(18));
+            student =
+                    studentDAO.getStudentById(
+                            studentId
+                    );
 
-        JLabel nameLabel = new JLabel(getUsername());
-        nameLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
-        nameLabel.setForeground(TEXT);
-        nameLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        profileCard.add(nameLabel);
+        } catch (Exception e) {
 
-        profileCard.add(Box.createVerticalStrut(5));
+            e.printStackTrace();
 
-        JLabel idLabel = new JLabel("ID: " + getStudentId());
-        idLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        idLabel.setForeground(LIGHT_TEXT);
-        idLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        profileCard.add(idLabel);
-
-        profileCard.add(Box.createVerticalStrut(15));
-
-        // Status Badge
-        JPanel statusPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 6, 4));
-        statusPanel.setBackground(LIGHT_GREEN);
-        statusPanel.setMaximumSize(new Dimension(100, 30));
-
-        JLabel statusDot = new JLabel("●");
-        statusDot.setForeground(GREEN);
-        JLabel statusText = new JLabel("Active");
-        statusText.setFont(new Font("SansSerif", Font.BOLD, 12));
-        statusText.setForeground(GREEN);
-
-        statusPanel.add(statusDot);
-        statusPanel.add(statusText);
-        statusPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-        profileCard.add(statusPanel);
-
-        profileCard.add(Box.createVerticalGlue());
-        content.add(profileCard, BorderLayout.WEST);
-
-        // =====================================================
-        // RIGHT INFORMATION AREA
-        // =====================================================
-        JPanel informationArea = new JPanel();
-        informationArea.setLayout(new BoxLayout(informationArea, BoxLayout.Y_AXIS));
-        informationArea.setBackground(BACKGROUND);
-
-        // Personal Info Card
-        JPanel personalCard = createInformationCard("Personal Information");
-        personalCard.add(createInfoRow("Student ID", getStudentId()));
-        personalCard.add(createSeparator());
-        personalCard.add(createInfoRow("Username", getUsername()));
-        personalCard.add(createSeparator());
-        personalCard.add(createInfoRow("Account Status", "Active Student"));
-        informationArea.add(personalCard);
-
-        informationArea.add(Box.createVerticalStrut(15));
-
-        // Contact Info Card
-        JPanel contactCard = createInformationCard("Contact Information");
-        contactCard.add(createInfoRow("Phone Number", "9814839022"));
-        contactCard.add(createSeparator());
-        contactCard.add(createInfoRow("Email Address", "yamunakdk7@gmail.com"));
-        informationArea.add(contactCard);
-
-        informationArea.add(Box.createVerticalGlue());
-        content.add(informationArea, BorderLayout.CENTER);
-
-        // =====================================================
-        // BOTTOM NAVIGATION
-        // =====================================================
-        JButton backButton = new JButton("← Back to Dashboard");
-        backButton.setFont(new Font("SansSerif", Font.BOLD, 13));
-        backButton.setForeground(WHITE);
-        backButton.setBackground(PURPLE);
-        backButton.setFocusPainted(false);
-        backButton.setBorderPainted(false);
-        backButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        backButton.setBorder(new EmptyBorder(10, 20, 10, 20));
-
-        backButton.addActionListener(e -> {
-            dispose();
-            if (loggedInUser != null) {
-                new StudentDashboard(loggedInUser).setVisible(true);
-            }
-        });
-
-        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        bottom.setBackground(BACKGROUND);
-        bottom.setBorder(new EmptyBorder(0, 35, 20, 35));
-        bottom.add(backButton);
-
-        mainPanel.add(header, BorderLayout.NORTH);
-        mainPanel.add(content, BorderLayout.CENTER);
-        mainPanel.add(bottom, BorderLayout.SOUTH);
-
-        add(mainPanel);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Unable to load student profile.\n"
+                            + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
     }
 
-    private JPanel createInformationCard(String title) {
-        JPanel card = new JPanel();
-        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
-        card.setBackground(WHITE);
-        card.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER, 1, true),
-                new EmptyBorder(18, 22, 18, 22)
-        ));
+    // =========================================================
+    // CREATE UI
+    // =========================================================
 
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 15));
-        titleLabel.setForeground(PURPLE_DARK);
+    private void createUI() {
 
-        card.add(titleLabel);
-        card.add(Box.createVerticalStrut(12));
-        return card;
+        JPanel mainPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        mainPanel.setBackground(
+                BACKGROUND
+        );
+
+        // Header
+        mainPanel.add(
+                createHeader(),
+                BorderLayout.NORTH
+        );
+
+        // Center
+        mainPanel.add(
+                createProfileContent(),
+                BorderLayout.CENTER
+        );
+
+        // Footer
+        mainPanel.add(
+                createFooter(),
+                BorderLayout.SOUTH
+        );
+
+        setContentPane(mainPanel);
     }
 
-    private JPanel createInfoRow(String label, String value) {
-        JPanel row = new JPanel(new BorderLayout());
-        row.setOpaque(false);
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
+    // =========================================================
+    // HEADER
+    // =========================================================
 
-        JLabel labelLabel = new JLabel(label);
-        labelLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        labelLabel.setForeground(LIGHT_TEXT);
+    private JPanel createHeader() {
 
-        JLabel valueLabel = new JLabel(value);
-        valueLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-        valueLabel.setForeground(TEXT);
+        JPanel header =
+                new JPanel(
+                        new BorderLayout()
+                );
 
-        row.add(labelLabel, BorderLayout.WEST);
-        row.add(valueLabel, BorderLayout.EAST);
-        return row;
+        header.setBackground(
+                WHITE
+        );
+
+        header.setBorder(
+                new EmptyBorder(
+                        20,
+                        25,
+                        20,
+                        25
+                )
+        );
+
+        JPanel left =
+                new JPanel();
+
+        left.setLayout(
+                new BoxLayout(
+                        left,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        left.setBackground(
+                WHITE
+        );
+
+        JLabel title =
+                new JLabel(
+                        "My Profile"
+                );
+
+        title.setForeground(
+                TEXT
+        );
+
+        title.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        24
+                )
+        );
+
+        JLabel subtitle =
+                new JLabel(
+                        "View your personal and academic information"
+                );
+
+        subtitle.setForeground(
+                LIGHT_TEXT
+        );
+
+        subtitle.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        left.add(title);
+
+        left.add(
+                Box.createVerticalStrut(5)
+        );
+
+        left.add(subtitle);
+
+        header.add(
+                left,
+                BorderLayout.WEST
+        );
+
+        JLabel id =
+                new JLabel(
+                        "Student ID: "
+                                + getStudentId()
+                );
+
+        id.setForeground(
+                DARK_GREEN
+        );
+
+        id.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        13
+                )
+        );
+
+        header.add(
+                id,
+                BorderLayout.EAST
+        );
+
+        return header;
     }
 
-    private JSeparator createSeparator() {
-        JSeparator separator = new JSeparator();
-        separator.setForeground(BORDER);
-        separator.setMaximumSize(new Dimension(Integer.MAX_VALUE, 1));
-        return separator;
+    // =========================================================
+    // PROFILE CONTENT
+    // =========================================================
+
+    private JPanel createProfileContent() {
+
+        JPanel outer =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        outer.setBackground(
+                BACKGROUND
+        );
+
+        outer.setBorder(
+                new EmptyBorder(
+                        25,
+                        30,
+                        25,
+                        30
+                )
+        );
+
+        JPanel card =
+                new JPanel(
+                        new BorderLayout(
+                                30,
+                                0
+                        )
+                );
+
+        card.setBackground(
+                WHITE
+        );
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER
+                        ),
+                        new EmptyBorder(
+                                25,
+                                25,
+                                25,
+                                25
+                        )
+                )
+        );
+
+        // =====================================================
+        // LEFT PROFILE
+        // =====================================================
+
+        JPanel left =
+                createProfileLeft();
+
+        left.setPreferredSize(
+                new Dimension(
+                        210,
+                        0
+                )
+        );
+
+        card.add(
+                left,
+                BorderLayout.WEST
+        );
+
+        // =====================================================
+        // RIGHT INFORMATION
+        // =====================================================
+
+        JPanel right =
+                createInformationPanel();
+
+        card.add(
+                right,
+                BorderLayout.CENTER
+        );
+
+        outer.add(
+                card,
+                BorderLayout.CENTER
+        );
+
+        return outer;
     }
+
+    // =========================================================
+    // PROFILE LEFT
+    // =========================================================
+
+    private JPanel createProfileLeft() {
+
+        JPanel panel =
+                new JPanel();
+
+        panel.setLayout(
+                new BoxLayout(
+                        panel,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        panel.setBackground(
+                WHITE
+        );
+
+        JLabel avatar =
+                new JLabel(
+                        getInitials(),
+                        SwingConstants.CENTER
+                );
+
+        avatar.setOpaque(true);
+
+        avatar.setBackground(
+                DARK_GREEN
+        );
+
+        avatar.setForeground(
+                WHITE
+        );
+
+        avatar.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        32
+                )
+        );
+
+        avatar.setPreferredSize(
+                new Dimension(
+                        125,
+                        125
+                )
+        );
+
+        avatar.setMaximumSize(
+                new Dimension(
+                        125,
+                        125
+                )
+        );
+
+        avatar.setMinimumSize(
+                new Dimension(
+                        125,
+                        125
+                )
+        );
+
+        avatar.setAlignmentX(
+                Component.CENTER_ALIGNMENT
+        );
+
+        panel.add(avatar);
+
+        panel.add(
+                Box.createVerticalStrut(18)
+        );
+
+        JLabel name =
+                new JLabel(
+                        getStudentName(),
+                        SwingConstants.CENTER
+                );
+
+        name.setForeground(
+                TEXT
+        );
+
+        name.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        17
+                )
+        );
+
+        name.setAlignmentX(
+                Component.CENTER_ALIGNMENT
+        );
+
+        panel.add(name);
+
+        panel.add(
+                Box.createVerticalStrut(5)
+        );
+
+        JLabel student =
+                new JLabel(
+                        "Student",
+                        SwingConstants.CENTER
+                );
+
+        student.setForeground(
+                LIGHT_TEXT
+        );
+
+        student.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        student.setAlignmentX(
+                Component.CENTER_ALIGNMENT
+        );
+
+        panel.add(student);
+
+        panel.add(
+                Box.createVerticalStrut(18)
+        );
+
+        JPanel active =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.CENTER,
+                                8,
+                                5
+                        )
+                );
+
+        active.setBackground(
+                LIGHT_GREEN
+        );
+
+        active.setMaximumSize(
+                new Dimension(
+                        150,
+                        32
+                )
+        );
+
+        JLabel dot =
+                new JLabel("●");
+
+        dot.setForeground(
+                GREEN
+        );
+
+        JLabel activeText =
+                new JLabel(
+                        "Active Student"
+                );
+
+        activeText.setForeground(
+                DARK_GREEN
+        );
+
+        activeText.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        11
+                )
+        );
+
+        active.add(dot);
+        active.add(activeText);
+
+        active.setAlignmentX(
+                Component.CENTER_ALIGNMENT
+        );
+
+        panel.add(active);
+
+        return panel;
+    }
+
+    // =========================================================
+    // INFORMATION PANEL
+    // =========================================================
+
+    private JPanel createInformationPanel() {
+
+        JPanel panel =
+                new JPanel();
+
+        panel.setLayout(
+                new BoxLayout(
+                        panel,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        panel.setBackground(
+                WHITE
+        );
+
+        JLabel title =
+                new JLabel(
+                        "Personal Information"
+                );
+
+        title.setForeground(
+                TEXT
+        );
+
+        title.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        17
+                )
+        );
+
+        panel.add(title);
+
+        panel.add(
+                Box.createVerticalStrut(20)
+        );
+
+        // =====================================================
+        // ROW 1
+        // =====================================================
+
+        JPanel row1 =
+                new JPanel(
+                        new GridLayout(
+                                1,
+                                2,
+                                18,
+                                0
+                        )
+                );
+
+        row1.setBackground(
+                WHITE
+        );
+
+        nameValue =
+                createValueLabel(
+                        getStudentName()
+                );
+
+        idValue =
+                createValueLabel(
+                        getStudentId()
+                );
+
+        row1.add(
+                createInfoBox(
+                        "Full Name",
+                        nameValue
+                )
+        );
+
+        row1.add(
+                createInfoBox(
+                        "Student ID",
+                        idValue
+                )
+        );
+
+        panel.add(row1);
+
+        panel.add(
+                Box.createVerticalStrut(15)
+        );
+
+        // =====================================================
+        // ROW 2
+        // =====================================================
+
+        JPanel row2 =
+                new JPanel(
+                        new GridLayout(
+                                1,
+                                2,
+                                18,
+                                0
+                        )
+                );
+
+        row2.setBackground(
+                WHITE
+        );
+
+        phoneValue =
+                createValueLabel(
+                        getPhone()
+                );
+
+        emailValue =
+                createValueLabel(
+                        getEmail()
+                );
+
+        row2.add(
+                createInfoBox(
+                        "Phone",
+                        phoneValue
+                )
+        );
+
+        row2.add(
+                createInfoBox(
+                        "Email",
+                        emailValue
+                )
+        );
+
+        panel.add(row2);
+
+        panel.add(
+                Box.createVerticalStrut(15)
+        );
+
+        // =====================================================
+        // ROW 3
+        // =====================================================
+
+        JPanel row3 =
+                new JPanel(
+                        new GridLayout(
+                                1,
+                                2,
+                                18,
+                                0
+                        )
+                );
+
+        row3.setBackground(
+                WHITE
+        );
+
+        genderValue =
+                createValueLabel(
+                        getGender()
+                );
+
+        courseValue =
+                createValueLabel(
+                        getCourse()
+                );
+
+        row3.add(
+                createInfoBox(
+                        "Gender",
+                        genderValue
+                )
+        );
+
+        row3.add(
+                createInfoBox(
+                        "Course",
+                        courseValue
+                )
+        );
+
+        panel.add(row3);
+
+        panel.add(
+                Box.createVerticalStrut(15)
+        );
+
+        // =====================================================
+        // ATTENDANCE
+        // =====================================================
+
+        attendanceValue =
+                createValueLabel(
+                        "View from Attendance"
+                );
+
+        panel.add(
+                createInfoBox(
+                        "Attendance",
+                        attendanceValue
+                )
+        );
+
+        return panel;
+    }
+
+    // =========================================================
+    // INFO BOX
+    // =========================================================
+
+    private JPanel createInfoBox(
+            String title,
+            JLabel value
+    ) {
+
+        JPanel box =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        box.setBackground(
+                new Color(
+                        248,
+                        250,
+                        252
+                )
+        );
+
+        box.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER
+                        ),
+                        new EmptyBorder(
+                                10,
+                                12,
+                                10,
+                                12
+                        )
+                )
+        );
+
+        JLabel titleLabel =
+                new JLabel(title);
+
+        titleLabel.setForeground(
+                LIGHT_TEXT
+        );
+
+        titleLabel.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.PLAIN,
+                        11
+                )
+        );
+
+        box.add(
+                titleLabel,
+                BorderLayout.NORTH
+        );
+
+        box.add(
+                value,
+                BorderLayout.CENTER
+        );
+
+        return box;
+    }
+
+    // =========================================================
+    // VALUE LABEL
+    // =========================================================
+
+    private JLabel createValueLabel(
+            String value
+    ) {
+
+        JLabel label =
+                new JLabel(value);
+
+        label.setForeground(
+                TEXT
+        );
+
+        label.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        13
+                )
+        );
+
+        return label;
+    }
+
+    // =========================================================
+    // FOOTER
+    // =========================================================
+
+    private JPanel createFooter() {
+
+        JPanel footer =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        footer.setBackground(
+                WHITE
+        );
+
+        footer.setBorder(
+                new EmptyBorder(
+                        12,
+                        25,
+                        12,
+                        25
+                )
+        );
+
+        JButton refreshButton =
+                new JButton(
+                        "Refresh"
+                );
+
+        refreshButton.setFocusPainted(
+                false
+        );
+
+        refreshButton.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        refreshButton.addActionListener(
+                e -> refreshProfile()
+        );
+
+        JButton backButton =
+                new JButton(
+                        "Back"
+                );
+
+        backButton.setFocusPainted(
+                false
+        );
+
+        backButton.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        backButton.addActionListener(
+                e -> dispose()
+        );
+
+        footer.add(
+                refreshButton,
+                BorderLayout.WEST
+        );
+
+        footer.add(
+                backButton,
+                BorderLayout.EAST
+        );
+
+        return footer;
+    }
+
+    // =========================================================
+    // REFRESH
+    // =========================================================
+
+    private void refreshProfile() {
+
+        loadStudent();
+
+        nameValue.setText(
+                getStudentName()
+        );
+
+        idValue.setText(
+                getStudentId()
+        );
+
+        phoneValue.setText(
+                getPhone()
+        );
+
+        emailValue.setText(
+                getEmail()
+        );
+
+        genderValue.setText(
+                getGender()
+        );
+
+        courseValue.setText(
+                getCourse()
+        );
+
+        revalidate();
+        repaint();
+    }
+
+    // =========================================================
+    // GET STUDENT NAME
+    // =========================================================
+
+    private String getStudentName() {
+
+        if (
+                student != null &&
+                        student.getName() != null &&
+                        !student.getName()
+                                .trim()
+                                .isEmpty()
+        ) {
+
+            return student.getName();
+        }
+
+        if (
+                loggedInUser != null &&
+                        loggedInUser.getUsername() != null
+        ) {
+
+            return loggedInUser.getUsername();
+        }
+
+        return "Student";
+    }
+
+    // =========================================================
+    // GET STUDENT ID
+    // =========================================================
 
     private String getStudentId() {
-        return loggedInUser == null ? "101" : String.valueOf(loggedInUser.getStudentId());
+
+        if (loggedInUser == null) {
+            return "Not available";
+        }
+
+        return String.valueOf(
+                loggedInUser.getStudentId()
+        );
     }
 
-    private String getUsername() {
-        return loggedInUser == null ? "simi gurung" : loggedInUser.getUsername();
+    // =========================================================
+    // GET PHONE
+    // =========================================================
+
+    private String getPhone() {
+
+        if (
+                student != null &&
+                        student.getPhone() != null &&
+                        !student.getPhone()
+                                .trim()
+                                .isEmpty()
+        ) {
+
+            return student.getPhone();
+        }
+
+        return "Not available";
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ProfileFrame(null).setVisible(true));
+    // =========================================================
+    // GET EMAIL
+    // =========================================================
+
+    private String getEmail() {
+
+        /*
+         * If your Student model has getEmail(),
+         * this will display it.
+         *
+         * Otherwise User username is used.
+         */
+
+        if (loggedInUser != null) {
+
+            if (
+                    loggedInUser.getUsername() != null &&
+                            loggedInUser.getUsername()
+                                    .contains("@")
+            ) {
+
+                return loggedInUser.getUsername();
+            }
+        }
+
+        return "Not available";
+    }
+
+    // =========================================================
+    // GET GENDER
+    // =========================================================
+
+    private String getGender() {
+
+        if (student == null) {
+            return "Not available";
+        }
+
+        /*
+         * Your current Student model may use gender
+         * or may have changed this field to attendance.
+         *
+         * Keep this safe so the ProfileFrame compiles
+         * with the current Student model.
+         */
+
+        try {
+
+            java.lang.reflect.Method method =
+                    student.getClass()
+                            .getMethod(
+                                    "getGender"
+                            );
+
+            Object result =
+                    method.invoke(student);
+
+            if (result != null) {
+
+                String value =
+                        result.toString();
+
+                if (!value.trim().isEmpty()) {
+
+                    return value;
+                }
+            }
+
+        } catch (Exception ignored) {
+        }
+
+        return "Not available";
+    }
+
+    // =========================================================
+    // GET COURSE
+    // =========================================================
+
+    private String getCourse() {
+
+        if (student == null) {
+            return "Not available";
+        }
+
+        /*
+         * Try getCourseName() if your Student model
+         * contains it.
+         */
+
+        try {
+
+            java.lang.reflect.Method method =
+                    student.getClass()
+                            .getMethod(
+                                    "getCourseName"
+                            );
+
+            Object result =
+                    method.invoke(student);
+
+            if (result != null) {
+
+                String value =
+                        result.toString();
+
+                if (!value.trim().isEmpty()) {
+
+                    return value;
+                }
+            }
+
+        } catch (Exception ignored) {
+        }
+
+        /*
+         * Try getCourseId()
+         */
+
+        try {
+
+            java.lang.reflect.Method method =
+                    student.getClass()
+                            .getMethod(
+                                    "getCourseId"
+                            );
+
+            Object result =
+                    method.invoke(student);
+
+            if (result != null) {
+
+                return "Course ID: "
+                        + result;
+            }
+
+        } catch (Exception ignored) {
+        }
+
+        return "Not available";
+    }
+
+    // =========================================================
+    // INITIALS
+    // =========================================================
+
+    private String getInitials() {
+
+        String name =
+                getStudentName();
+
+        if (
+                name == null ||
+                        name.trim().isEmpty()
+        ) {
+
+            return "ST";
+        }
+
+        String[] parts =
+                name.trim()
+                        .split("\\s+");
+
+        if (parts.length == 1) {
+
+            return parts[0]
+                    .substring(
+                            0,
+                            Math.min(
+                                    2,
+                                    parts[0].length()
+                            )
+                    )
+                    .toUpperCase();
+        }
+
+        return (
+                parts[0].charAt(0)
+                        + ""
+                        +
+                        parts[
+                                parts.length - 1
+                                ].charAt(0)
+        ).toUpperCase();
     }
 }

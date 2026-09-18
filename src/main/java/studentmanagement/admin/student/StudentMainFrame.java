@@ -2,19 +2,43 @@ package studentmanagement.admin.student;
 
 import studentmanagement.dao.StudentDAO;
 import studentmanagement.model.Student;
+import studentmanagement.admin.MainFrame;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
-import studentmanagement.admin.MainFrame;
 
 public class StudentMainFrame extends JFrame {
 
+    // =========================================================
+    // COLORS - PROJECT-WIDE THEME
+    // =========================================================
+    private static final Color PRIMARY = Color.decode("#7F7B7F");
+    private static final Color PRIMARY_HOVER = Color.decode("#696669");
+
+    private static final Color SECONDARY = Color.decode("#C7CED6");
+
+    private static final Color BG = Color.decode("#F6EDDD");
+    private static final Color BORDER_COLOR = Color.decode("#DBD9D9");
+
+    private static final Color CARD_BG = Color.decode("#FFFDF9");
+
+    private static final Color TEXT_DARK = Color.decode("#373537");
+    private static final Color TEXT_MUTED = Color.decode("#696669");
+
+    private static final Color DELETE_RED = Color.decode("#B43C3C");
+    private static final Color DELETE_RED_HOVER = Color.decode("#963333");
+
+    // =========================================================
+    // FIELDS
+    // =========================================================
     private final StudentDAO studentDAO = new StudentDAO();
 
     private JTable studentTable;
@@ -37,11 +61,16 @@ public class StudentMainFrame extends JFrame {
     private int currentPage = 1;
     private final int rowsPerPage = 6;
 
+    // =========================================================
+    // CONSTRUCTOR
+    // =========================================================
     public StudentMainFrame() {
 
         setTitle("Student Management");
         setSize(1200, 700);
+        setMinimumSize(new Dimension(1000, 600));
         setLocationRelativeTo(null);
+
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         initUI();
@@ -51,130 +80,284 @@ public class StudentMainFrame extends JFrame {
     // =========================================================
     // MAIN UI
     // =========================================================
-
     private void initUI() {
 
-        JPanel mainPanel = new JPanel(new BorderLayout(15, 15));
-        mainPanel.setBorder(new EmptyBorder(20, 20, 20, 20));
-        mainPanel.setBackground(new Color(245, 245, 250));
+        JPanel mainPanel =
+                new JPanel(new BorderLayout(15, 15));
 
-        // -----------------------------------------------------
+        mainPanel.setBorder(
+                new EmptyBorder(20, 20, 20, 20)
+        );
+
+        mainPanel.setBackground(BG);
+
+        // =====================================================
         // HEADER
-        // -----------------------------------------------------
+        // =====================================================
 
-        JPanel headerPanel = new JPanel(new BorderLayout());
+        JPanel headerPanel =
+                new JPanel(new BorderLayout());
+
         headerPanel.setOpaque(false);
 
-        JLabel titleLabel = new JLabel("Student Management");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
+        JPanel titlePanel =
+                new JPanel();
 
-        JLabel subtitleLabel = new JLabel("Manage student records");
-        subtitleLabel.setFont(new Font("Arial", Font.PLAIN, 14));
-        subtitleLabel.setForeground(Color.GRAY);
+        titlePanel.setLayout(
+                new BoxLayout(
+                        titlePanel,
+                        BoxLayout.Y_AXIS
+                )
+        );
 
-        JPanel titlePanel = new JPanel();
-        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         titlePanel.setOpaque(false);
 
+        JLabel titleLabel =
+                new JLabel("Student Management");
+
+        titleLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        26
+                )
+        );
+
+        titleLabel.setForeground(TEXT_DARK);
+
+        JLabel subtitleLabel =
+                new JLabel("Manage student records");
+
+        subtitleLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        subtitleLabel.setForeground(TEXT_MUTED);
+
         titlePanel.add(titleLabel);
-        titlePanel.add(Box.createVerticalStrut(5));
+        titlePanel.add(
+                Box.createVerticalStrut(4)
+        );
         titlePanel.add(subtitleLabel);
 
-        JButton addButton = new JButton("+ Add Student");
-        addButton.setFont(new Font("Arial", Font.BOLD, 14));
-        addButton.setFocusPainted(false);
-        addButton.setBackground(new Color(22, 119, 60));
-        addButton.setForeground(Color.WHITE);
-        addButton.setBorder(new EmptyBorder(10, 18, 10, 18));
-        addButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        JButton addButton =
+                new JButton("+ Add Student");
 
-        addButton.addActionListener(e -> openAddStudent());
+        stylePrimaryButton(
+                addButton,
+                125,
+                38
+        );
 
-        headerPanel.add(titlePanel, BorderLayout.WEST);
-        headerPanel.add(addButton, BorderLayout.EAST);
+        addButton.addActionListener(
+                e -> openAddStudent()
+        );
 
-        // -----------------------------------------------------
+        headerPanel.add(
+                titlePanel,
+                BorderLayout.WEST
+        );
+
+        headerPanel.add(
+                addButton,
+                BorderLayout.EAST
+        );
+
+        // =====================================================
         // STATISTICS
-        // -----------------------------------------------------
+        // =====================================================
 
-        JPanel statisticsPanel = new JPanel(new GridLayout(1, 4, 15, 0));
+        JPanel statisticsPanel =
+                new JPanel(
+                        new GridLayout(
+                                1,
+                                4,
+                                15,
+                                0
+                        )
+                );
+
         statisticsPanel.setOpaque(false);
 
-        JPanel totalCard = createStatCard(
-                "Total Students",
-                "0"
-        );
+        JPanel totalCard =
+                createStatCard(
+                        "Total Students",
+                        "0"
+                );
 
-        JPanel maleCard = createStatCard(
-                "Male",
-                "0"
-        );
+        JPanel maleCard =
+                createStatCard(
+                        "Male",
+                        "0"
+                );
 
-        JPanel femaleCard = createStatCard(
-                "Female",
-                "0"
-        );
+        JPanel femaleCard =
+                createStatCard(
+                        "Female",
+                        "0"
+                );
 
-        JPanel otherCard = createStatCard(
-                "Others",
-                "0"
-        );
+        JPanel otherCard =
+                createStatCard(
+                        "Others",
+                        "0"
+                );
 
-        totalLabel = (JLabel) totalCard.getClientProperty("valueLabel");
-        maleLabel = (JLabel) maleCard.getClientProperty("valueLabel");
-        femaleLabel = (JLabel) femaleCard.getClientProperty("valueLabel");
-        otherLabel = (JLabel) otherCard.getClientProperty("valueLabel");
+        totalLabel =
+                (JLabel) totalCard.getClientProperty(
+                        "valueLabel"
+                );
+
+        maleLabel =
+                (JLabel) maleCard.getClientProperty(
+                        "valueLabel"
+                );
+
+        femaleLabel =
+                (JLabel) femaleCard.getClientProperty(
+                        "valueLabel"
+                );
+
+        otherLabel =
+                (JLabel) otherCard.getClientProperty(
+                        "valueLabel"
+                );
 
         statisticsPanel.add(totalCard);
         statisticsPanel.add(maleCard);
         statisticsPanel.add(femaleCard);
         statisticsPanel.add(otherCard);
 
-        // -----------------------------------------------------
+        // =====================================================
         // SEARCH AND FILTER
-        // -----------------------------------------------------
+        // =====================================================
 
-        JPanel searchPanel = new JPanel(new BorderLayout(10, 0));
+        JPanel searchPanel =
+                new JPanel(
+                        new BorderLayout(
+                                10,
+                                0
+                        )
+                );
+
         searchPanel.setOpaque(false);
 
         searchField = new JTextField();
-        searchField.setFont(new Font("Arial", Font.PLAIN, 14));
-        searchField.setPreferredSize(new Dimension(300, 38));
 
-        searchField.setToolTipText("Search by student name, phone or email");
-
-        searchField.getDocument().addDocumentListener(
-                new javax.swing.event.DocumentListener() {
-
-                    public void insertUpdate(javax.swing.event.DocumentEvent e) {
-                        refreshTable();
-                    }
-
-                    public void removeUpdate(javax.swing.event.DocumentEvent e) {
-                        refreshTable();
-                    }
-
-                    public void changedUpdate(javax.swing.event.DocumentEvent e) {
-                        refreshTable();
-                    }
-                }
+        searchField.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
         );
 
-        genderFilter = new JComboBox<>(
-                new String[]{"All Gender", "Male", "Female", "Other"}
+        searchField.setForeground(TEXT_DARK);
+        searchField.setBackground(CARD_BG);
+
+        searchField.setPreferredSize(
+                new Dimension(300, 38)
         );
 
-        genderFilter.setPreferredSize(new Dimension(150, 38));
-        genderFilter.setFont(new Font("Arial", Font.PLAIN, 14));
+        searchField.setToolTipText(
+                "Search by student name, phone or email"
+        );
 
-        genderFilter.addActionListener(e -> refreshTable());
+        searchField.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR,
+                                1,
+                                true
+                        ),
+                        BorderFactory.createEmptyBorder(
+                                0,
+                                10,
+                                0,
+                                10
+                        )
+                )
+        );
 
-        searchPanel.add(searchField, BorderLayout.WEST);
-        searchPanel.add(genderFilter, BorderLayout.EAST);
+        searchField.getDocument()
+                .addDocumentListener(
+                        new DocumentListener() {
 
-        // -----------------------------------------------------
+                            @Override
+                            public void insertUpdate(
+                                    DocumentEvent e
+                            ) {
+                                refreshTable();
+                            }
+
+                            @Override
+                            public void removeUpdate(
+                                    DocumentEvent e
+                            ) {
+                                refreshTable();
+                            }
+
+                            @Override
+                            public void changedUpdate(
+                                    DocumentEvent e
+                            ) {
+                                refreshTable();
+                            }
+                        }
+                );
+
+        genderFilter =
+                new JComboBox<>(
+                        new String[]{
+                                "All Gender",
+                                "Male",
+                                "Female",
+                                "Other"
+                        }
+                );
+
+        genderFilter.setPreferredSize(
+                new Dimension(150, 38)
+        );
+
+        genderFilter.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        genderFilter.setForeground(TEXT_DARK);
+        genderFilter.setBackground(CARD_BG);
+
+        genderFilter.setBorder(
+                BorderFactory.createLineBorder(
+                        BORDER_COLOR
+                )
+        );
+
+        genderFilter.addActionListener(
+                e -> refreshTable()
+        );
+
+        searchPanel.add(
+                searchField,
+                BorderLayout.WEST
+        );
+
+        searchPanel.add(
+                genderFilter,
+                BorderLayout.EAST
+        );
+
+        // =====================================================
         // TABLE
-        // -----------------------------------------------------
+        // =====================================================
 
         String[] columns = {
                 "ID",
@@ -187,42 +370,122 @@ public class StudentMainFrame extends JFrame {
                 "Action"
         };
 
-        tableModel = new DefaultTableModel(columns, 0) {
+        tableModel =
+                new DefaultTableModel(
+                        columns,
+                        0
+                ) {
 
-            @Override
-            public boolean isCellEditable(int row, int column) {
-                return false;
-            }
-        };
+                    @Override
+                    public boolean isCellEditable(
+                            int row,
+                            int column
+                    ) {
+                        return false;
+                    }
+                };
 
-        studentTable = new JTable(tableModel);
+        studentTable =
+                new JTable(tableModel);
 
-        studentTable.setRowHeight(45);
-        studentTable.setFont(new Font("Arial", Font.PLAIN, 13));
-        studentTable.getTableHeader().setFont(
-                new Font("Arial", Font.BOLD, 13)
+        studentTable.setRowHeight(42);
+
+        studentTable.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
         );
 
-        studentTable.getTableHeader().setPreferredSize(
-                new Dimension(0, 40)
-        );
+        studentTable.setForeground(TEXT_DARK);
+        studentTable.setBackground(CARD_BG);
+
+        studentTable.setGridColor(BORDER_COLOR);
+        studentTable.setShowVerticalLines(false);
+        studentTable.setShowHorizontalLines(true);
 
         studentTable.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION
         );
 
-        // Column widths
+        studentTable.setSelectionBackground(
+                SECONDARY
+        );
 
-        studentTable.getColumnModel().getColumn(0).setPreferredWidth(50);
-        studentTable.getColumnModel().getColumn(1).setPreferredWidth(150);
-        studentTable.getColumnModel().getColumn(2).setPreferredWidth(50);
-        studentTable.getColumnModel().getColumn(3).setPreferredWidth(80);
-        studentTable.getColumnModel().getColumn(4).setPreferredWidth(150);
-        studentTable.getColumnModel().getColumn(5).setPreferredWidth(110);
-        studentTable.getColumnModel().getColumn(6).setPreferredWidth(180);
-        studentTable.getColumnModel().getColumn(7).setPreferredWidth(140);
+        studentTable.setSelectionForeground(
+                TEXT_DARK
+        );
 
-        // Center some columns
+        // =====================================================
+        // TABLE HEADER
+        // =====================================================
+
+        studentTable.getTableHeader()
+                .setFont(
+                        new Font(
+                                "Segoe UI",
+                                Font.BOLD,
+                                12
+                        )
+                );
+
+        studentTable.getTableHeader()
+                .setForeground(TEXT_DARK);
+
+        studentTable.getTableHeader()
+                .setBackground(SECONDARY);
+
+        studentTable.getTableHeader()
+                .setPreferredSize(
+                        new Dimension(
+                                0,
+                                40
+                        )
+                );
+
+        studentTable.getTableHeader()
+                .setReorderingAllowed(false);
+
+        // =====================================================
+        // COLUMN WIDTHS
+        // =====================================================
+
+        studentTable.getColumnModel()
+                .getColumn(0)
+                .setPreferredWidth(50);
+
+        studentTable.getColumnModel()
+                .getColumn(1)
+                .setPreferredWidth(150);
+
+        studentTable.getColumnModel()
+                .getColumn(2)
+                .setPreferredWidth(50);
+
+        studentTable.getColumnModel()
+                .getColumn(3)
+                .setPreferredWidth(80);
+
+        studentTable.getColumnModel()
+                .getColumn(4)
+                .setPreferredWidth(150);
+
+        studentTable.getColumnModel()
+                .getColumn(5)
+                .setPreferredWidth(110);
+
+        studentTable.getColumnModel()
+                .getColumn(6)
+                .setPreferredWidth(180);
+
+        studentTable.getColumnModel()
+                .getColumn(7)
+                .setPreferredWidth(140);
+
+        // =====================================================
+        // CENTERED COLUMNS
+        // =====================================================
 
         DefaultTableCellRenderer centerRenderer =
                 new DefaultTableCellRenderer();
@@ -230,6 +493,8 @@ public class StudentMainFrame extends JFrame {
         centerRenderer.setHorizontalAlignment(
                 SwingConstants.CENTER
         );
+
+        centerRenderer.setForeground(TEXT_DARK);
 
         studentTable.getColumnModel()
                 .getColumn(0)
@@ -243,40 +508,83 @@ public class StudentMainFrame extends JFrame {
                 .getColumn(3)
                 .setCellRenderer(centerRenderer);
 
-        // Action column
+        // =====================================================
+        // ACTION COLUMN
+        // =====================================================
 
         studentTable.getColumnModel()
                 .getColumn(7)
-                .setCellRenderer(new ActionCellRenderer());
+                .setCellRenderer(
+                        new ActionCellRenderer()
+                );
 
         studentTable.getColumnModel()
                 .getColumn(7)
-                .setCellEditor(new ActionCellEditor());
+                .setCellEditor(
+                        new ActionCellEditor()
+                );
 
-        JScrollPane scrollPane = new JScrollPane(studentTable);
+        // =====================================================
+        // SCROLL PANE
+        // =====================================================
+
+        JScrollPane scrollPane =
+                new JScrollPane(studentTable);
+
         scrollPane.setBorder(
                 BorderFactory.createLineBorder(
-                        new Color(220, 220, 225)
+                        BORDER_COLOR
                 )
         );
 
-        // -----------------------------------------------------
-        // PAGINATION
-        // -----------------------------------------------------
+        scrollPane.getViewport()
+                .setBackground(CARD_BG);
 
-        JPanel paginationPanel = new JPanel(
-                new FlowLayout(FlowLayout.CENTER, 10, 5)
-        );
+        // =====================================================
+        // PAGINATION
+        // =====================================================
+
+        JPanel paginationPanel =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.CENTER,
+                                10,
+                                5
+                        )
+                );
 
         paginationPanel.setOpaque(false);
 
-        previousButton = new JButton("Previous");
-        nextButton = new JButton("Next");
+        previousButton =
+                new JButton("Previous");
 
-        pageLabel = new JLabel("Page 1");
+        nextButton =
+                new JButton("Next");
 
-        previousButton.setFocusPainted(false);
-        nextButton.setFocusPainted(false);
+        pageLabel =
+                new JLabel("Page 1");
+
+        styleSecondaryButton(
+                previousButton,
+                90,
+                34
+        );
+
+        styleSecondaryButton(
+                nextButton,
+                70,
+                34
+        );
+
+        pageLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        pageLabel.setForeground(TEXT_MUTED);
 
         previousButton.addActionListener(e -> {
 
@@ -288,7 +596,8 @@ public class StudentMainFrame extends JFrame {
 
         nextButton.addActionListener(e -> {
 
-            int totalPages = getTotalPages();
+            int totalPages =
+                    getTotalPages();
 
             if (currentPage < totalPages) {
                 currentPage++;
@@ -296,68 +605,102 @@ public class StudentMainFrame extends JFrame {
             }
         });
 
-        paginationPanel.add(previousButton);
-        paginationPanel.add(pageLabel);
-        paginationPanel.add(nextButton);
+        paginationPanel.add(
+                previousButton
+        );
 
-        // -----------------------------------------------------
+        paginationPanel.add(
+                pageLabel
+        );
+
+        paginationPanel.add(
+                nextButton
+        );
+
+        // =====================================================
         // CENTER PANEL
-        // -----------------------------------------------------
+        // =====================================================
 
-        JPanel centerPanel = new JPanel(new BorderLayout(10, 10));
+        JPanel centerPanel =
+                new JPanel(
+                        new BorderLayout(
+                                10,
+                                10
+                        )
+                );
+
         centerPanel.setOpaque(false);
 
-        centerPanel.add(searchPanel, BorderLayout.NORTH);
-        centerPanel.add(scrollPane, BorderLayout.CENTER);
-        centerPanel.add(paginationPanel, BorderLayout.SOUTH);
+        centerPanel.add(
+                searchPanel,
+                BorderLayout.NORTH
+        );
 
-        // -----------------------------------------------------
-        // ADD EVERYTHING
-        // -----------------------------------------------------
+        centerPanel.add(
+                scrollPane,
+                BorderLayout.CENTER
+        );
 
-        JPanel topPanel = new JPanel(new BorderLayout(15, 15));
+        centerPanel.add(
+                paginationPanel,
+                BorderLayout.SOUTH
+        );
+
+        // =====================================================
+        // TOP PANEL
+        // =====================================================
+
+        JPanel topPanel =
+                new JPanel(
+                        new BorderLayout(
+                                15,
+                                15
+                        )
+                );
+
         topPanel.setOpaque(false);
 
-        topPanel.add(headerPanel, BorderLayout.NORTH);
-        topPanel.add(statisticsPanel, BorderLayout.CENTER);
+        topPanel.add(
+                headerPanel,
+                BorderLayout.NORTH
+        );
 
-        mainPanel.add(topPanel, BorderLayout.NORTH);
-        mainPanel.add(centerPanel, BorderLayout.CENTER);
-// -----------------------------------------------------
-// -----------------------------------------------------
-// BACK TO DASHBOARD - SMALL COLORED BUTTON
-// -----------------------------------------------------
+        topPanel.add(
+                statisticsPanel,
+                BorderLayout.CENTER
+        );
+
+        mainPanel.add(
+                topPanel,
+                BorderLayout.NORTH
+        );
+
+        mainPanel.add(
+                centerPanel,
+                BorderLayout.CENTER
+        );
+
+        // =====================================================
+        // BACK TO DASHBOARD
+        // =====================================================
 
         JButton backButton =
-                new JButton("← BACK TO DASHBOARD");
+                new JButton(
+                        "← BACK TO DASHBOARD"
+                );
+
+        styleSecondaryButton(
+                backButton,
+                170,
+                32
+        );
 
         backButton.setFont(
-                new Font("Arial", Font.BOLD, 11)
-        );
-
-        backButton.setForeground(Color.WHITE);
-
-        backButton.setBackground(
-                new Color(31, 147, 102)
-        );
-
-        backButton.setFocusPainted(false);
-
-        backButton.setBorder(
-                BorderFactory.createEmptyBorder(
-                        7, 12, 7, 12
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        10
                 )
-        );
-
-        backButton.setCursor(
-                Cursor.getPredefinedCursor(
-                        Cursor.HAND_CURSOR
-                )
-        );
-
-// Keep button at its natural small size
-        backButton.setPreferredSize(
-                new Dimension(155, 32)
         );
 
         backButton.addActionListener(e -> {
@@ -367,7 +710,6 @@ public class StudentMainFrame extends JFrame {
             dispose();
         });
 
-// Bottom-left
         JPanel bottomPanel =
                 new JPanel(
                         new FlowLayout(
@@ -385,48 +727,208 @@ public class StudentMainFrame extends JFrame {
                 bottomPanel,
                 BorderLayout.SOUTH
         );
+
         setContentPane(mainPanel);
     }
 
+    // =========================================================
+    // PRIMARY BUTTON STYLE
+    // =========================================================
+
+    private void stylePrimaryButton(
+            JButton button,
+            int width,
+            int height
+    ) {
+
+        button.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        button.setForeground(Color.WHITE);
+        button.setBackground(PRIMARY);
+
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+
+        button.setCursor(
+                Cursor.getPredefinedCursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        button.setPreferredSize(
+                new Dimension(
+                        width,
+                        height
+                )
+        );
+
+        button.addMouseListener(
+                new MouseAdapter() {
+
+                    @Override
+                    public void mouseEntered(
+                            MouseEvent e
+                    ) {
+                        button.setBackground(
+                                PRIMARY_HOVER
+                        );
+                    }
+
+                    @Override
+                    public void mouseExited(
+                            MouseEvent e
+                    ) {
+                        button.setBackground(
+                                PRIMARY
+                        );
+                    }
+                }
+        );
+    }
+
+    // =========================================================
+    // SECONDARY BUTTON STYLE
+    // =========================================================
+
+    private void styleSecondaryButton(
+            JButton button,
+            int width,
+            int height
+    ) {
+
+        button.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        11
+                )
+        );
+
+        button.setForeground(TEXT_DARK);
+        button.setBackground(SECONDARY);
+
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+
+        button.setCursor(
+                Cursor.getPredefinedCursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        button.setPreferredSize(
+                new Dimension(
+                        width,
+                        height
+                )
+        );
+
+        button.addMouseListener(
+                new MouseAdapter() {
+
+                    @Override
+                    public void mouseEntered(
+                            MouseEvent e
+                    ) {
+                        button.setBackground(
+                                BORDER_COLOR
+                        );
+                    }
+
+                    @Override
+                    public void mouseExited(
+                            MouseEvent e
+                    ) {
+                        button.setBackground(
+                                SECONDARY
+                        );
+                    }
+                }
+        );
+    }
 
     // =========================================================
     // STAT CARD
     // =========================================================
 
-    private JPanel createStatCard(String title, String value) {
+    private JPanel createStatCard(
+            String title,
+            String value
+    ) {
 
-        JPanel card = new JPanel(new BorderLayout());
-        card.setBackground(Color.WHITE);
+        JPanel card =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        card.setBackground(CARD_BG);
 
         card.setBorder(
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(
-                                new Color(225, 225, 230)
+                                BORDER_COLOR,
+                                1,
+                                true
                         ),
-                        new EmptyBorder(15, 18, 15, 18)
+                        new EmptyBorder(
+                                14,
+                                18,
+                                14,
+                                18
+                        )
                 )
         );
 
-        JLabel titleLabel = new JLabel(title);
+        JLabel titleLabel =
+                new JLabel(title);
+
         titleLabel.setFont(
-                new Font("Arial", Font.PLAIN, 13)
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
         );
 
-        titleLabel.setForeground(Color.GRAY);
+        titleLabel.setForeground(
+                TEXT_MUTED
+        );
 
-        JLabel valueLabel = new JLabel(value);
+        JLabel valueLabel =
+                new JLabel(value);
+
         valueLabel.setFont(
-                new Font("Arial", Font.BOLD, 25)
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        24
+                )
         );
 
         valueLabel.setForeground(
-                new Color(103, 58, 183)
+                TEXT_DARK
         );
 
-        card.add(titleLabel, BorderLayout.NORTH);
-        card.add(valueLabel, BorderLayout.CENTER);
+        card.add(
+                titleLabel,
+                BorderLayout.NORTH
+        );
 
-        card.putClientProperty("valueLabel", valueLabel);
+        card.add(
+                valueLabel,
+                BorderLayout.CENTER
+        );
+
+        card.putClientProperty(
+                "valueLabel",
+                valueLabel
+        );
 
         return card;
     }
@@ -437,7 +939,8 @@ public class StudentMainFrame extends JFrame {
 
     private void loadStudents() {
 
-        students = studentDAO.getAllStudents();
+        students =
+                studentDAO.getAllStudents();
 
         currentPage = 1;
 
@@ -451,15 +954,39 @@ public class StudentMainFrame extends JFrame {
 
     private void updateStatistics() {
 
-        int total = studentDAO.count();
-        int male = studentDAO.getStudentCount("Male");
-        int female = studentDAO.getStudentCount("Female");
-        int other = studentDAO.getStudentCount("Other");
+        int total =
+                studentDAO.count();
 
-        totalLabel.setText(String.valueOf(total));
-        maleLabel.setText(String.valueOf(male));
-        femaleLabel.setText(String.valueOf(female));
-        otherLabel.setText(String.valueOf(other));
+        int male =
+                studentDAO.getStudentCount(
+                        "Male"
+                );
+
+        int female =
+                studentDAO.getStudentCount(
+                        "Female"
+                );
+
+        int other =
+                studentDAO.getStudentCount(
+                        "Other"
+                );
+
+        totalLabel.setText(
+                String.valueOf(total)
+        );
+
+        maleLabel.setText(
+                String.valueOf(male)
+        );
+
+        femaleLabel.setText(
+                String.valueOf(female)
+        );
+
+        otherLabel.setText(
+                String.valueOf(other)
+        );
     }
 
     // =========================================================
@@ -486,24 +1013,29 @@ public class StudentMainFrame extends JFrame {
             boolean matchesSearch = true;
             boolean matchesGender = true;
 
-            // Search
+            // -------------------------------------------------
+            // SEARCH
+            // -------------------------------------------------
 
             if (!searchText.isEmpty()) {
 
                 String name =
                         student.getName() == null
                                 ? ""
-                                : student.getName().toLowerCase();
+                                : student.getName()
+                                  .toLowerCase();
 
                 String phone =
                         student.getPhone() == null
                                 ? ""
-                                : student.getPhone().toLowerCase();
+                                : student.getPhone()
+                                  .toLowerCase();
 
                 String email =
                         student.getEmail() == null
                                 ? ""
-                                : student.getEmail().toLowerCase();
+                                : student.getEmail()
+                                  .toLowerCase();
 
                 matchesSearch =
                         name.contains(searchText)
@@ -511,21 +1043,35 @@ public class StudentMainFrame extends JFrame {
                                 || email.contains(searchText);
             }
 
-            // Gender
+            // -------------------------------------------------
+            // GENDER FILTER
+            // -------------------------------------------------
 
             if (selectedGender != null
-                    && !selectedGender.equals("All Gender")) {
+                    && !selectedGender.equals(
+                    "All Gender"
+            )) {
 
                 matchesGender =
                         student.getGender() != null
                                 && student.getGender()
-                                .equalsIgnoreCase(selectedGender);
+                                .equalsIgnoreCase(
+                                        selectedGender
+                                );
             }
 
-            if (matchesSearch && matchesGender) {
-                filteredStudents.add(student);
+            if (matchesSearch
+                    && matchesGender) {
+
+                filteredStudents.add(
+                        student
+                );
             }
         }
+
+        // =====================================================
+        // PAGINATION
+        // =====================================================
 
         int totalPages =
                 Math.max(
@@ -541,13 +1087,18 @@ public class StudentMainFrame extends JFrame {
         }
 
         int start =
-                (currentPage - 1) * rowsPerPage;
+                (currentPage - 1)
+                        * rowsPerPage;
 
         int end =
                 Math.min(
                         start + rowsPerPage,
                         filteredStudents.size()
                 );
+
+        // =====================================================
+        // ADD TABLE ROWS
+        // =====================================================
 
         for (int i = start; i < end; i++) {
 
@@ -569,11 +1120,19 @@ public class StudentMainFrame extends JFrame {
         }
 
         pageLabel.setText(
-                "Page " + currentPage + " of " + totalPages
+                "Page "
+                        + currentPage
+                        + " of "
+                        + totalPages
         );
 
-        previousButton.setEnabled(currentPage > 1);
-        nextButton.setEnabled(currentPage < totalPages);
+        previousButton.setEnabled(
+                currentPage > 1
+        );
+
+        nextButton.setEnabled(
+                currentPage < totalPages
+        );
     }
 
     // =========================================================
@@ -602,17 +1161,20 @@ public class StudentMainFrame extends JFrame {
                 String name =
                         student.getName() == null
                                 ? ""
-                                : student.getName().toLowerCase();
+                                : student.getName()
+                                  .toLowerCase();
 
                 String phone =
                         student.getPhone() == null
                                 ? ""
-                                : student.getPhone().toLowerCase();
+                                : student.getPhone()
+                                  .toLowerCase();
 
                 String email =
                         student.getEmail() == null
                                 ? ""
-                                : student.getEmail().toLowerCase();
+                                : student.getEmail()
+                                  .toLowerCase();
 
                 matchesSearch =
                         name.contains(searchText)
@@ -621,15 +1183,21 @@ public class StudentMainFrame extends JFrame {
             }
 
             if (selectedGender != null
-                    && !selectedGender.equals("All Gender")) {
+                    && !selectedGender.equals(
+                    "All Gender"
+            )) {
 
                 matchesGender =
                         student.getGender() != null
                                 && student.getGender()
-                                .equalsIgnoreCase(selectedGender);
+                                .equalsIgnoreCase(
+                                        selectedGender
+                                );
             }
 
-            if (matchesSearch && matchesGender) {
+            if (matchesSearch
+                    && matchesGender) {
+
                 count++;
             }
         }
@@ -658,7 +1226,8 @@ public class StudentMainFrame extends JFrame {
 
                     @Override
                     public void windowClosed(
-                            WindowEvent e) {
+                            WindowEvent e
+                    ) {
 
                         loadStudents();
                     }
@@ -670,10 +1239,14 @@ public class StudentMainFrame extends JFrame {
     // EDIT STUDENT
     // =========================================================
 
-    private void editStudent(int studentId) {
+    private void editStudent(
+            int studentId
+    ) {
 
         Student student =
-                studentDAO.getStudentById(studentId);
+                studentDAO.getStudentById(
+                        studentId
+                );
 
         if (student == null) {
 
@@ -690,13 +1263,20 @@ public class StudentMainFrame extends JFrame {
         JOptionPane.showMessageDialog(
                 this,
                 "Selected Student:\n\n"
-                        + "ID: " + student.getStudentId()
-                        + "\nName: " + student.getName()
-                        + "\nAge: " + student.getAge()
-                        + "\nGender: " + student.getGender()
-                        + "\nAddress: " + student.getAddress()
-                        + "\nPhone: " + student.getPhone()
-                        + "\nEmail: " + student.getEmail(),
+                        + "ID: "
+                        + student.getStudentId()
+                        + "\nName: "
+                        + student.getName()
+                        + "\nAge: "
+                        + student.getAge()
+                        + "\nGender: "
+                        + student.getGender()
+                        + "\nAddress: "
+                        + student.getAddress()
+                        + "\nPhone: "
+                        + student.getPhone()
+                        + "\nEmail: "
+                        + student.getEmail(),
                 "Student Information",
                 JOptionPane.INFORMATION_MESSAGE
         );
@@ -706,7 +1286,9 @@ public class StudentMainFrame extends JFrame {
     // DELETE STUDENT
     // =========================================================
 
-    private void deleteStudent(int studentId) {
+    private void deleteStudent(
+            int studentId
+    ) {
 
         int choice =
                 JOptionPane.showConfirmDialog(
@@ -722,7 +1304,9 @@ public class StudentMainFrame extends JFrame {
         }
 
         boolean deleted =
-                studentDAO.delete(studentId);
+                studentDAO.delete(
+                        studentId
+                );
 
         if (deleted) {
 
@@ -747,7 +1331,7 @@ public class StudentMainFrame extends JFrame {
     }
 
     // =========================================================
-    // ACTION RENDERER
+    // ACTION CELL RENDERER
     // =========================================================
 
     private class ActionCellRenderer
@@ -769,29 +1353,46 @@ public class StudentMainFrame extends JFrame {
 
             setOpaque(true);
 
-            editButton = new JButton("Edit");
-            deleteButton = new JButton("Delete");
+            editButton =
+                    new JButton("Edit");
 
-            editButton.setFocusPainted(false);
-            deleteButton.setFocusPainted(false);
+            deleteButton =
+                    new JButton("Delete");
+
+            styleActionEditButton(
+                    editButton
+            );
+
+            styleActionDeleteButton(
+                    deleteButton
+            );
 
             add(editButton);
             add(deleteButton);
         }
 
         @Override
-        public Component getTableCellRendererComponent(
+        public Component
+        getTableCellRendererComponent(
                 JTable table,
                 Object value,
                 boolean isSelected,
                 boolean hasFocus,
                 int row,
-                int column) {
+                int column
+        ) {
 
             if (isSelected) {
-                setBackground(table.getSelectionBackground());
+
+                setBackground(
+                        table.getSelectionBackground()
+                );
+
             } else {
-                setBackground(Color.WHITE);
+
+                setBackground(
+                        CARD_BG
+                );
             }
 
             return this;
@@ -799,7 +1400,7 @@ public class StudentMainFrame extends JFrame {
     }
 
     // =========================================================
-    // ACTION EDITOR
+    // ACTION CELL EDITOR
     // =========================================================
 
     private class ActionCellEditor
@@ -807,6 +1408,7 @@ public class StudentMainFrame extends JFrame {
             implements javax.swing.table.TableCellEditor {
 
         private final JPanel panel;
+
         private final JButton editButton;
         private final JButton deleteButton;
 
@@ -814,48 +1416,73 @@ public class StudentMainFrame extends JFrame {
 
         public ActionCellEditor() {
 
-            panel = new JPanel(
-                    new FlowLayout(
-                            FlowLayout.CENTER,
-                            5,
-                            5
-                    )
+            panel =
+                    new JPanel(
+                            new FlowLayout(
+                                    FlowLayout.CENTER,
+                                    5,
+                                    5
+                            )
+                    );
+
+            panel.setBackground(
+                    CARD_BG
             );
 
-            editButton = new JButton("Edit");
-            deleteButton = new JButton("Delete");
+            editButton =
+                    new JButton("Edit");
 
-            editButton.setFocusPainted(false);
-            deleteButton.setFocusPainted(false);
+            deleteButton =
+                    new JButton("Delete");
+
+            styleActionEditButton(
+                    editButton
+            );
+
+            styleActionDeleteButton(
+                    deleteButton
+            );
 
             panel.add(editButton);
             panel.add(deleteButton);
 
-            editButton.addActionListener(e -> {
+            editButton.addActionListener(
+                    e -> {
 
-                fireEditingStopped();
+                        fireEditingStopped();
 
-                editStudent(studentId);
-            });
+                        editStudent(
+                                studentId
+                        );
+                    }
+            );
 
-            deleteButton.addActionListener(e -> {
+            deleteButton.addActionListener(
+                    e -> {
 
-                fireEditingStopped();
+                        fireEditingStopped();
 
-                deleteStudent(studentId);
-            });
+                        deleteStudent(
+                                studentId
+                        );
+                    }
+            );
         }
 
         @Override
-        public Component getTableCellEditorComponent(
+        public Component
+        getTableCellEditorComponent(
                 JTable table,
                 Object value,
                 boolean isSelected,
                 int row,
-                int column) {
+                int column
+        ) {
 
             int modelRow =
-                    table.convertRowIndexToModel(row);
+                    table.convertRowIndexToModel(
+                            row
+                    );
 
             studentId =
                     (int) tableModel.getValueAt(
@@ -873,18 +1500,138 @@ public class StudentMainFrame extends JFrame {
     }
 
     // =========================================================
+    // ACTION EDIT BUTTON
+    // =========================================================
+
+    private void styleActionEditButton(
+            JButton button
+    ) {
+
+        button.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        10
+                )
+        );
+
+        button.setForeground(
+                TEXT_DARK
+        );
+
+        button.setBackground(
+                SECONDARY
+        );
+
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+
+        button.setCursor(
+                Cursor.getPredefinedCursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        button.setPreferredSize(
+                new Dimension(
+                        50,
+                        28
+                )
+        );
+    }
+
+    // =========================================================
+    // ACTION DELETE BUTTON
+    // =========================================================
+
+    private void styleActionDeleteButton(
+            JButton button
+    ) {
+
+        button.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        10
+                )
+        );
+
+        button.setForeground(
+                Color.WHITE
+        );
+
+        button.setBackground(
+                DELETE_RED
+        );
+
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+
+        button.setCursor(
+                Cursor.getPredefinedCursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        button.setPreferredSize(
+                new Dimension(
+                        60,
+                        28
+                )
+        );
+
+        button.addMouseListener(
+                new MouseAdapter() {
+
+                    @Override
+                    public void mouseEntered(
+                            MouseEvent e
+                    ) {
+
+                        button.setBackground(
+                                DELETE_RED_HOVER
+                        );
+                    }
+
+                    @Override
+                    public void mouseExited(
+                            MouseEvent e
+                    ) {
+
+                        button.setBackground(
+                                DELETE_RED
+                        );
+                    }
+                }
+        );
+    }
+
+    // =========================================================
     // MAIN METHOD
     // =========================================================
 
-    public static void main(String[] args) {
+    public static void main(
+            String[] args
+    ) {
 
-        SwingUtilities.invokeLater(() -> {
+        SwingUtilities.invokeLater(
+                () -> {
 
-            StudentMainFrame frame =
-                    new StudentMainFrame();
+                    try {
 
-            frame.setVisible(true);
-        });
+                        UIManager.setLookAndFeel(
+                                UIManager
+                                        .getSystemLookAndFeelClassName()
+                        );
+
+                    } catch (Exception ignored) {
+                    }
+
+                    StudentMainFrame frame =
+                            new StudentMainFrame();
+
+                    frame.setVisible(true);
+                }
+        );
     }
-
 }

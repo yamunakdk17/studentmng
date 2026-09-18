@@ -13,16 +13,16 @@ public class MarksPanel extends JFrame {
     // =========================
     // COLORS
     // =========================
-    private final Color GREEN = new Color(23, 124, 60);
-    private final Color DARK_GREEN = new Color(17, 124, 56);
-    private final Color RED = new Color(239, 68, 68);
-    private final Color BLUE = new Color(59, 130, 246);
-    private final Color PURPLE = new Color(139, 92, 246);
-
-    private final Color TEXT = new Color(31, 41, 55);
-    private final Color MUTED = new Color(107, 114, 128);
-    private final Color BORDER = new Color(229, 231, 235);
-    private final Color LIGHT_BG = new Color(248, 250, 252);
+    private final Color PRIMARY = Color.decode("#7F7B7F");
+    private final Color PRIMARY_HOVER = Color.decode("#696669");
+    private final Color SECONDARY = Color.decode("#C7CED6");
+    private final Color BG = Color.decode("#F6EDDD");
+    private final Color CARD_BG = Color.decode("#FFFDF9");
+    private final Color TEXT = Color.decode("#373537");
+    private final Color MUTED = Color.decode("#696669");
+    private final Color BORDER = Color.decode("#DBD9D9");
+    private final Color DELETE_RED = Color.decode("#B43C3C");
+    private final Color DELETE_RED_HOVER = Color.decode("#963333");
 
     // =========================
     // COMPONENTS
@@ -41,12 +41,10 @@ public class MarksPanel extends JFrame {
     private JButton previousButton;
     private JButton nextButton;
 
-    private final List<MarkRecord> records =
-            new ArrayList<>();
+    private final List<MarkRecord> records = new ArrayList<>();
 
     private int currentPage = 1;
 
-    // 6 records per page
     private final int rowsPerPage = 6;
 
 
@@ -58,9 +56,7 @@ public class MarksPanel extends JFrame {
         setTitle("Marks Management");
         setSize(1200, 750);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(
-                JFrame.DISPOSE_ON_CLOSE
-        );
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         initializeData();
         buildUI();
@@ -135,365 +131,21 @@ public class MarksPanel extends JFrame {
     // =========================
     private void initializeData() {
 
-        records.add(new MarkRecord(
-                1,
-                "STU-001",
-                "Sita Thapa",
-                "Data Structures",
-                85
-        ));
-
-        records.add(new MarkRecord(
-                2,
-                "STU-002",
-                "Ram Sharma",
-                "Database Management",
-                76
-        ));
-
-        records.add(new MarkRecord(
-                3,
-                "STU-003",
-                "Anita Rai",
-                "Web Development",
-                92
-        ));
-
-        records.add(new MarkRecord(
-                4,
-                "STU-004",
-                "Bikash Gurung",
-                "Data Structures",
-                68
-        ));
-
-        records.add(new MarkRecord(
-                5,
-                "STU-005",
-                "Priya Karki",
-                "Database Management",
-                88
-        ));
-
-        records.add(new MarkRecord(
-                6,
-                "STU-006",
-                "Roshan Tamang",
-                "Web Development",
-                72
-        ));
-
-        records.add(new MarkRecord(
-                7,
-                "STU-007",
-                "Sarita Lama",
-                "Data Structures",
-                94
-        ));
-
-        records.add(new MarkRecord(
-                8,
-                "STU-008",
-                "Aashish KC",
-                "Database Management",
-                81
-        ));
-
-        records.add(new MarkRecord(
-                9,
-                "STU-009",
-                "Mina Shrestha",
-                "Web Development",
-                79
-        ));
-
-        records.add(new MarkRecord(
-                10,
-                "STU-010",
-                "Suman Adhikari",
-                "Data Structures",
-                65
-        ));
-
-        records.add(new MarkRecord(
-                11,
-                "STU-011",
-                "Nisha Gurung",
-                "Database Management",
-                91
-        ));
-
-        records.add(new MarkRecord(
-                12,
-                "STU-012",
-                "Ramesh Thapa",
-                "Web Development",
-                74
-        ));
-
-        records.add(new MarkRecord(
-                13,
-                "STU-013",
-                "Kabita Rai",
-                "Data Structures",
-                83
-        ));
-
-        records.add(new MarkRecord(
-                14,
-                "STU-014",
-                "Deepak Lama",
-                "Database Management",
-                69
-        ));
-
-        records.add(new MarkRecord(
-                15,
-                "STU-015",
-                "Sneha Karki",
-                "Web Development",
-                87
-        ));
-
-        records.add(new MarkRecord(
-                16,
-                "STU-016",
-                "Prabin KC",
-                "Data Structures",
-                78
-        ));
-
-        records.add(new MarkRecord(
-                17,
-                "STU-017",
-                "Rita Shrestha",
-                "Database Management",
-                95
-        ));
-
-        records.add(new MarkRecord(
-                18,
-                "STU-018",
-                "Sagar Gurung",
-                "Web Development",
-                71
-        ));
-
-        records.add(new MarkRecord(
-                19,
-                "STU-019",
-                "Puja Tamang",
-                "Data Structures",
-                89
-        ));
-
-        records.add(new MarkRecord(
-                20,
-                "STU-020",
-                "Nabin Sharma",
-                "Database Management",
-                77
-        ));
-
-        records.add(new MarkRecord(
-                21,
-                "STU-021",
-                "Asha Rai",
-                "Web Development",
-                93
-        ));
-
-        records.add(new MarkRecord(
-                22,
-                "STU-022",
-                "Kiran Thapa",
-                "Data Structures",
-                66
-        ));
-
-        records.add(new MarkRecord(
-                23,
-                "STU-023",
-                "Sita Karki",
-                "Database Management",
-                84
-        ));
-
-        records.add(new MarkRecord(
-                24,
-                "STU-024",
-                "Manoj Lama",
-                "Web Development",
-                73
-        ));
-
-        records.add(new MarkRecord(
-                25,
-                "STU-025",
-                "Bina Gurung",
-                "Data Structures",
-                90
-        ));
-
-        records.add(new MarkRecord(
-                26,
-                "STU-026",
-                "Ashok KC",
-                "Database Management",
-                63
-        ));
-
-        records.add(new MarkRecord(
-                27,
-                "STU-027",
-                "Rojina Shrestha",
-                "Web Development",
-                86
-        ));
-
-        records.add(new MarkRecord(
-                28,
-                "STU-028",
-                "Bimal Tamang",
-                "Data Structures",
-                75
-        ));
-
-        records.add(new MarkRecord(
-                29,
-                "STU-029",
-                "Maya Rai",
-                "Database Management",
-                82
-        ));
-
-        records.add(new MarkRecord(
-                30,
-                "STU-030",
-                "Sunil Thapa",
-                "Web Development",
-                58
-        ));
-
-        records.add(new MarkRecord(
-                31,
-                "STU-031",
-                "Karuna Karki",
-                "Data Structures",
-                88
-        ));
-
-        records.add(new MarkRecord(
-                32,
-                "STU-032",
-                "Bikram Lama",
-                "Database Management",
-                70
-        ));
-
-        records.add(new MarkRecord(
-                33,
-                "STU-033",
-                "Alisha Gurung",
-                "Web Development",
-                96
-        ));
-
-        records.add(new MarkRecord(
-                34,
-                "STU-034",
-                "Rajesh KC",
-                "Data Structures",
-                61
-        ));
-
-        records.add(new MarkRecord(
-                35,
-                "STU-035",
-                "Smriti Shrestha",
-                "Database Management",
-                79
-        ));
-
-        records.add(new MarkRecord(
-                36,
-                "STU-036",
-                "Santosh Tamang",
-                "Web Development",
-                67
-        ));
-
-        records.add(new MarkRecord(
-                37,
-                "STU-037",
-                "Rina Rai",
-                "Data Structures",
-                92
-        ));
-
-        records.add(new MarkRecord(
-                38,
-                "STU-038",
-                "Dipesh Thapa",
-                "Database Management",
-                74
-        ));
-
-        records.add(new MarkRecord(
-                39,
-                "STU-039",
-                "Samjhana Karki",
-                "Web Development",
-                85
-        ));
-
-        records.add(new MarkRecord(
-                40,
-                "STU-040",
-                "Rabin Gurung",
-                "Data Structures",
-                80
-        ));
-
-        records.add(new MarkRecord(
-                41,
-                "STU-041",
-                "Sushma Lama",
-                "Database Management",
-                90
-        ));
-
-        records.add(new MarkRecord(
-                42,
-                "STU-042",
-                "Niraj KC",
-                "Web Development",
-                76
-        ));
-
-        records.add(new MarkRecord(
-                43,
-                "STU-043",
-                "Aarati Rai",
-                "Data Structures",
-                87
-        ));
-
-        records.add(new MarkRecord(
-                44,
-                "STU-044",
-                "Bishal Sharma",
-                "Database Management",
-                69
-        ));
-
-        records.add(new MarkRecord(
-                45,
-                "STU-045",
-                "Rekha Thapa",
-                "Web Development",
-                83
-        ));
+          records.add(new MarkRecord(22, "STU-022", "Kiran Thapa", "Data Structures", 66));
+        records.add(new MarkRecord(23, "STU-023", "Sita Karki", "Database Management", 84));
+        records.add(new MarkRecord(24, "STU-024", "Manoj Lama", "Web Development", 73));
+        records.add(new MarkRecord(25, "STU-025", "Bina Gurung", "Data Structures", 90));
+        records.add(new MarkRecord(26, "STU-026", "Ashok KC", "Database Management", 63));
+        records.add(new MarkRecord(27, "STU-027", "Rojina Shrestha", "Web Development", 86));
+        records.add(new MarkRecord(28, "STU-028", "Bimal Tamang", "Data Structures", 75));
+        records.add(new MarkRecord(29, "STU-029", "Maya Rai", "Database Management", 82));
+        records.add(new MarkRecord(30, "STU-030", "Sunil Thapa", "Web Development", 58));
+        records.add(new MarkRecord(31, "STU-031", "Karuna Karki", "Data Structures", 88));
+        records.add(new MarkRecord(40, "STU-040", "Rabin Gurung", "Data Structures", 80));
+        records.add(new MarkRecord(41, "STU-041", "Sushma Lama", "Database Management", 90));
+        records.add(new MarkRecord(42, "STU-042", "Niraj KC", "Web Development", 76));
+        records.add(new MarkRecord(43, "STU-043", "Aarati Rai", "Data Structures", 87));
+        records.add(new MarkRecord(45, "STU-045", "Rekha Thapa", "Web Development", 83));
     }
 
 
@@ -502,28 +154,16 @@ public class MarksPanel extends JFrame {
     // =========================
     private void buildUI() {
 
-        JPanel mainPanel =
-                new JPanel(new BorderLayout());
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(BG);
 
-        mainPanel.setBackground(Color.WHITE);
+        mainPanel.add(createHeader(), BorderLayout.NORTH);
 
-        mainPanel.add(
-                createHeader(),
-                BorderLayout.NORTH
-        );
-
-        JPanel centerPanel =
-                new JPanel(new BorderLayout());
-
-        centerPanel.setBackground(Color.WHITE);
+        JPanel centerPanel = new JPanel(new BorderLayout());
+        centerPanel.setBackground(BG);
 
         centerPanel.setBorder(
-                new EmptyBorder(
-                        0,
-                        30,
-                        20,
-                        30
-                )
+                new EmptyBorder(0, 30, 20, 30)
         );
 
         centerPanel.add(
@@ -531,10 +171,8 @@ public class MarksPanel extends JFrame {
                 BorderLayout.NORTH
         );
 
-        JPanel tableArea =
-                new JPanel(new BorderLayout(0, 15));
-
-        tableArea.setBackground(Color.WHITE);
+        JPanel tableArea = new JPanel(new BorderLayout(0, 15));
+        tableArea.setBackground(BG);
 
         tableArea.add(
                 createToolbar(),
@@ -565,10 +203,8 @@ public class MarksPanel extends JFrame {
     // =========================
     private JPanel createHeader() {
 
-        JPanel header =
-                new JPanel(new BorderLayout());
-
-        header.setBackground(Color.WHITE);
+        JPanel header = new JPanel(new BorderLayout());
+        header.setBackground(PRIMARY);
 
         header.setBorder(
                 new EmptyBorder(
@@ -579,8 +215,7 @@ public class MarksPanel extends JFrame {
                 )
         );
 
-        JPanel titlePanel =
-                new JPanel();
+        JPanel titlePanel = new JPanel();
 
         titlePanel.setLayout(
                 new BoxLayout(
@@ -589,7 +224,7 @@ public class MarksPanel extends JFrame {
                 )
         );
 
-        titlePanel.setBackground(Color.WHITE);
+        titlePanel.setBackground(PRIMARY);
 
         JLabel title =
                 new JLabel("Marks Management");
@@ -602,7 +237,7 @@ public class MarksPanel extends JFrame {
                 )
         );
 
-        title.setForeground(TEXT);
+        title.setForeground(Color.WHITE);
 
         JLabel subtitle =
                 new JLabel(
@@ -617,7 +252,9 @@ public class MarksPanel extends JFrame {
                 )
         );
 
-        subtitle.setForeground(MUTED);
+        subtitle.setForeground(
+                new Color(245, 243, 243)
+        );
 
         titlePanel.add(title);
 
@@ -641,7 +278,9 @@ public class MarksPanel extends JFrame {
 
         addButton.setForeground(Color.WHITE);
 
-        addButton.setBackground(GREEN);
+        addButton.setBackground(
+                PRIMARY_HOVER
+        );
 
         addButton.setFocusPainted(false);
 
@@ -655,6 +294,29 @@ public class MarksPanel extends JFrame {
 
         addButton.setPreferredSize(
                 new Dimension(135, 42)
+        );
+
+        addButton.addMouseListener(
+                new java.awt.event.MouseAdapter() {
+
+                    @Override
+                    public void mouseEntered(
+                            java.awt.event.MouseEvent e
+                    ) {
+                        addButton.setBackground(
+                                new Color(88, 84, 88)
+                        );
+                    }
+
+                    @Override
+                    public void mouseExited(
+                            java.awt.event.MouseEvent e
+                    ) {
+                        addButton.setBackground(
+                                PRIMARY_HOVER
+                        );
+                    }
+                }
         );
 
         addButton.addActionListener(
@@ -690,7 +352,7 @@ public class MarksPanel extends JFrame {
                         )
                 );
 
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(BG);
 
         panel.setBorder(
                 new EmptyBorder(
@@ -715,8 +377,7 @@ public class MarksPanel extends JFrame {
                 createStatCard(
                         "Total Records",
                         totalRecordsLabel,
-                        "▣",
-                        BLUE
+                        "▣"
                 )
         );
 
@@ -724,8 +385,7 @@ public class MarksPanel extends JFrame {
                 createStatCard(
                         "Average Marks",
                         averageMarksLabel,
-                        "▥",
-                        PURPLE
+                        "▥"
                 )
         );
 
@@ -733,8 +393,7 @@ public class MarksPanel extends JFrame {
                 createStatCard(
                         "Pass Rate",
                         passRateLabel,
-                        "✓",
-                        GREEN
+                        "✓"
                 )
         );
 
@@ -745,14 +404,13 @@ public class MarksPanel extends JFrame {
     private JPanel createStatCard(
             String title,
             JLabel numberLabel,
-            String iconText,
-            Color iconColor
+            String iconText
     ) {
 
         JPanel card =
                 new JPanel(new BorderLayout());
 
-        card.setBackground(Color.WHITE);
+        card.setBackground(CARD_BG);
 
         card.setBorder(
                 BorderFactory.createCompoundBorder(
@@ -779,7 +437,7 @@ public class MarksPanel extends JFrame {
                 )
         );
 
-        left.setBackground(Color.WHITE);
+        left.setBackground(CARD_BG);
 
 
         JLabel titleLabel =
@@ -827,7 +485,7 @@ public class MarksPanel extends JFrame {
                 )
         );
 
-        icon.setForeground(iconColor);
+        icon.setForeground(PRIMARY);
 
 
         JPanel iconBox =
@@ -835,14 +493,7 @@ public class MarksPanel extends JFrame {
                         new GridBagLayout()
                 );
 
-        iconBox.setBackground(
-                new Color(
-                        iconColor.getRed(),
-                        iconColor.getGreen(),
-                        iconColor.getBlue(),
-                        25
-                )
-        );
+        iconBox.setBackground(SECONDARY);
 
         iconBox.setPreferredSize(
                 new Dimension(52, 52)
@@ -873,14 +524,13 @@ public class MarksPanel extends JFrame {
         JPanel toolbar =
                 new JPanel(new BorderLayout());
 
-        toolbar.setBackground(Color.WHITE);
+        toolbar.setBackground(BG);
 
 
-        // SEARCH BOX
         JPanel searchPanel =
                 new JPanel(new BorderLayout());
 
-        searchPanel.setBackground(Color.WHITE);
+        searchPanel.setBackground(CARD_BG);
 
         searchPanel.setPreferredSize(
                 new Dimension(
@@ -930,6 +580,10 @@ public class MarksPanel extends JFrame {
                 )
         );
 
+        searchField.setBackground(CARD_BG);
+
+        searchField.setForeground(TEXT);
+
         searchField.setBorder(
                 BorderFactory.createEmptyBorder(
                         5,
@@ -955,7 +609,6 @@ public class MarksPanel extends JFrame {
         );
 
 
-        // RIGHT CONTROLS
         JPanel controls =
                 new JPanel(
                         new FlowLayout(
@@ -965,10 +618,9 @@ public class MarksPanel extends JFrame {
                         )
                 );
 
-        controls.setBackground(Color.WHITE);
+        controls.setBackground(BG);
 
 
-        // REFRESH ICON ONLY
         JButton refreshButton =
                 new JButton("↻");
 
@@ -982,7 +634,7 @@ public class MarksPanel extends JFrame {
 
         refreshButton.setForeground(TEXT);
 
-        refreshButton.setBackground(Color.WHITE);
+        refreshButton.setBackground(CARD_BG);
 
         refreshButton.setFocusPainted(false);
 
@@ -1023,7 +675,6 @@ public class MarksPanel extends JFrame {
         });
 
 
-        // FILTER
         filterCombo =
                 new JComboBox<>(
                         new String[]{
@@ -1043,6 +694,10 @@ public class MarksPanel extends JFrame {
                         13
                 )
         );
+
+        filterCombo.setBackground(CARD_BG);
+
+        filterCombo.setForeground(TEXT);
 
         filterCombo.setPreferredSize(
                 new Dimension(
@@ -1075,7 +730,6 @@ public class MarksPanel extends JFrame {
         );
 
 
-        // LIVE SEARCH
         searchField.getDocument()
                 .addDocumentListener(
                         new javax.swing.event.DocumentListener() {
@@ -1084,9 +738,7 @@ public class MarksPanel extends JFrame {
                             public void insertUpdate(
                                     javax.swing.event.DocumentEvent e
                             ) {
-
                                 currentPage = 1;
-
                                 refreshTable();
                             }
 
@@ -1094,9 +746,7 @@ public class MarksPanel extends JFrame {
                             public void removeUpdate(
                                     javax.swing.event.DocumentEvent e
                             ) {
-
                                 currentPage = 1;
-
                                 refreshTable();
                             }
 
@@ -1104,9 +754,7 @@ public class MarksPanel extends JFrame {
                             public void changedUpdate(
                                     javax.swing.event.DocumentEvent e
                             ) {
-
                                 currentPage = 1;
-
                                 refreshTable();
                             }
                         }
@@ -1124,11 +772,10 @@ public class MarksPanel extends JFrame {
         JPanel panel =
                 new JPanel(new BorderLayout());
 
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(BG);
 
 
         String[] columns = {
-
                 "ID",
                 "Student Name",
                 "Subject",
@@ -1149,7 +796,6 @@ public class MarksPanel extends JFrame {
                             int row,
                             int column
                     ) {
-
                         return column == 5;
                     }
                 };
@@ -1171,26 +817,16 @@ public class MarksPanel extends JFrame {
 
         marksTable.setForeground(TEXT);
 
-        marksTable.setBackground(Color.WHITE);
+        marksTable.setBackground(CARD_BG);
 
-        marksTable.setGridColor(
-                new Color(
-                        243,
-                        244,
-                        246
-                )
-        );
+        marksTable.setGridColor(BORDER);
 
         marksTable.setShowVerticalLines(false);
 
         marksTable.setShowHorizontalLines(true);
 
         marksTable.setSelectionBackground(
-                new Color(
-                        249,
-                        250,
-                        251
-                )
+                SECONDARY
         );
 
         marksTable.setSelectionForeground(TEXT);
@@ -1214,14 +850,13 @@ public class MarksPanel extends JFrame {
                 )
         );
 
-        header.setForeground(MUTED);
+        header.setForeground(TEXT);
 
-        header.setBackground(LIGHT_BG);
+        header.setBackground(SECONDARY);
 
         header.setReorderingAllowed(false);
 
 
-        // COLUMN WIDTHS
         marksTable.getColumnModel()
                 .getColumn(0)
                 .setPreferredWidth(60);
@@ -1247,7 +882,6 @@ public class MarksPanel extends JFrame {
                 .setPreferredWidth(110);
 
 
-        // CENTER ID
         DefaultTableCellRenderer center =
                 new DefaultTableCellRenderer();
 
@@ -1259,14 +893,11 @@ public class MarksPanel extends JFrame {
                 .getColumn(0)
                 .setCellRenderer(center);
 
-
-        // CENTER MARKS
         marksTable.getColumnModel()
                 .getColumn(3)
                 .setCellRenderer(center);
 
 
-        // GRADE
         marksTable.getColumnModel()
                 .getColumn(4)
                 .setCellRenderer(
@@ -1274,7 +905,6 @@ public class MarksPanel extends JFrame {
                 );
 
 
-        // ACTION
         marksTable.getColumnModel()
                 .getColumn(5)
                 .setCellRenderer(
@@ -1298,7 +928,7 @@ public class MarksPanel extends JFrame {
         );
 
         scrollPane.getViewport()
-                .setBackground(Color.WHITE);
+                .setBackground(CARD_BG);
 
 
         panel.add(
@@ -1308,13 +938,12 @@ public class MarksPanel extends JFrame {
 
 
         // =========================
-// FOOTER
-// =========================
-
+        // FOOTER
+        // =========================
         JPanel footer =
                 new JPanel(new BorderLayout());
 
-        footer.setBackground(Color.WHITE);
+        footer.setBackground(BG);
 
         footer.setBorder(
                 new EmptyBorder(
@@ -1325,10 +954,6 @@ public class MarksPanel extends JFrame {
                 )
         );
 
-
-// =========================
-// SHOWING LABEL
-// =========================
 
         showingLabel =
                 new JLabel(
@@ -1346,10 +971,6 @@ public class MarksPanel extends JFrame {
         showingLabel.setForeground(MUTED);
 
 
-// =========================
-// BACK TO DASHBOARD
-// =========================
-
         JButton backButton =
                 new JButton("← BACK TO DASHBOARD");
 
@@ -1361,13 +982,17 @@ public class MarksPanel extends JFrame {
                 )
         );
 
-        backButton.setForeground(Color.WHITE);
+        backButton.setForeground(TEXT);
 
-        backButton.setBackground(DARK_GREEN);
+        backButton.setBackground(SECONDARY);
 
         backButton.setFocusPainted(false);
 
-        backButton.setBorderPainted(false);
+        backButton.setBorder(
+                BorderFactory.createLineBorder(
+                        BORDER
+                )
+        );
 
         backButton.setPreferredSize(
                 new Dimension(
@@ -1393,10 +1018,6 @@ public class MarksPanel extends JFrame {
         });
 
 
-// =========================
-// LEFT FOOTER
-// =========================
-
         JPanel leftFooter =
                 new JPanel(
                         new FlowLayout(
@@ -1406,7 +1027,7 @@ public class MarksPanel extends JFrame {
                         )
                 );
 
-        leftFooter.setBackground(Color.WHITE);
+        leftFooter.setBackground(BG);
 
         leftFooter.add(backButton);
 
@@ -1416,10 +1037,6 @@ public class MarksPanel extends JFrame {
 
         leftFooter.add(showingLabel);
 
-
-// =========================
-// FOOTER LAYOUT
-// =========================
 
         footer.add(
                 leftFooter,
@@ -1462,7 +1079,11 @@ public class MarksPanel extends JFrame {
                             new GridBagLayout()
                     );
 
-            panel.setBackground(Color.WHITE);
+            panel.setBackground(
+                    isSelected
+                            ? SECONDARY
+                            : CARD_BG
+            );
 
 
             JLabel grade =
@@ -1486,105 +1107,18 @@ public class MarksPanel extends JFrame {
                     )
             );
 
+            grade.setForeground(TEXT);
+
+            grade.setBackground(SECONDARY);
 
             grade.setPreferredSize(
                     new Dimension(
                             38,
-                            38
+                            30
                     )
             );
 
-
-            String g =
-                    String.valueOf(value);
-
-
-            if (g.equals("A+")
-                    || g.equals("A")
-                    || g.equals("A-")) {
-
-                grade.setForeground(
-                        new Color(
-                                21,
-                                128,
-                                61
-                        )
-                );
-
-                grade.setBackground(
-                        new Color(
-                                220,
-                                252,
-                                231
-                        )
-                );
-
-            } else if (
-                    g.equals("B+")
-                            || g.equals("B")
-                            || g.equals("B-")
-            ) {
-
-                grade.setForeground(
-                        new Color(
-                                37,
-                                99,
-                                235
-                        )
-                );
-
-                grade.setBackground(
-                        new Color(
-                                219,
-                                234,
-                                254
-                        )
-                );
-
-            } else if (
-                    g.equals("C+")
-                            || g.equals("C")
-                            || g.equals("C-")
-            ) {
-
-                grade.setForeground(
-                        new Color(
-                                180,
-                                83,
-                                9
-                        )
-                );
-
-                grade.setBackground(
-                        new Color(
-                                254,
-                                243,
-                                199
-                        )
-                );
-
-            } else {
-
-                grade.setForeground(
-                        new Color(
-                                185,
-                                28,
-                                28
-                        )
-                );
-
-                grade.setBackground(
-                        new Color(
-                                254,
-                                226,
-                                226
-                        )
-                );
-            }
-
-
             grade.setOpaque(true);
-
 
             panel.add(grade);
 
@@ -1619,7 +1153,11 @@ public class MarksPanel extends JFrame {
                             )
                     );
 
-            panel.setBackground(Color.WHITE);
+            panel.setBackground(
+                    isSelected
+                            ? SECONDARY
+                            : CARD_BG
+            );
 
 
             JLabel edit =
@@ -1633,9 +1171,7 @@ public class MarksPanel extends JFrame {
                     )
             );
 
-            edit.setForeground(
-                    DARK_GREEN
-            );
+            edit.setForeground(PRIMARY);
 
 
             JLabel delete =
@@ -1649,13 +1185,12 @@ public class MarksPanel extends JFrame {
                     )
             );
 
-            delete.setForeground(RED);
+            delete.setForeground(DELETE_RED);
 
 
             panel.add(edit);
 
             panel.add(delete);
-
 
             return panel;
         }
@@ -1689,7 +1224,7 @@ public class MarksPanel extends JFrame {
                             )
                     );
 
-            panel.setBackground(Color.WHITE);
+            panel.setBackground(CARD_BG);
 
 
             editButton =
@@ -1716,41 +1251,28 @@ public class MarksPanel extends JFrame {
             );
 
 
-            editButton.setForeground(
-                    DARK_GREEN
-            );
+            editButton.setForeground(PRIMARY);
 
-            deleteButton.setForeground(
-                    RED
-            );
+            deleteButton.setForeground(DELETE_RED);
 
 
-            editButton.setBackground(
-                    Color.WHITE
-            );
+            editButton.setBackground(CARD_BG);
 
-            deleteButton.setBackground(
-                    Color.WHITE
-            );
+            deleteButton.setBackground(CARD_BG);
 
 
             editButton.setBorderPainted(false);
 
             deleteButton.setBorderPainted(false);
 
-
             editButton.setFocusPainted(false);
 
             deleteButton.setFocusPainted(false);
 
 
-            editButton.setToolTipText(
-                    "Edit"
-            );
+            editButton.setToolTipText("Edit");
 
-            deleteButton.setToolTipText(
-                    "Delete"
-            );
+            deleteButton.setToolTipText("Delete");
 
 
             editButton.setCursor(
@@ -1853,7 +1375,7 @@ public class MarksPanel extends JFrame {
                         )
                 );
 
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(BG);
 
 
         previousButton =
@@ -1863,13 +1385,9 @@ public class MarksPanel extends JFrame {
                 new JButton("›");
 
 
-        stylePageButton(
-                previousButton
-        );
+        stylePageButton(previousButton);
 
-        stylePageButton(
-                nextButton
-        );
+        stylePageButton(nextButton);
 
 
         previousButton.addActionListener(
@@ -1917,9 +1435,7 @@ public class MarksPanel extends JFrame {
                             String.valueOf(i)
                     );
 
-            stylePageButton(
-                    pageButton
-            );
+            stylePageButton(pageButton);
 
 
             pageButton.addActionListener(
@@ -1939,7 +1455,6 @@ public class MarksPanel extends JFrame {
 
         panel.add(nextButton);
 
-
         return panel;
     }
 
@@ -1958,13 +1473,9 @@ public class MarksPanel extends JFrame {
                 )
         );
 
-        button.setBackground(
-                Color.WHITE
-        );
+        button.setBackground(CARD_BG);
 
-        button.setForeground(
-                TEXT
-        );
+        button.setForeground(TEXT);
 
         button.setBorder(
                 BorderFactory.createLineBorder(
@@ -2312,6 +1823,8 @@ public class MarksPanel extends JFrame {
                         )
                 );
 
+        panel.setBackground(CARD_BG);
+
         panel.setBorder(
                 new EmptyBorder(
                         10,
@@ -2326,36 +1839,28 @@ public class MarksPanel extends JFrame {
                 new JLabel("Student ID:")
         );
 
-        panel.add(
-                studentIdField
-        );
+        panel.add(studentIdField);
 
 
         panel.add(
                 new JLabel("Student Name:")
         );
 
-        panel.add(
-                studentNameField
-        );
+        panel.add(studentNameField);
 
 
         panel.add(
                 new JLabel("Subject:")
         );
 
-        panel.add(
-                subjectField
-        );
+        panel.add(subjectField);
 
 
         panel.add(
                 new JLabel("Marks:")
         );
 
-        panel.add(
-                marksField
-        );
+        panel.add(marksField);
 
 
         int result =
@@ -2522,6 +2027,8 @@ public class MarksPanel extends JFrame {
                         )
                 );
 
+        panel.setBackground(CARD_BG);
+
         panel.setBorder(
                 new EmptyBorder(
                         10,
@@ -2536,36 +2043,28 @@ public class MarksPanel extends JFrame {
                 new JLabel("Student ID:")
         );
 
-        panel.add(
-                studentIdField
-        );
+        panel.add(studentIdField);
 
 
         panel.add(
                 new JLabel("Student Name:")
         );
 
-        panel.add(
-                studentNameField
-        );
+        panel.add(studentNameField);
 
 
         panel.add(
                 new JLabel("Subject:")
         );
 
-        panel.add(
-                subjectField
-        );
+        panel.add(subjectField);
 
 
         panel.add(
                 new JLabel("Marks:")
         );
 
-        panel.add(
-                marksField
-        );
+        panel.add(marksField);
 
 
         int result =
@@ -2685,9 +2184,7 @@ public class MarksPanel extends JFrame {
 
             records.remove(index);
 
-
             refreshTable();
-
 
             JOptionPane.showMessageDialog(
                     this,

@@ -15,11 +15,16 @@ public class CoursePanel extends JFrame {
     // COLORS
     // =========================================================
 
-    private final Color PRIMARY = new Color(28, 113, 77);
-    private final Color TEXT = new Color(45, 45, 45);
-    private final Color LIGHT_TEXT = new Color(120, 120, 120);
-    private final Color BORDER = new Color(225, 225, 225);
-    private final Color PAGE_BG = new Color(248, 249, 250);
+    private final Color PRIMARY = Color.decode("#7F7B7F");
+    private final Color PRIMARY_HOVER = Color.decode("#696669");
+    private final Color SECONDARY = Color.decode("#C7CED6");
+    private final Color TEXT = Color.decode("#373537");
+    private final Color LIGHT_TEXT = Color.decode("#696669");
+    private final Color BORDER = Color.decode("#DBD9D9");
+    private final Color PAGE_BG = Color.decode("#F6EDDD");
+    private final Color CARD_BG = Color.decode("#FFFDF9");
+    private final Color DELETE_RED = Color.decode("#B43C3C");
+    private final Color DELETE_RED_HOVER = Color.decode("#963333");
 
     // =========================================================
     // COMPONENTS
@@ -311,7 +316,7 @@ public class CoursePanel extends JFrame {
                 );
 
         controlPanel.setBackground(
-                Color.WHITE
+                CARD_BG
         );
 
         controlPanel.setBorder(
@@ -352,22 +357,25 @@ public class CoursePanel extends JFrame {
                 );
 
         searchContainer.setBackground(
-                Color.WHITE
+                CARD_BG
         );
 
         // Magnifying glass
 
         JLabel searchIcon =
-                new JLabel("🔍");
+                new JLabel("⌕");
 
         searchIcon.setFont(
                 new Font(
-                        "Segoe UI Emoji",
+                        "Arial",
                         Font.PLAIN,
-                        18
+                        22
                 )
         );
 
+        searchIcon.setForeground(
+                LIGHT_TEXT
+        );
 
         searchIcon.setBorder(
                 new EmptyBorder(
@@ -483,8 +491,10 @@ public class CoursePanel extends JFrame {
 
         refreshButton.setFocusPainted(false);
 
+        refreshButton.setForeground(TEXT);
+
         refreshButton.setBackground(
-                Color.WHITE
+                CARD_BG
         );
 
         refreshButton.setBorder(
@@ -540,6 +550,14 @@ public class CoursePanel extends JFrame {
                 )
         );
 
+        filterCombo.setBackground(
+                CARD_BG
+        );
+
+        filterCombo.setForeground(
+                TEXT
+        );
+
         filterCombo.setPreferredSize(
                 new Dimension(
                         125,
@@ -592,7 +610,7 @@ public class CoursePanel extends JFrame {
                 );
 
         tablePanel.setBackground(
-                Color.WHITE
+                CARD_BG
         );
 
         tablePanel.setBorder(
@@ -644,19 +662,15 @@ public class CoursePanel extends JFrame {
         courseTable.setShowVerticalLines(false);
 
         courseTable.setGridColor(
-                new Color(
-                        235,
-                        235,
-                        235
-                )
+                BORDER
+        );
+
+        courseTable.setBackground(
+                CARD_BG
         );
 
         courseTable.setSelectionBackground(
-                new Color(
-                        240,
-                        248,
-                        244
-                )
+                SECONDARY
         );
 
         courseTable.setSelectionForeground(
@@ -682,15 +696,13 @@ public class CoursePanel extends JFrame {
 
         courseTable.getTableHeader()
                 .setBackground(
-                        new Color(
-                                248,
-                                248,
-                                248
-                        )
+                        SECONDARY
                 );
 
         courseTable.getTableHeader()
-                .setForeground(TEXT);
+                .setForeground(
+                        TEXT
+                );
 
         courseTable.getTableHeader()
                 .setPreferredSize(
@@ -897,18 +909,17 @@ public class CoursePanel extends JFrame {
         );
 
         // =====================================================
+        // ADD TO FRAME
         // =====================================================
-// ADD TO FRAME
-// =====================================================
 
         mainPanel.add(
                 centerPanel,
                 BorderLayout.CENTER
         );
 
-// =========================================================
-// BACK TO DASHBOARD
-// =========================================================
+        // =====================================================
+        // BACK TO DASHBOARD
+        // =====================================================
 
         JButton backButton =
                 new JButton("← BACK TO DASHBOARD");
@@ -922,16 +933,26 @@ public class CoursePanel extends JFrame {
         );
 
         backButton.setForeground(Color.WHITE);
-        backButton.setBackground(PRIMARY);
+
+        backButton.setBackground(
+                PRIMARY
+        );
+
         backButton.setFocusPainted(false);
+
         backButton.setBorderPainted(false);
 
         backButton.setPreferredSize(
-                new Dimension(160, 35)
+                new Dimension(
+                        160,
+                        35
+                )
         );
 
         backButton.setCursor(
-                new Cursor(Cursor.HAND_CURSOR)
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
         );
 
         backButton.addActionListener(e -> {
@@ -954,6 +975,7 @@ public class CoursePanel extends JFrame {
                 );
 
         backPanel.setOpaque(false);
+
         backPanel.add(backButton);
 
         JPanel bottomPanel =
@@ -997,7 +1019,7 @@ public class CoursePanel extends JFrame {
                 );
 
         card.setBackground(
-                Color.WHITE
+                CARD_BG
         );
 
         card.setBorder(
@@ -1052,7 +1074,9 @@ public class CoursePanel extends JFrame {
                 )
         );
 
-        valueLabel.setForeground(TEXT);
+        valueLabel.setForeground(
+                TEXT
+        );
 
         textPanel.add(titleLabel);
 
@@ -1380,6 +1404,10 @@ public class CoursePanel extends JFrame {
                         )
                 );
 
+        panel.setBackground(
+                PAGE_BG
+        );
+
         panel.setBorder(
                 new EmptyBorder(
                         10,
@@ -1583,6 +1611,10 @@ public class CoursePanel extends JFrame {
                                         10
                                 )
                         );
+
+                panel.setBackground(
+                        PAGE_BG
+                );
 
                 panel.setBorder(
                         new EmptyBorder(
@@ -1852,7 +1884,11 @@ public class CoursePanel extends JFrame {
         button.setFocusPainted(false);
 
         button.setBackground(
-                Color.WHITE
+                CARD_BG
+        );
+
+        button.setForeground(
+                TEXT
         );
 
         button.setBorder(
@@ -1912,37 +1948,21 @@ public class CoursePanel extends JFrame {
             ) {
 
                 label.setForeground(
-                        new Color(
-                                30,
-                                120,
-                                70
-                        )
+                        TEXT
                 );
 
                 label.setBackground(
-                        new Color(
-                                225,
-                                245,
-                                233
-                        )
+                        SECONDARY
                 );
 
             } else {
 
                 label.setForeground(
-                        new Color(
-                                190,
-                                50,
-                                50
-                        )
+                        LIGHT_TEXT
                 );
 
                 label.setBackground(
-                        new Color(
-                                252,
-                                230,
-                                230
-                        )
+                        BORDER
                 );
             }
 
@@ -1986,11 +2006,7 @@ public class CoursePanel extends JFrame {
 
             styleActionButton(
                     deleteButton,
-                    new Color(
-                            200,
-                            60,
-                            60
-                    )
+                    DELETE_RED
             );
 
             add(editButton);
@@ -2012,7 +2028,7 @@ public class CoursePanel extends JFrame {
                     isSelected
                             ? table
                               .getSelectionBackground()
-                            : Color.WHITE
+                            : CARD_BG
             );
 
             return this;
@@ -2060,11 +2076,7 @@ public class CoursePanel extends JFrame {
 
             styleActionButton(
                     deleteButton,
-                    new Color(
-                            200,
-                            60,
-                            60
-                    )
+                    DELETE_RED
             );
 
             editButton.addActionListener(
@@ -2106,7 +2118,7 @@ public class CoursePanel extends JFrame {
             currentRow = row;
 
             panel.setBackground(
-                    Color.WHITE
+                    CARD_BG
             );
 
             return panel;
@@ -2146,7 +2158,7 @@ public class CoursePanel extends JFrame {
         button.setForeground(color);
 
         button.setBackground(
-                Color.WHITE
+                CARD_BG
         );
 
         button.setFocusPainted(false);

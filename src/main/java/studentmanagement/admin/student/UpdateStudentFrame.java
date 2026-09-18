@@ -10,16 +10,31 @@ import java.awt.*;
 public class UpdateStudentFrame extends JFrame {
 
     // =========================================================
-    // COLORS
+    // COLORS — SAME PROJECT PALETTE
     // =========================================================
-    private static final Color PRIMARY = new Color(28, 51, 43);
-    private static final Color ACCENT_GREEN = new Color(40, 115, 78);
-    private static final Color ACCENT_GREEN_HOVER = new Color(48, 138, 93);
-    private static final Color BG = new Color(245, 247, 246);
-    private static final Color CARD_BG = Color.WHITE;
-    private static final Color TEXT_DARK = new Color(15, 23, 42);
-    private static final Color TEXT_MUTED = new Color(100, 116, 139);
-    private static final Color BORDER_COLOR = new Color(226, 232, 240);
+    private static final Color PRIMARY =
+            Color.decode("#7F7B7F");
+
+    private static final Color SECONDARY =
+            Color.decode("#C7CED6");
+
+    private static final Color BG =
+            Color.decode("#F6EDDD");
+
+    private static final Color BORDER_COLOR =
+            Color.decode("#DBD9D9");
+
+    private static final Color CARD_BG =
+            new Color(255, 253, 249);
+
+    private static final Color TEXT_DARK =
+            new Color(55, 53, 55);
+
+    private static final Color TEXT_MUTED =
+            new Color(105, 102, 105);
+
+    private static final Color PRIMARY_HOVER =
+            new Color(105, 101, 105);
 
     // =========================================================
     // FIELDS
@@ -52,7 +67,8 @@ public class UpdateStudentFrame extends JFrame {
                     "8"
             });
 
-    private final StudentDAO studentDAO = new StudentDAO();
+    private final StudentDAO studentDAO =
+            new StudentDAO();
 
     // =========================================================
     // CONSTRUCTOR
@@ -104,6 +120,9 @@ public class UpdateStudentFrame extends JFrame {
                 )
         );
 
+        // =====================================================
+        // TITLE PANEL
+        // =====================================================
         JPanel titlePanel =
                 new JPanel();
 
@@ -129,7 +148,9 @@ public class UpdateStudentFrame extends JFrame {
                 )
         );
 
-        title.setForeground(Color.WHITE);
+        title.setForeground(
+                Color.WHITE
+        );
 
         JLabel subtitle =
                 new JLabel(
@@ -145,7 +166,7 @@ public class UpdateStudentFrame extends JFrame {
         );
 
         subtitle.setForeground(
-                new Color(185, 210, 198)
+                new Color(235, 232, 235)
         );
 
         titlePanel.add(title);
@@ -156,6 +177,9 @@ public class UpdateStudentFrame extends JFrame {
 
         titlePanel.add(subtitle);
 
+        // =====================================================
+        // ICON
+        // =====================================================
         JLabel icon =
                 new JLabel("✎");
 
@@ -168,7 +192,7 @@ public class UpdateStudentFrame extends JFrame {
         );
 
         icon.setForeground(
-                new Color(170, 220, 190)
+                SECONDARY
         );
 
         header.add(
@@ -209,12 +233,16 @@ public class UpdateStudentFrame extends JFrame {
         );
 
         // =====================================================
-        // WHITE CARD
+        // FORM CARD
         // =====================================================
         JPanel formCard =
-                new JPanel(
-                        new BorderLayout()
+                new RoundedPanel(
+                        14
                 );
+
+        formCard.setLayout(
+                new BorderLayout()
+        );
 
         formCard.setBackground(
                 CARD_BG
@@ -224,8 +252,7 @@ public class UpdateStudentFrame extends JFrame {
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(
                                 BORDER_COLOR,
-                                1,
-                                true
+                                1
                         ),
                         BorderFactory.createEmptyBorder(
                                 22,
@@ -299,7 +326,9 @@ public class UpdateStudentFrame extends JFrame {
         // =====================================================
         // GENDER
         // =====================================================
-        styleComboBox(genderBox);
+        styleComboBox(
+                genderBox
+        );
 
         addRow(
                 fieldsPanel,
@@ -356,7 +385,9 @@ public class UpdateStudentFrame extends JFrame {
         // =====================================================
         // SEMESTER
         // =====================================================
-        styleComboBox(semesterBox);
+        styleComboBox(
+                semesterBox
+        );
 
         addRow(
                 fieldsPanel,
@@ -417,7 +448,9 @@ public class UpdateStudentFrame extends JFrame {
                 BorderLayout.CENTER
         );
 
-        // Enter key = Save Changes
+        // =====================================================
+        // ENTER KEY
+        // =====================================================
         getRootPane().setDefaultButton(
                 updateButton
         );
@@ -542,8 +575,7 @@ public class UpdateStudentFrame extends JFrame {
                 BorderFactory.createCompoundBorder(
                         BorderFactory.createLineBorder(
                                 BORDER_COLOR,
-                                1,
-                                true
+                                1
                         ),
                         BorderFactory.createEmptyBorder(
                                 0,
@@ -602,8 +634,7 @@ public class UpdateStudentFrame extends JFrame {
         comboBox.setBorder(
                 BorderFactory.createLineBorder(
                         BORDER_COLOR,
-                        1,
-                        true
+                        1
                 )
         );
     }
@@ -631,7 +662,7 @@ public class UpdateStudentFrame extends JFrame {
         );
 
         button.setBackground(
-                ACCENT_GREEN
+                PRIMARY
         );
 
         button.setFocusPainted(false);
@@ -660,7 +691,7 @@ public class UpdateStudentFrame extends JFrame {
                     ) {
 
                         button.setBackground(
-                                ACCENT_GREEN_HOVER
+                                PRIMARY_HOVER
                         );
                     }
 
@@ -670,7 +701,7 @@ public class UpdateStudentFrame extends JFrame {
                     ) {
 
                         button.setBackground(
-                                ACCENT_GREEN
+                                PRIMARY
                         );
                     }
                 }
@@ -702,14 +733,16 @@ public class UpdateStudentFrame extends JFrame {
         );
 
         button.setForeground(
-                TEXT_MUTED
+                TEXT_DARK
         );
 
         button.setBackground(
-                Color.WHITE
+                SECONDARY
         );
 
         button.setFocusPainted(false);
+
+        button.setBorderPainted(false);
 
         button.setCursor(
                 new Cursor(
@@ -724,14 +757,6 @@ public class UpdateStudentFrame extends JFrame {
                 )
         );
 
-        button.setBorder(
-                BorderFactory.createLineBorder(
-                        BORDER_COLOR,
-                        1,
-                        true
-                )
-        );
-
         button.addMouseListener(
                 new java.awt.event.MouseAdapter() {
 
@@ -741,15 +766,11 @@ public class UpdateStudentFrame extends JFrame {
                     ) {
 
                         button.setBackground(
-                                new Color(
-                                        241,
-                                        245,
-                                        249
-                                )
+                                PRIMARY
                         );
 
                         button.setForeground(
-                                TEXT_DARK
+                                Color.WHITE
                         );
                     }
 
@@ -759,11 +780,11 @@ public class UpdateStudentFrame extends JFrame {
                     ) {
 
                         button.setBackground(
-                                Color.WHITE
+                                SECONDARY
                         );
 
                         button.setForeground(
-                                TEXT_MUTED
+                                TEXT_DARK
                         );
                     }
                 }
@@ -1104,6 +1125,55 @@ public class UpdateStudentFrame extends JFrame {
         if (fieldToFocus != null) {
 
             fieldToFocus.requestFocus();
+        }
+    }
+
+    // =========================================================
+    // ROUNDED PANEL
+    // =========================================================
+    private static class RoundedPanel
+            extends JPanel {
+
+        private final int radius;
+
+        public RoundedPanel(
+                int radius
+        ) {
+
+            this.radius = radius;
+
+            setOpaque(false);
+        }
+
+        @Override
+        protected void paintComponent(
+                Graphics g
+        ) {
+
+            Graphics2D g2 =
+                    (Graphics2D) g.create();
+
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+            g2.setColor(
+                    getBackground()
+            );
+
+            g2.fillRoundRect(
+                    0,
+                    0,
+                    getWidth() - 1,
+                    getHeight() - 1,
+                    radius,
+                    radius
+            );
+
+            g2.dispose();
+
+            super.paintComponent(g);
         }
     }
 

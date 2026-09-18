@@ -11,16 +11,18 @@ import java.awt.*;
 public class AddStudentFrame extends JFrame {
 
     // =========================================================
-    // COLORS - MATCH DASHBOARD
+    // COLORS - MATCH DASHBOARD PALETTE
     // =========================================================
-    private static final Color PRIMARY = new Color(28, 51, 43);
-    private static final Color ACCENT_GREEN = new Color(40, 115, 78);
-    private static final Color ACCENT_GREEN_HOVER = new Color(48, 138, 93);
-    private static final Color BG = new Color(245, 247, 246);
-    private static final Color CARD_BG = Color.WHITE;
-    private static final Color TEXT_DARK = new Color(15, 23, 42);
-    private static final Color TEXT_MUTED = new Color(100, 116, 139);
-    private static final Color BORDER_COLOR = new Color(226, 232, 240);
+    private static final Color PRIMARY = Color.decode("#7F7B7F");
+    private static final Color SECONDARY = Color.decode("#C7CED6");
+    private static final Color BG = Color.decode("#F6EDDD");
+    private static final Color BORDER_COLOR = Color.decode("#DBD9D9");
+
+    private static final Color TEXT_DARK = new Color(55, 53, 55);
+    private static final Color TEXT_MUTED = new Color(105, 102, 105);
+    private static final Color CARD_BG = new Color(255, 253, 249);
+
+    private static final Color PRIMARY_HOVER = new Color(105, 101, 105);
 
     // =========================================================
     // FIELDS
@@ -136,9 +138,7 @@ public class AddStudentFrame extends JFrame {
                 )
         );
 
-        subtitle.setForeground(
-                new Color(185, 210, 198)
-        );
+        subtitle.setForeground(SECONDARY);
 
         titlePanel.add(title);
 
@@ -159,9 +159,7 @@ public class AddStudentFrame extends JFrame {
                 )
         );
 
-        icon.setForeground(
-                new Color(170, 220, 190)
-        );
+        icon.setForeground(SECONDARY);
 
         header.add(
                 titlePanel,
@@ -201,30 +199,28 @@ public class AddStudentFrame extends JFrame {
         );
 
         // =====================================================
-        // WHITE CARD
+        // FORM CARD
         // =====================================================
-        JPanel formCard =
-                new JPanel(
-                        new BorderLayout()
+        RoundedPanel formCard =
+                new RoundedPanel(
+                        14,
+                        BORDER_COLOR
                 );
 
         formCard.setBackground(
                 CARD_BG
         );
 
+        formCard.setLayout(
+                new BorderLayout()
+        );
+
         formCard.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(
-                                BORDER_COLOR,
-                                1,
-                                true
-                        ),
-                        BorderFactory.createEmptyBorder(
-                                22,
-                                25,
-                                22,
-                                25
-                        )
+                BorderFactory.createEmptyBorder(
+                        22,
+                        25,
+                        22,
+                        25
                 )
         );
 
@@ -395,7 +391,6 @@ public class AddStudentFrame extends JFrame {
 
     // =========================================================
     // ADD ONE ROW
-    // LABEL LEFT + FIELD RIGHT
     // =========================================================
     private void addRow(
             JPanel panel,
@@ -405,9 +400,6 @@ public class AddStudentFrame extends JFrame {
             int row
     ) {
 
-        // =====================================================
-        // LABEL
-        // =====================================================
         JLabel label =
                 new JLabel(
                         labelText
@@ -434,7 +426,6 @@ public class AddStudentFrame extends JFrame {
 
         gbc.gridx = 0;
         gbc.gridy = row;
-
         gbc.weightx = 0;
 
         gbc.fill =
@@ -448,9 +439,7 @@ public class AddStudentFrame extends JFrame {
                 gbc
         );
 
-        // =====================================================
-        // FIELD
-        // =====================================================
+        // Style text fields
         if (field instanceof JTextField) {
 
             styleTextField(
@@ -460,7 +449,6 @@ public class AddStudentFrame extends JFrame {
 
         gbc.gridx = 1;
         gbc.gridy = row;
-
         gbc.weightx = 0;
 
         gbc.fill =
@@ -612,7 +600,7 @@ public class AddStudentFrame extends JFrame {
         );
 
         button.setBackground(
-                ACCENT_GREEN
+                PRIMARY
         );
 
         button.setFocusPainted(false);
@@ -641,7 +629,7 @@ public class AddStudentFrame extends JFrame {
                     ) {
 
                         button.setBackground(
-                                ACCENT_GREEN_HOVER
+                                PRIMARY_HOVER
                         );
                     }
 
@@ -651,7 +639,7 @@ public class AddStudentFrame extends JFrame {
                     ) {
 
                         button.setBackground(
-                                ACCENT_GREEN
+                                PRIMARY
                         );
                     }
                 }
@@ -683,11 +671,11 @@ public class AddStudentFrame extends JFrame {
         );
 
         button.setForeground(
-                TEXT_MUTED
+                TEXT_DARK
         );
 
         button.setBackground(
-                Color.WHITE
+                SECONDARY
         );
 
         button.setFocusPainted(false);
@@ -722,15 +710,11 @@ public class AddStudentFrame extends JFrame {
                     ) {
 
                         button.setBackground(
-                                new Color(
-                                        241,
-                                        245,
-                                        249
-                                )
+                                PRIMARY
                         );
 
                         button.setForeground(
-                                TEXT_DARK
+                                Color.WHITE
                         );
                     }
 
@@ -740,11 +724,11 @@ public class AddStudentFrame extends JFrame {
                     ) {
 
                         button.setBackground(
-                                Color.WHITE
+                                SECONDARY
                         );
 
                         button.setForeground(
-                                TEXT_MUTED
+                                TEXT_DARK
                         );
                     }
                 }
@@ -816,7 +800,7 @@ public class AddStudentFrame extends JFrame {
         }
 
         // =====================================================
-        // NAME
+        // FULL NAME
         // =====================================================
         if (name.isEmpty()) {
 
@@ -929,7 +913,10 @@ public class AddStudentFrame extends JFrame {
         // =====================================================
         // SAVE DATABASE
         // =====================================================
-        boolean success = studentDAO.addStudent(student);
+        boolean success =
+                studentDAO.addStudent(
+                        student
+                );
 
         if (success) {
 
@@ -971,6 +958,80 @@ public class AddStudentFrame extends JFrame {
         if (fieldToFocus != null) {
 
             fieldToFocus.requestFocus();
+        }
+    }
+
+    // =========================================================
+    // ROUNDED PANEL
+    // =========================================================
+    private static class RoundedPanel
+            extends JPanel {
+
+        private final int radius;
+        private final Color borderColor;
+
+        public RoundedPanel(
+                int radius,
+                Color borderColor
+        ) {
+
+            this.radius = radius;
+            this.borderColor = borderColor;
+
+            setOpaque(false);
+        }
+
+        @Override
+        protected void paintComponent(
+                Graphics g
+        ) {
+
+            Graphics2D g2 =
+                    (Graphics2D) g.create();
+
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+            // Background
+            g2.setColor(
+                    getBackground()
+            );
+
+            g2.fillRoundRect(
+                    0,
+                    0,
+                    getWidth() - 1,
+                    getHeight() - 1,
+                    radius,
+                    radius
+            );
+
+            // Border
+            if (borderColor != null) {
+
+                g2.setColor(
+                        borderColor
+                );
+
+                g2.setStroke(
+                        new BasicStroke(1f)
+                );
+
+                g2.drawRoundRect(
+                        0,
+                        0,
+                        getWidth() - 1,
+                        getHeight() - 1,
+                        radius,
+                        radius
+                );
+            }
+
+            g2.dispose();
+
+            super.paintComponent(g);
         }
     }
 

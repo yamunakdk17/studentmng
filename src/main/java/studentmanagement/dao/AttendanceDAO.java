@@ -1,4 +1,5 @@
-package studentmanagement.dao;
+
+        package studentmanagement.dao;
 
 import studentmanagement.DBConnection;
 import studentmanagement.model.Attendance;
@@ -16,13 +17,32 @@ public class AttendanceDAO {
 
     public boolean add(Attendance attendance) {
 
-        String sql = "INSERT INTO attendance (student_id, status) VALUES (?, ?)";
+        String sql =
+                "INSERT INTO attendance " +
+                        "(student_id, date, subject_id, total_classes, " +
+                        "attended_classes, status) " +
+                        "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, attendance.getStudentId());
-            stmt.setString(2, attendance.getStatus());
+
+            if (attendance.getAttendanceDate() != null) {
+                stmt.setDate(
+                        2,
+                        Date.valueOf(
+                                attendance.getAttendanceDate()
+                        )
+                );
+            } else {
+                stmt.setNull(2, Types.DATE);
+            }
+
+            stmt.setInt(3, attendance.getSubjectId());
+            stmt.setInt(4, attendance.getTotalClasses());
+            stmt.setInt(5, attendance.getAttendedClasses());
+            stmt.setString(6, attendance.getStatus());
 
             return stmt.executeUpdate() > 0;
 
@@ -35,45 +55,51 @@ public class AttendanceDAO {
         }
     }
 
-
     // =========================================================
     // SAVE DAILY ATTENDANCE
     // =========================================================
 
-    public boolean saveDailyAttendance(int studentId, String date, String status) {
+    public boolean saveDailyAttendance(
+            int studentId,
+            String date,
+            String status
+    ) {
 
         String sql =
-                "INSERT INTO attendance (student_id, date, status) " +
+                "INSERT INTO attendance " +
+                        "(student_id, date, status) " +
                         "VALUES (?, ?, ?)";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, studentId);
-
-            // Convert String date to SQL DATE
             stmt.setDate(2, Date.valueOf(date));
-
             stmt.setString(3, status);
 
             return stmt.executeUpdate() > 0;
 
         } catch (SQLException e) {
 
-            System.out.println("Error saving daily attendance:");
+            System.out.println(
+                    "Error saving daily attendance:"
+            );
+
             e.printStackTrace();
 
             return false;
 
         } catch (IllegalArgumentException e) {
 
-            System.out.println("Invalid attendance date: " + date);
+            System.out.println(
+                    "Invalid attendance date: " + date
+            );
+
             e.printStackTrace();
 
             return false;
         }
     }
-
 
     // =========================================================
     // GET ALL ATTENDANCE
@@ -81,51 +107,47 @@ public class AttendanceDAO {
 
     public List<Attendance> getAll() {
 
-        List<Attendance> list = new ArrayList<>();
+        List<Attendance> list =
+                new ArrayList<>();
 
         String sql =
-                "SELECT a.attendance_id, " +
+                "SELECT " +
+                        "a.attendance_id, " +
                         "a.student_id, " +
-                        "s.name, " +
+                        "s.name AS student_name, " +
                         "a.date AS attendance_date, " +
+                        "a.subject_id, " +
+                        "a.total_classes, " +
+                        "a.attended_classes, " +
                         "a.status " +
                         "FROM attendance a " +
-                        "JOIN students s ON s.student_id = a.student_id " +
+                        "LEFT JOIN students s " +
+                        "ON s.student_id = a.student_id " +
                         "ORDER BY a.attendance_id DESC";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+             PreparedStatement stmt =
+                     conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
 
-                LocalDate attendanceDate = null;
-
-                if (rs.getDate("attendance_date") != null) {
-                    attendanceDate =
-                            rs.getDate("attendance_date").toLocalDate();
-                }
-
-                Attendance attendance = new Attendance(
-                        rs.getInt("attendance_id"),
-                        rs.getInt("student_id"),
-                        rs.getString("name"),
-                        attendanceDate,
-                        rs.getString("status")
+                list.add(
+                        createAttendanceFromResultSet(rs)
                 );
-
-                list.add(attendance);
             }
 
         } catch (SQLException e) {
 
-            System.out.println("Error loading attendance:");
+            System.out.println(
+                    "Error loading attendance:"
+            );
+
             e.printStackTrace();
         }
 
         return list;
     }
-
 
     // =========================================================
     // GET ALL ATTENDANCE WITH DETAILS
@@ -133,20 +155,27 @@ public class AttendanceDAO {
 
     public List<Object[]> getAllAttendanceWithDetails() {
 
-        List<Object[]> list = new ArrayList<>();
+        List<Object[]> list =
+                new ArrayList<>();
 
         String sql =
-                "SELECT a.attendance_id, " +
+                "SELECT " +
+                        "a.attendance_id, " +
                         "a.student_id, " +
-                        "s.name, " +
+                        "s.name AS student_name, " +
                         "a.date, " +
+                        "a.subject_id, " +
+                        "a.total_classes, " +
+                        "a.attended_classes, " +
                         "a.status " +
                         "FROM attendance a " +
-                        "JOIN students s ON s.student_id = a.student_id " +
+                        "LEFT JOIN students s " +
+                        "ON s.student_id = a.student_id " +
                         "ORDER BY a.attendance_id DESC";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
+             PreparedStatement stmt =
+                     conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
@@ -157,153 +186,239 @@ public class AttendanceDAO {
                     date = rs.getDate("date").toString();
                 }
 
-                list.add(new Object[]{
-                        rs.getInt("attendance_id"),
-                        rs.getInt("student_id"),
-                        rs.getString("name"),
-                        date,
-                        rs.getString("status")
-                });
+                list.add(
+                        new Object[]{
+                                rs.getInt("attendance_id"),
+                                rs.getInt("student_id"),
+                                rs.getString("student_name"),
+                                date,
+                                rs.getInt("subject_id"),
+                                rs.getInt("total_classes"),
+                                rs.getInt("attended_classes"),
+                                rs.getString("status")
+                        }
+                );
             }
 
         } catch (SQLException e) {
 
-            System.out.println("Error loading attendance details:");
+            System.out.println(
+                    "Error loading attendance details:"
+            );
+
             e.printStackTrace();
         }
 
         return list;
     }
 
-
     // =========================================================
     // GET ATTENDANCE BY DATE
     // =========================================================
 
-    public List<Object[]> getAttendanceByDate(String date) {
+    public List<Object[]> getAttendanceByDate(
+            String date
+    ) {
 
-        List<Object[]> list = new ArrayList<>();
+        List<Object[]> list =
+                new ArrayList<>();
 
         String sql =
-                "SELECT a.attendance_id, " +
+                "SELECT " +
+                        "a.attendance_id, " +
                         "a.student_id, " +
-                        "s.name, " +
+                        "s.name AS student_name, " +
                         "a.date, " +
+                        "a.subject_id, " +
+                        "a.total_classes, " +
+                        "a.attended_classes, " +
                         "a.status " +
                         "FROM attendance a " +
-                        "JOIN students s ON s.student_id = a.student_id " +
+                        "LEFT JOIN students s " +
+                        "ON s.student_id = a.student_id " +
                         "WHERE a.date = ? " +
                         "ORDER BY s.name";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt =
+                     conn.prepareStatement(sql)) {
 
-            stmt.setDate(1, Date.valueOf(date));
+            stmt.setDate(
+                    1,
+                    Date.valueOf(date)
+            );
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (ResultSet rs =
+                         stmt.executeQuery()) {
 
                 while (rs.next()) {
 
-                    String attendanceDate = "N/A";
+                    String attendanceDate =
+                            "N/A";
 
                     if (rs.getDate("date") != null) {
                         attendanceDate =
                                 rs.getDate("date").toString();
                     }
 
-                    list.add(new Object[]{
-                            rs.getInt("attendance_id"),
-                            rs.getInt("student_id"),
-                            rs.getString("name"),
-                            attendanceDate,
-                            rs.getString("status")
-                    });
+                    list.add(
+                            new Object[]{
+                                    rs.getInt("attendance_id"),
+                                    rs.getInt("student_id"),
+                                    rs.getString("student_name"),
+                                    attendanceDate,
+                                    rs.getInt("subject_id"),
+                                    rs.getInt("total_classes"),
+                                    rs.getInt("attended_classes"),
+                                    rs.getString("status")
+                            }
+                    );
                 }
             }
 
         } catch (SQLException e) {
 
-            System.out.println("Error filtering attendance by date:");
+            System.out.println(
+                    "Error filtering attendance by date:"
+            );
+
             e.printStackTrace();
 
         } catch (IllegalArgumentException e) {
 
-            System.out.println("Invalid date: " + date);
+            System.out.println(
+                    "Invalid date: " + date
+            );
+
             e.printStackTrace();
         }
 
         return list;
     }
-
 
     // =========================================================
     // GET ATTENDANCE FOR ONE STUDENT
     // =========================================================
 
-    public List<Attendance> getAttendanceByStudentId(int studentId) {
+    public List<Attendance> getAttendanceByStudentId(
+            int studentId
+    ) {
 
-        List<Attendance> list = new ArrayList<>();
+        List<Attendance> list =
+                new ArrayList<>();
 
         String sql =
-                "SELECT a.attendance_id, " +
+                "SELECT " +
+                        "a.attendance_id, " +
                         "a.student_id, " +
-                        "s.name, " +
-                        "a.date, " +
+                        "s.name AS student_name, " +
+                        "a.date AS attendance_date, " +
+                        "a.subject_id, " +
+                        "a.total_classes, " +
+                        "a.attended_classes, " +
                         "a.status " +
                         "FROM attendance a " +
-                        "JOIN students s ON s.student_id = a.student_id " +
+                        "LEFT JOIN students s " +
+                        "ON s.student_id = a.student_id " +
                         "WHERE a.student_id = ? " +
-                        "ORDER BY a.attendance_id DESC";
+                        "ORDER BY a.date DESC, a.attendance_id DESC";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt =
+                     conn.prepareStatement(sql)) {
 
             stmt.setInt(1, studentId);
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (ResultSet rs =
+                         stmt.executeQuery()) {
 
                 while (rs.next()) {
 
-                    LocalDate attendanceDate = null;
-
-                    if (rs.getDate("date") != null) {
-                        attendanceDate =
-                                rs.getDate("date").toLocalDate();
-                    }
-
-                    Attendance attendance = new Attendance(
-                            rs.getInt("attendance_id"),
-                            rs.getInt("student_id"),
-                            rs.getString("name"),
-                            attendanceDate,
-                            rs.getString("status")
+                    list.add(
+                            createAttendanceFromResultSet(rs)
                     );
-
-                    list.add(attendance);
                 }
             }
 
         } catch (SQLException e) {
 
-            System.out.println("Error loading student's attendance:");
+            System.out.println(
+                    "Error loading student's attendance:"
+            );
+
             e.printStackTrace();
         }
 
         return list;
     }
 
+    // =========================================================
+    // GET ONE ATTENDANCE RECORD
+    // =========================================================
+
+    public Attendance getById(
+            int attendanceId
+    ) {
+
+        String sql =
+                "SELECT " +
+                        "a.attendance_id, " +
+                        "a.student_id, " +
+                        "s.name AS student_name, " +
+                        "a.date AS attendance_date, " +
+                        "a.subject_id, " +
+                        "a.total_classes, " +
+                        "a.attended_classes, " +
+                        "a.status " +
+                        "FROM attendance a " +
+                        "LEFT JOIN students s " +
+                        "ON s.student_id = a.student_id " +
+                        "WHERE a.attendance_id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt =
+                     conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, attendanceId);
+
+            try (ResultSet rs =
+                         stmt.executeQuery()) {
+
+                if (rs.next()) {
+
+                    return createAttendanceFromResultSet(
+                            rs
+                    );
+                }
+            }
+
+        } catch (SQLException e) {
+
+            System.out.println(
+                    "Error loading attendance record:"
+            );
+
+            e.printStackTrace();
+        }
+
+        return null;
+    }
 
     // =========================================================
     // DELETE ATTENDANCE
     // =========================================================
 
-    public boolean delete(int attendanceId) {
+    public boolean delete(
+            int attendanceId
+    ) {
 
         String sql =
-                "DELETE FROM attendance WHERE attendance_id = ?";
+                "DELETE FROM attendance " +
+                        "WHERE attendance_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt =
+                     conn.prepareStatement(sql)) {
 
             stmt.setInt(1, attendanceId);
 
@@ -311,31 +426,38 @@ public class AttendanceDAO {
 
         } catch (SQLException e) {
 
-            System.out.println("Error deleting attendance:");
+            System.out.println(
+                    "Error deleting attendance:"
+            );
+
             e.printStackTrace();
 
             return false;
         }
     }
 
-
     // =========================================================
     // COUNT BY STATUS
     // =========================================================
 
-    public int countByStatus(String status) {
+    public int countByStatus(
+            String status
+    ) {
 
         String sql =
                 "SELECT COUNT(*) " +
                         "FROM attendance " +
-                        "WHERE LOWER(TRIM(status)) = LOWER(TRIM(?))";
+                        "WHERE LOWER(TRIM(status)) = " +
+                        "LOWER(TRIM(?))";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt =
+                     conn.prepareStatement(sql)) {
 
             stmt.setString(1, status);
 
-            try (ResultSet rs = stmt.executeQuery()) {
+            try (ResultSet rs =
+                         stmt.executeQuery()) {
 
                 if (rs.next()) {
                     return rs.getInt(1);
@@ -344,13 +466,15 @@ public class AttendanceDAO {
 
         } catch (SQLException e) {
 
-            System.out.println("Error counting attendance by status:");
+            System.out.println(
+                    "Error counting attendance by status:"
+            );
+
             e.printStackTrace();
         }
 
         return 0;
     }
-
 
     // =========================================================
     // TOTAL ATTENDANCE RECORDS
@@ -362,8 +486,10 @@ public class AttendanceDAO {
                 "SELECT COUNT(*) FROM attendance";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+             PreparedStatement stmt =
+                     conn.prepareStatement(sql);
+             ResultSet rs =
+                     stmt.executeQuery()) {
 
             if (rs.next()) {
                 return rs.getInt(1);
@@ -381,42 +507,57 @@ public class AttendanceDAO {
         return 0;
     }
 
-
     // =========================================================
     // PERCENTAGE BY STATUS
     // =========================================================
 
-    public int getPercentage(String status) {
+    public int getPercentage(
+            String status
+    ) {
 
-        int totalRecords = getTotalRecords();
+        int totalRecords =
+                getTotalRecords();
 
         if (totalRecords == 0) {
             return 0;
         }
 
-        int statusRecords = countByStatus(status);
+        int statusRecords =
+                countByStatus(status);
 
         return (int) Math.round(
-                statusRecords * 100.0 / totalRecords
+                statusRecords * 100.0
+                        / totalRecords
         );
     }
-    // =========================================================
-// UPDATE ATTENDANCE
-// =========================================================
 
-    public boolean updateAttendance(int attendanceId, int studentId,
-                                    String date, String status) {
+    // =========================================================
+    // UPDATE ATTENDANCE
+    // =========================================================
+
+    public boolean updateAttendance(
+            int attendanceId,
+            int studentId,
+            String date,
+            String status
+    ) {
 
         String sql =
                 "UPDATE attendance " +
-                        "SET student_id = ?, date = ?, status = ? " +
+                        "SET student_id = ?, " +
+                        "date = ?, " +
+                        "status = ? " +
                         "WHERE attendance_id = ?";
 
         try (Connection conn = DBConnection.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+             PreparedStatement stmt =
+                     conn.prepareStatement(sql)) {
 
             stmt.setInt(1, studentId);
-            stmt.setDate(2, Date.valueOf(date));
+            stmt.setDate(
+                    2,
+                    Date.valueOf(date)
+            );
             stmt.setString(3, status);
             stmt.setInt(4, attendanceId);
 
@@ -424,17 +565,140 @@ public class AttendanceDAO {
 
         } catch (SQLException e) {
 
-            System.out.println("Error updating attendance:");
+            System.out.println(
+                    "Error updating attendance:"
+            );
+
             e.printStackTrace();
 
             return false;
 
         } catch (IllegalArgumentException e) {
 
-            System.out.println("Invalid date: " + date);
+            System.out.println(
+                    "Invalid date: " + date
+            );
+
             e.printStackTrace();
 
             return false;
         }
     }
+
+    // =========================================================
+    // UPDATE FULL ATTENDANCE RECORD
+    // =========================================================
+
+    public boolean update(
+            Attendance attendance
+    ) {
+
+        String sql =
+                "UPDATE attendance SET " +
+                        "student_id = ?, " +
+                        "date = ?, " +
+                        "subject_id = ?, " +
+                        "total_classes = ?, " +
+                        "attended_classes = ?, " +
+                        "status = ? " +
+                        "WHERE attendance_id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement stmt =
+                     conn.prepareStatement(sql)) {
+
+            stmt.setInt(
+                    1,
+                    attendance.getStudentId()
+            );
+
+            if (attendance.getAttendanceDate() != null) {
+
+                stmt.setDate(
+                        2,
+                        Date.valueOf(
+                                attendance.getAttendanceDate()
+                        )
+                );
+
+            } else {
+
+                stmt.setNull(
+                        2,
+                        Types.DATE
+                );
+            }
+
+            stmt.setInt(
+                    3,
+                    attendance.getSubjectId()
+            );
+
+            stmt.setInt(
+                    4,
+                    attendance.getTotalClasses()
+            );
+
+            stmt.setInt(
+                    5,
+                    attendance.getAttendedClasses()
+            );
+
+            stmt.setString(
+                    6,
+                    attendance.getStatus()
+            );
+
+            stmt.setInt(
+                    7,
+                    attendance.getAttendanceId()
+            );
+
+            return stmt.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+
+            System.out.println(
+                    "Error updating full attendance:"
+            );
+
+            e.printStackTrace();
+
+            return false;
+        }
+    }
+
+    // =========================================================
+    // CREATE ATTENDANCE OBJECT
+    // =========================================================
+
+    private Attendance createAttendanceFromResultSet(
+            ResultSet rs
+    ) throws SQLException {
+
+        LocalDate attendanceDate = null;
+
+        Date sqlDate =
+                rs.getDate("attendance_date");
+
+        if (sqlDate != null) {
+            attendanceDate =
+                    sqlDate.toLocalDate();
+        }
+
+        Attendance attendance =
+                new Attendance(
+                        rs.getInt("attendance_id"),
+                        rs.getInt("student_id"),
+                        rs.getString("student_name"),
+                        attendanceDate,
+                        rs.getInt("subject_id"),
+                        rs.getInt("total_classes"),
+                        rs.getInt("attended_classes"),
+                        rs.getString("status")
+                );
+
+        return attendance;
+    }
 }
+

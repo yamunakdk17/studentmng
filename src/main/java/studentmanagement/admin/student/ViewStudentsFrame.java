@@ -1,120 +1,848 @@
 package studentmanagement.admin.student;
 
+import studentmanagement.dao.StudentDAO;
+import studentmanagement.model.Student;
+
 import java.awt.*;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 public class ViewStudentsFrame extends JFrame {
 
-    private static final Color PRIMARY = new Color(28, 51, 43);
-    private static final Color BG = new Color(242, 246, 243);
-    private static final Color CARD_BG = Color.WHITE;
-    private static final Color TEXT_DARK = new Color(10, 15, 12);
-    private static final Color TEXT_MUTED = new Color(55, 65, 75);
-    private static final Color BORDER_COLOR = new Color(205, 215, 210);
+    // =========================================================
+    // COLORS - MATCH DASHBOARD PALETTE
+    // =========================================================
+
+    private static final Color PRIMARY =
+            Color.decode("#7F7B7F");
+
+    private static final Color SECONDARY =
+            Color.decode("#C7CED6");
+
+    private static final Color BG =
+            Color.decode("#F6EDDD");
+
+    private static final Color BORDER_COLOR =
+            Color.decode("#DBD9D9");
+
+    private static final Color CARD_BG =
+            new Color(255, 253, 249);
+
+    private static final Color TEXT_DARK =
+            new Color(55, 53, 55);
+
+    private static final Color TEXT_MUTED =
+            new Color(105, 102, 105);
+
+
+    // =========================================================
+    // CONSTRUCTOR
+    // =========================================================
 
     public ViewStudentsFrame() {
+
         setTitle("View All Students");
-        setSize(720, 480);
-        setMinimumSize(new Dimension(650, 400));
+
+        setSize(
+                720,
+                480
+        );
+
+        setMinimumSize(
+                new Dimension(
+                        650,
+                        400
+                )
+        );
+
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLayout(new BorderLayout());
 
-        // Header Panel
-        JPanel headerPanel = new JPanel(new BorderLayout());
-        headerPanel.setBackground(PRIMARY);
-        headerPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
+        setDefaultCloseOperation(
+                JFrame.DISPOSE_ON_CLOSE
+        );
 
-        JLabel titleLabel = new JLabel("Student Records");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 15));
-        titleLabel.setForeground(Color.WHITE);
+        setLayout(
+                new BorderLayout()
+        );
 
-        JLabel subtitleLabel = new JLabel("Browse and search all registered student profiles");
-        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        subtitleLabel.setForeground(new Color(180, 205, 195));
+        getContentPane().setBackground(BG);
 
-        JPanel headerTextStack = new JPanel();
-        headerTextStack.setLayout(new BoxLayout(headerTextStack, BoxLayout.Y_AXIS));
+        createHeader();
+        createContent();
+        createFooter();
+    }
+
+
+    // =========================================================
+    // HEADER
+    // =========================================================
+
+    private void createHeader() {
+
+        JPanel headerPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        headerPanel.setBackground(
+                PRIMARY
+        );
+
+        headerPanel.setBorder(
+                new EmptyBorder(
+                        15,
+                        20,
+                        15,
+                        20
+                )
+        );
+
+
+        // TITLE + SUBTITLE
+
+        JPanel headerTextStack =
+                new JPanel();
+
+        headerTextStack.setLayout(
+                new BoxLayout(
+                        headerTextStack,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
         headerTextStack.setOpaque(false);
-        headerTextStack.add(titleLabel);
-        headerTextStack.add(Box.createVerticalStrut(2));
-        headerTextStack.add(subtitleLabel);
 
-        headerPanel.add(headerTextStack, BorderLayout.WEST);
-        add(headerPanel, BorderLayout.NORTH);
 
-        // Center Content Panel with Table
-        JPanel contentPanel = new JPanel(new BorderLayout(0, 10));
-        contentPanel.setBackground(CARD_BG);
-        contentPanel.setBorder(new EmptyBorder(15, 20, 15, 20));
+        JLabel titleLabel =
+                new JLabel(
+                        "Student Records"
+                );
 
-        // Top bar of content (Search)
-        JPanel searchBarPanel = new JPanel(new BorderLayout());
+        titleLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        17
+                )
+        );
+
+        titleLabel.setForeground(
+                Color.WHITE
+        );
+
+
+        JLabel subtitleLabel =
+                new JLabel(
+                        "Browse and search all registered student profiles"
+                );
+
+        subtitleLabel.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        11
+                )
+        );
+
+        subtitleLabel.setForeground(
+                SECONDARY
+        );
+
+
+        headerTextStack.add(
+                titleLabel
+        );
+
+        headerTextStack.add(
+                Box.createVerticalStrut(2)
+        );
+
+        headerTextStack.add(
+                subtitleLabel
+        );
+
+
+        // ICON
+
+        JLabel iconLabel =
+                new JLabel("👥");
+
+        iconLabel.setFont(
+                new Font(
+                        "Segoe UI Emoji",
+                        Font.PLAIN,
+                        23
+                )
+        );
+
+        iconLabel.setForeground(
+                Color.WHITE
+        );
+
+
+        headerPanel.add(
+                headerTextStack,
+                BorderLayout.WEST
+        );
+
+        headerPanel.add(
+                iconLabel,
+                BorderLayout.EAST
+        );
+
+
+        add(
+                headerPanel,
+                BorderLayout.NORTH
+        );
+    }
+
+
+    // =========================================================
+    // CONTENT
+    // =========================================================
+
+    private void createContent() {
+
+        JPanel wrapperPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        wrapperPanel.setBackground(
+                BG
+        );
+
+        wrapperPanel.setBorder(
+                new EmptyBorder(
+                        12,
+                        15,
+                        12,
+                        15
+                )
+        );
+
+
+        // =====================================================
+        // CONTENT CARD
+        // =====================================================
+
+        RoundedPanel contentPanel =
+                new RoundedPanel(
+                        14,
+                        BORDER_COLOR
+                );
+
+        contentPanel.setBackground(
+                CARD_BG
+        );
+
+        contentPanel.setLayout(
+                new BorderLayout(
+                        0,
+                        10
+                )
+        );
+
+        contentPanel.setBorder(
+                BorderFactory.createEmptyBorder(
+                        13,
+                        15,
+                        13,
+                        15
+                )
+        );
+
+
+        // =====================================================
+        // SEARCH BAR
+        // =====================================================
+
+        JPanel searchBarPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
         searchBarPanel.setOpaque(false);
 
-        JTextField searchField = new JTextField();
-        searchField.setPreferredSize(new Dimension(220, 32));
-        searchField.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-        searchField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER_COLOR, 1),
-                BorderFactory.createEmptyBorder(4, 8, 4, 8)
-        ));
 
-        JPanel searchWrap = new JPanel(new FlowLayout(FlowLayout.RIGHT, 5, 0));
+        JLabel searchLbl =
+                new JLabel(
+                        "Search:"
+                );
+
+        searchLbl.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        11
+                )
+        );
+
+        searchLbl.setForeground(
+                TEXT_DARK
+        );
+
+
+        JTextField searchField =
+                new JTextField();
+
+        searchField.setPreferredSize(
+                new Dimension(
+                        220,
+                        32
+                )
+        );
+
+        searchField.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        searchField.setForeground(
+                TEXT_DARK
+        );
+
+        searchField.setBackground(
+                Color.WHITE
+        );
+
+        searchField.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR,
+                                1,
+                                true
+                        ),
+                        BorderFactory.createEmptyBorder(
+                                4,
+                                9,
+                                4,
+                                9
+                        )
+                )
+        );
+
+
+        JPanel searchWrap =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.RIGHT,
+                                5,
+                                0
+                        )
+                );
+
         searchWrap.setOpaque(false);
-        JLabel searchLbl = new JLabel("Search:");
-        searchLbl.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        searchLbl.setForeground(TEXT_DARK);
-        searchWrap.add(searchLbl);
-        searchWrap.add(searchField);
 
-        searchBarPanel.add(searchWrap, BorderLayout.EAST);
-        contentPanel.add(searchBarPanel, BorderLayout.NORTH);
+        searchWrap.add(
+                searchLbl
+        );
 
-        // Table setup
-        String[] columns = {"ID", "Full Name", "Age", "Gender", "Address", "Phone", "Email"};
-        Object[][] data = {
-                {"STU-001", "Ram Sharma", "20", "Male", "Kathmandu", "9841000000", "ram@gmail.com"},
-                {"STU-002", "Sita Thapa", "19", "Female", "Lalitpur", "9812000000", "sita@gmail.com"}
+        searchWrap.add(
+                searchField
+        );
+
+
+        searchBarPanel.add(
+                searchWrap,
+                BorderLayout.EAST
+        );
+
+
+        contentPanel.add(
+                searchBarPanel,
+                BorderLayout.NORTH
+        );
+
+
+        // =====================================================
+        // TABLE COLUMNS
+        // =====================================================
+
+        String[] columns = {
+                "ID",
+                "Full Name",
+                "Age",
+                "Gender",
+                "Address",
+                "Phone",
+                "Email"
         };
 
-        DefaultTableModel model = new DefaultTableModel(data, columns);
-        JTable table = new JTable(model);
-        table.setRowHeight(26);
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 11));
-        table.getTableHeader().setBackground(new Color(235, 240, 238));
-        table.setSelectionBackground(new Color(210, 240, 220));
 
-        JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 1));
-        contentPanel.add(scrollPane, BorderLayout.CENTER);
+        // =====================================================
+        // REAL DATABASE DATA
+        // =====================================================
 
-        // Wrapper panel with background padding
-        JPanel wrapperPanel = new JPanel(new BorderLayout());
-        wrapperPanel.setBackground(BG);
-        wrapperPanel.setBorder(new EmptyBorder(12, 15, 12, 15));
-        wrapperPanel.add(contentPanel, BorderLayout.CENTER);
-        add(wrapperPanel, BorderLayout.CENTER);
+        DefaultTableModel model =
+                new DefaultTableModel(
+                        columns,
+                        0
+                ) {
 
-        // Footer Panel
-        JPanel footerPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 12));
-        footerPanel.setBackground(BG);
-        footerPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, BORDER_COLOR));
+                    @Override
+                    public boolean isCellEditable(
+                            int row,
+                            int column
+                    ) {
+                        return false;
+                    }
+                };
 
-        JButton closeButton = new JButton("Close");
-        closeButton.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        closeButton.setForeground(TEXT_MUTED);
-        closeButton.setBackground(new Color(230, 235, 232));
-        closeButton.setFocusPainted(false);
-        closeButton.setBorderPainted(false);
-        closeButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        closeButton.setPreferredSize(new Dimension(100, 34));
-        closeButton.addActionListener(e -> dispose());
 
-        footerPanel.add(closeButton);
-        add(footerPanel, BorderLayout.SOUTH);
+        // Get students from database
+
+        StudentDAO studentDAO =
+                new StudentDAO();
+
+        List<Student> students =
+                studentDAO.getAllStudents();
+
+
+        // Add database records to JTable
+
+        for (Student student : students) {
+
+            model.addRow(
+                    new Object[]{
+                            student.getStudentId(),
+                            student.getName(),
+                            student.getAge(),
+                            student.getGender(),
+                            student.getAddress(),
+                            student.getPhone(),
+                            student.getEmail()
+                    }
+            );
+        }
+
+
+        // =====================================================
+        // TABLE
+        // =====================================================
+
+        JTable table =
+                new JTable(model);
+
+
+        // -----------------------------------------------------
+        // TABLE STYLE
+        // -----------------------------------------------------
+
+        table.setRowHeight(
+                28
+        );
+
+        table.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.PLAIN,
+                        11
+                )
+        );
+
+        table.setForeground(
+                TEXT_DARK
+        );
+
+        table.setBackground(
+                Color.WHITE
+        );
+
+        table.setSelectionBackground(
+                SECONDARY
+        );
+
+        table.setSelectionForeground(
+                TEXT_DARK
+        );
+
+        table.setGridColor(
+                BORDER_COLOR
+        );
+
+        table.setShowGrid(
+                true
+        );
+
+        table.setIntercellSpacing(
+                new Dimension(
+                        1,
+                        1
+                )
+        );
+
+        table.setAutoResizeMode(
+                JTable.AUTO_RESIZE_OFF
+        );
+
+
+        // =====================================================
+        // TABLE HEADER
+        // =====================================================
+
+        table.getTableHeader().setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        11
+                )
+        );
+
+        table.getTableHeader().setForeground(
+                TEXT_DARK
+        );
+
+        table.getTableHeader().setBackground(
+                SECONDARY
+        );
+
+        table.getTableHeader().setBorder(
+                BorderFactory.createMatteBorder(
+                        0,
+                        0,
+                        1,
+                        0,
+                        BORDER_COLOR
+                )
+        );
+
+        table.getTableHeader().setPreferredSize(
+                new Dimension(
+                        0,
+                        32
+                )
+        );
+
+        table.getTableHeader().setReorderingAllowed(
+                false
+        );
+
+
+        // =====================================================
+        // CENTER ALIGNMENT
+        // =====================================================
+
+        DefaultTableCellRenderer centerRenderer =
+                new DefaultTableCellRenderer();
+
+        centerRenderer.setHorizontalAlignment(
+                SwingConstants.CENTER
+        );
+
+
+        table.getColumnModel()
+                .getColumn(0)
+                .setCellRenderer(
+                        centerRenderer
+                );
+
+        table.getColumnModel()
+                .getColumn(2)
+                .setCellRenderer(
+                        centerRenderer
+                );
+
+        table.getColumnModel()
+                .getColumn(3)
+                .setCellRenderer(
+                        centerRenderer
+                );
+
+
+        // =====================================================
+        // COLUMN WIDTHS
+        // =====================================================
+
+        table.getColumnModel()
+                .getColumn(0)
+                .setPreferredWidth(70);
+
+        table.getColumnModel()
+                .getColumn(1)
+                .setPreferredWidth(125);
+
+        table.getColumnModel()
+                .getColumn(2)
+                .setPreferredWidth(55);
+
+        table.getColumnModel()
+                .getColumn(3)
+                .setPreferredWidth(75);
+
+        table.getColumnModel()
+                .getColumn(4)
+                .setPreferredWidth(110);
+
+        table.getColumnModel()
+                .getColumn(5)
+                .setPreferredWidth(110);
+
+        table.getColumnModel()
+                .getColumn(6)
+                .setPreferredWidth(170);
+
+
+        // =====================================================
+        // SCROLL PANE
+        // =====================================================
+
+        JScrollPane scrollPane =
+                new JScrollPane(
+                        table
+                );
+
+        scrollPane.setBorder(
+                BorderFactory.createLineBorder(
+                        BORDER_COLOR,
+                        1,
+                        true
+                )
+        );
+
+        scrollPane.getViewport().setBackground(
+                Color.WHITE
+        );
+
+        scrollPane.getVerticalScrollBar()
+                .setUnitIncrement(12);
+
+
+        contentPanel.add(
+                scrollPane,
+                BorderLayout.CENTER
+        );
+
+
+        wrapperPanel.add(
+                contentPanel,
+                BorderLayout.CENTER
+        );
+
+
+        add(
+                wrapperPanel,
+                BorderLayout.CENTER
+        );
+    }
+
+
+    // =========================================================
+    // FOOTER
+    // =========================================================
+
+    private void createFooter() {
+
+        JPanel footerPanel =
+                new JPanel(
+                        new FlowLayout(
+                                FlowLayout.RIGHT,
+                                10,
+                                10
+                        )
+                );
+
+        footerPanel.setBackground(
+                BG
+        );
+
+        footerPanel.setBorder(
+                BorderFactory.createMatteBorder(
+                        1,
+                        0,
+                        0,
+                        0,
+                        BORDER_COLOR
+                )
+        );
+
+
+        JButton closeButton =
+                new JButton(
+                        "Close"
+                );
+
+        closeButton.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        closeButton.setForeground(
+                TEXT_DARK
+        );
+
+        closeButton.setBackground(
+                SECONDARY
+        );
+
+        closeButton.setFocusPainted(
+                false
+        );
+
+        closeButton.setBorder(
+                BorderFactory.createLineBorder(
+                        BORDER_COLOR,
+                        1,
+                        true
+                )
+        );
+
+        closeButton.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        closeButton.setPreferredSize(
+                new Dimension(
+                        100,
+                        34
+                )
+        );
+
+
+        closeButton.addMouseListener(
+                new java.awt.event.MouseAdapter() {
+
+                    @Override
+                    public void mouseEntered(
+                            java.awt.event.MouseEvent e
+                    ) {
+
+                        closeButton.setBackground(
+                                PRIMARY
+                        );
+
+                        closeButton.setForeground(
+                                Color.WHITE
+                        );
+                    }
+
+
+                    @Override
+                    public void mouseExited(
+                            java.awt.event.MouseEvent e
+                    ) {
+
+                        closeButton.setBackground(
+                                SECONDARY
+                        );
+
+                        closeButton.setForeground(
+                                TEXT_DARK
+                        );
+                    }
+                }
+        );
+
+
+        closeButton.addActionListener(
+                e -> dispose()
+        );
+
+
+        footerPanel.add(
+                closeButton
+        );
+
+
+        add(
+                footerPanel,
+                BorderLayout.SOUTH
+        );
+    }
+
+
+    // =========================================================
+    // ROUNDED PANEL
+    // =========================================================
+
+    private static class RoundedPanel
+            extends JPanel {
+
+        private final int radius;
+        private final Color borderColor;
+
+
+        public RoundedPanel(
+                int radius,
+                Color borderColor
+        ) {
+
+            this.radius = radius;
+            this.borderColor = borderColor;
+
+            setOpaque(false);
+        }
+
+
+        @Override
+        protected void paintComponent(
+                Graphics g
+        ) {
+
+            Graphics2D g2 =
+                    (Graphics2D) g.create();
+
+
+            g2.setRenderingHint(
+                    RenderingHints.KEY_ANTIALIASING,
+                    RenderingHints.VALUE_ANTIALIAS_ON
+            );
+
+
+            // Background
+
+            g2.setColor(
+                    getBackground()
+            );
+
+            g2.fillRoundRect(
+                    0,
+                    0,
+                    getWidth() - 1,
+                    getHeight() - 1,
+                    radius,
+                    radius
+            );
+
+
+            // Border
+
+            if (borderColor != null) {
+
+                g2.setColor(
+                        borderColor
+                );
+
+                g2.setStroke(
+                        new BasicStroke(1f)
+                );
+
+                g2.drawRoundRect(
+                        0,
+                        0,
+                        getWidth() - 1,
+                        getHeight() - 1,
+                        radius,
+                        radius
+                );
+            }
+
+
+            g2.dispose();
+
+            super.paintComponent(g);
+        }
     }
 }

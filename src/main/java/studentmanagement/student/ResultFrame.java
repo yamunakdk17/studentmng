@@ -1,221 +1,1049 @@
 package studentmanagement.student;
 
+import studentmanagement.dao.MarksDAO;
+import studentmanagement.dao.SubjectDAO;
+import studentmanagement.model.Marks;
+import studentmanagement.model.Subject;
 import studentmanagement.model.User;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ResultFrame extends JFrame {
 
-    private final User loggedInUser;
+    // =========================================================
+    // USER / DAO
+    // =========================================================
 
-    // Colors
-    private final Color BACKGROUND = new Color(245, 247, 250);
-    private final Color PURPLE = new Color(108, 86, 166);
-    private final Color PURPLE_DARK = new Color(73, 57, 122);
-    private final Color PURPLE_LIGHT = new Color(240, 237, 250);
-    private final Color WHITE = Color.WHITE;
-    private final Color TEXT = new Color(40, 40, 55);
-    private final Color LIGHT_TEXT = new Color(110, 110, 125);
-    private final Color BORDER = new Color(230, 230, 240);
-    private final Color GREEN = new Color(40, 160, 90);
-    private final Color LIGHT_GREEN = new Color(230, 248, 238);
+    private final User loggedInUser;
+    private final MarksDAO marksDAO;
+    private final SubjectDAO subjectDAO;
+
+    // =========================================================
+    // COLORS
+    // =========================================================
+
+    private static final Color BACKGROUND =
+            new Color(245, 247, 250);
+
+    private static final Color WHITE =
+            Color.WHITE;
+
+    private static final Color TEXT =
+            new Color(35, 40, 38);
+
+    private static final Color LIGHT_TEXT =
+            new Color(105, 115, 110);
+
+    private static final Color BORDER =
+            new Color(226, 232, 240);
+
+    private static final Color DARK_GREEN =
+            new Color(28, 51, 43);
+
+    private static final Color GREEN =
+            new Color(16, 185, 129);
+
+    private static final Color RED =
+            new Color(239, 68, 68);
+
+    // =========================================================
+    // COMPONENTS
+    // =========================================================
+
+    private JTable resultTable;
+    private DefaultTableModel tableModel;
+
+    private JLabel totalValue;
+    private JLabel percentageValue;
+    private JLabel gradeValue;
+
+    // =========================================================
+    // CONSTRUCTOR
+    // =========================================================
 
     public ResultFrame(User user) {
+
         this.loggedInUser = user;
 
-        setTitle("Student Result");
-        setSize(950, 700);
-        setMinimumSize(new Dimension(850, 600));
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        this.marksDAO =
+                new MarksDAO();
+
+        this.subjectDAO =
+                new SubjectDAO();
+
+        setTitle("My Result");
+
+        setSize(950, 650);
+
+        setMinimumSize(
+                new Dimension(800, 550)
+        );
+
+        setDefaultCloseOperation(
+                JFrame.DISPOSE_ON_CLOSE
+        );
+
         setLocationRelativeTo(null);
 
         createUI();
+
+        loadResults();
     }
 
+    // =========================================================
+    // CREATE UI
+    // =========================================================
+
     private void createUI() {
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(BACKGROUND);
 
-        // ==========================================
-        // HEADER
-        // ==========================================
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(WHITE);
-        header.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, BORDER),
-                new EmptyBorder(20, 35, 20, 35)
-        ));
+        JPanel mainPanel =
+                new JPanel(
+                        new BorderLayout()
+                );
 
-        JLabel title = new JLabel("Academic Results");
-        title.setFont(new Font("SansSerif", Font.BOLD, 24));
-        title.setForeground(TEXT);
+        mainPanel.setBackground(
+                BACKGROUND
+        );
 
-        JLabel subtitle = new JLabel("Semester performance breakdown and grades");
-        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        subtitle.setForeground(LIGHT_TEXT);
+        // Header
+        mainPanel.add(
+                createHeader(),
+                BorderLayout.NORTH
+        );
 
-        JPanel titlePanel = new JPanel();
-        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
-        titlePanel.setOpaque(false);
-        titlePanel.add(title);
-        titlePanel.add(Box.createVerticalStrut(4));
-        titlePanel.add(subtitle);
+        // Center
+        JPanel center =
+                new JPanel(
+                        new BorderLayout(
+                                0,
+                                18
+                        )
+                );
 
-        header.add(titlePanel, BorderLayout.WEST);
+        center.setBackground(
+                BACKGROUND
+        );
 
-        // Status Badge on Right Header
-        JLabel statusLabel = new JLabel("⭐ Semester Passed");
-        statusLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
-        statusLabel.setForeground(GREEN);
+        center.setBorder(
+                new EmptyBorder(
+                        20,
+                        25,
+                        20,
+                        25
+                )
+        );
 
-        JPanel statusBadge = new JPanel(new FlowLayout(FlowLayout.CENTER, 8, 6));
-        statusBadge.setBackground(LIGHT_GREEN);
-        statusBadge.setBorder(new EmptyBorder(6, 12, 6, 12));
-        statusBadge.add(statusLabel);
+        center.add(
+                createSummaryPanel(),
+                BorderLayout.NORTH
+        );
 
-        JPanel headerRight = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 8));
-        headerRight.setOpaque(false);
-        headerRight.add(statusBadge);
-        header.add(headerRight, BorderLayout.EAST);
+        center.add(
+                createTablePanel(),
+                BorderLayout.CENTER
+        );
 
-        // ==========================================
-        // CONTENT AREA (Card Container)
-        // ==========================================
-        JPanel contentContainer = new JPanel(new BorderLayout());
-        contentContainer.setBackground(BACKGROUND);
-        contentContainer.setBorder(new EmptyBorder(25, 35, 20, 35));
+        mainPanel.add(
+                center,
+                BorderLayout.CENTER
+        );
 
-        JPanel resultCard = new JPanel();
-        resultCard.setLayout(new BoxLayout(resultCard, BoxLayout.Y_AXIS));
-        resultCard.setBackground(WHITE);
-        resultCard.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(BORDER, 1, true),
-                new EmptyBorder(25, 30, 25, 30)
-        ));
-
-        // Table Header
-        JPanel tableHeader = new JPanel(new GridLayout(1, 3));
-        tableHeader.setBackground(PURPLE_DARK);
-        tableHeader.setBorder(new EmptyBorder(10, 15, 10, 15));
-        tableHeader.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
-
-        tableHeader.add(createHeaderLabel("Subject", SwingConstants.LEFT));
-        tableHeader.add(createHeaderLabel("Marks", SwingConstants.CENTER));
-        tableHeader.add(createHeaderLabel("Grade", SwingConstants.CENTER));
-
-        resultCard.add(tableHeader);
-        resultCard.add(Box.createVerticalStrut(5));
-
-        // Result Rows
-        resultCard.add(createResultRow("Object Oriented Programming", "85 / 100", "A"));
-        resultCard.add(createResultRow("Networking", "78 / 100", "B+"));
-        resultCard.add(createResultRow("Operating System", "90 / 100", "A+"));
-        resultCard.add(createResultRow("Professional Ethics", "82 / 100", "A"));
-
-        resultCard.add(Box.createVerticalStrut(20));
-
-        // Summary Card Section
-        JPanel summary = new JPanel(new GridLayout(1, 3, 15, 0));
-        summary.setBackground(PURPLE_LIGHT);
-        summary.setBorder(new EmptyBorder(18, 20, 18, 20));
-        summary.setMaximumSize(new Dimension(Integer.MAX_VALUE, 75));
-
-        summary.add(createSummaryItem("Total Marks", "335 / 400"));
-        summary.add(createSummaryItem("Percentage", "83.75%"));
-        summary.add(createSummaryItem("Overall Grade", "A"));
-
-        resultCard.add(summary);
-        contentContainer.add(resultCard, BorderLayout.CENTER);
-
-        // ==========================================
-        // BOTTOM NAVIGATION
-        // ==========================================
-        JButton backButton = new JButton("← Back to Dashboard");
-        backButton.setFont(new Font("SansSerif", Font.BOLD, 13));
-        backButton.setForeground(WHITE);
-        backButton.setBackground(PURPLE);
-        backButton.setFocusPainted(false);
-        backButton.setBorderPainted(false);
-        backButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        backButton.setBorder(new EmptyBorder(10, 20, 10, 20));
-
-        backButton.addActionListener(e -> {
-            dispose();
-            new StudentDashboard(loggedInUser).setVisible(true);
-        });
-
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        bottomPanel.setBackground(BACKGROUND);
-        bottomPanel.setBorder(new EmptyBorder(0, 35, 20, 35));
-        bottomPanel.add(backButton);
-
-        mainPanel.add(header, BorderLayout.NORTH);
-        mainPanel.add(contentContainer, BorderLayout.CENTER);
-        mainPanel.add(bottomPanel, BorderLayout.SOUTH);
+        // Footer
+        mainPanel.add(
+                createFooter(),
+                BorderLayout.SOUTH
+        );
 
         setContentPane(mainPanel);
     }
 
-    private JLabel createHeaderLabel(String text, int alignment) {
-        JLabel label = new JLabel(text, alignment);
-        label.setForeground(WHITE);
-        label.setFont(new Font("SansSerif", Font.BOLD, 13));
-        return label;
+    // =========================================================
+    // HEADER
+    // =========================================================
+
+    private JPanel createHeader() {
+
+        JPanel header =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        header.setBackground(
+                WHITE
+        );
+
+        header.setBorder(
+                new EmptyBorder(
+                        20,
+                        25,
+                        20,
+                        25
+                )
+        );
+
+        JPanel left =
+                new JPanel();
+
+        left.setLayout(
+                new BoxLayout(
+                        left,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        left.setBackground(
+                WHITE
+        );
+
+        JLabel title =
+                new JLabel(
+                        "My Result"
+                );
+
+        title.setForeground(
+                TEXT
+        );
+
+        title.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        24
+                )
+        );
+
+        JLabel subtitle =
+                new JLabel(
+                        "View your latest examination marks and grades"
+                );
+
+        subtitle.setForeground(
+                LIGHT_TEXT
+        );
+
+        subtitle.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        left.add(title);
+
+        left.add(
+                Box.createVerticalStrut(5)
+        );
+
+        left.add(subtitle);
+
+        header.add(
+                left,
+                BorderLayout.WEST
+        );
+
+        JLabel studentId =
+                new JLabel(
+                        "Student ID: "
+                                + getStudentId()
+                );
+
+        studentId.setForeground(
+                DARK_GREEN
+        );
+
+        studentId.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        13
+                )
+        );
+
+        header.add(
+                studentId,
+                BorderLayout.EAST
+        );
+
+        return header;
     }
 
-    private JPanel createResultRow(String subject, String marks, String grade) {
-        JPanel row = new JPanel(new GridLayout(1, 3));
-        row.setBackground(WHITE);
-        row.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, BORDER),
-                new EmptyBorder(12, 15, 12, 15)
-        ));
-        row.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
+    // =========================================================
+    // SUMMARY PANEL
+    // =========================================================
 
-        JLabel subjectLabel = new JLabel(subject);
-        subjectLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        subjectLabel.setForeground(TEXT);
+    private JPanel createSummaryPanel() {
 
-        JLabel marksLabel = new JLabel(marks, SwingConstants.CENTER);
-        marksLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-        marksLabel.setForeground(TEXT);
+        JPanel panel =
+                new JPanel(
+                        new GridLayout(
+                                1,
+                                3,
+                                15,
+                                0
+                        )
+                );
 
-        JLabel gradeLabel = new JLabel(grade, SwingConstants.CENTER);
-        gradeLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-        gradeLabel.setForeground(PURPLE);
+        panel.setBackground(
+                BACKGROUND
+        );
 
-        row.add(subjectLabel);
-        row.add(marksLabel);
-        row.add(gradeLabel);
+        JPanel totalCard =
+                createSummaryCard(
+                        "Total Marks",
+                        "0",
+                        DARK_GREEN
+                );
 
-        return row;
-    }
+        JPanel percentageCard =
+                createSummaryCard(
+                        "Percentage",
+                        "0%",
+                        GREEN
+                );
 
-    private JPanel createSummaryItem(String title, String value) {
-        JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        panel.setOpaque(false);
+        JPanel gradeCard =
+                createSummaryCard(
+                        "Overall Grade",
+                        "-",
+                        DARK_GREEN
+                );
 
-        JLabel titleLbl = new JLabel(title);
-        titleLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        titleLbl.setForeground(LIGHT_TEXT);
-        titleLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+        totalValue =
+                getValueLabel(
+                        totalCard
+                );
 
-        JLabel valueLbl = new JLabel(value);
-        valueLbl.setFont(new Font("SansSerif", Font.BOLD, 15));
-        valueLbl.setForeground(PURPLE_DARK);
-        valueLbl.setAlignmentX(Component.CENTER_ALIGNMENT);
+        percentageValue =
+                getValueLabel(
+                        percentageCard
+                );
 
-        panel.add(titleLbl);
-        panel.add(Box.createVerticalStrut(4));
-        panel.add(valueLbl);
+        gradeValue =
+                getValueLabel(
+                        gradeCard
+                );
+
+        panel.add(totalCard);
+
+        panel.add(percentageCard);
+
+        panel.add(gradeCard);
 
         return panel;
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ResultFrame(null).setVisible(true));
+    // =========================================================
+    // SUMMARY CARD
+    // =========================================================
+
+    private JPanel createSummaryCard(
+            String title,
+            String value,
+            Color valueColor
+    ) {
+
+        JPanel card =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        card.setBackground(
+                WHITE
+        );
+
+        card.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER
+                        ),
+                        new EmptyBorder(
+                                15,
+                                18,
+                                15,
+                                18
+                        )
+                )
+        );
+
+        JLabel titleLabel =
+                new JLabel(title);
+
+        titleLabel.setForeground(
+                LIGHT_TEXT
+        );
+
+        titleLabel.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.PLAIN,
+                        12
+                )
+        );
+
+        JLabel valueLabel =
+                new JLabel(value);
+
+        valueLabel.setForeground(
+                valueColor
+        );
+
+        valueLabel.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        25
+                )
+        );
+
+        card.add(
+                titleLabel,
+                BorderLayout.NORTH
+        );
+
+        card.add(
+                valueLabel,
+                BorderLayout.CENTER
+        );
+
+        return card;
+    }
+
+    // =========================================================
+    // GET VALUE LABEL
+    // =========================================================
+
+    private JLabel getValueLabel(
+            JPanel card
+    ) {
+
+        for (
+                Component component :
+                card.getComponents()
+        ) {
+
+            if (
+                    component instanceof JLabel
+            ) {
+
+                JLabel label =
+                        (JLabel) component;
+
+                if (
+                        label.getFont()
+                                .getSize() >= 20
+                ) {
+
+                    return label;
+                }
+            }
+        }
+
+        return new JLabel("0");
+    }
+
+    // =========================================================
+    // TABLE PANEL
+    // =========================================================
+
+    private JPanel createTablePanel() {
+
+        JPanel panel =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        panel.setBackground(
+                WHITE
+        );
+
+        panel.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER
+                        ),
+                        new EmptyBorder(
+                                18,
+                                18,
+                                18,
+                                18
+                        )
+                )
+        );
+
+        JLabel title =
+                new JLabel(
+                        "Examination Results"
+                );
+
+        title.setForeground(
+                TEXT
+        );
+
+        title.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.BOLD,
+                        16
+                )
+        );
+
+        panel.add(
+                title,
+                BorderLayout.NORTH
+        );
+
+        // =====================================================
+        // TABLE
+        // =====================================================
+
+        String[] columns = {
+                "Subject",
+                "Marks",
+                "Grade"
+        };
+
+        tableModel =
+                new DefaultTableModel(
+                        columns,
+                        0
+                ) {
+
+                    @Override
+                    public boolean isCellEditable(
+                            int row,
+                            int column
+                    ) {
+
+                        return false;
+                    }
+                };
+
+        resultTable =
+                new JTable(
+                        tableModel
+                );
+
+        resultTable.setRowHeight(
+                42
+        );
+
+        resultTable.setFont(
+                new Font(
+                        "SansSerif",
+                        Font.PLAIN,
+                        13
+                )
+        );
+
+        resultTable.setForeground(
+                TEXT
+        );
+
+        resultTable.setBackground(
+                WHITE
+        );
+
+        resultTable.setGridColor(
+                BORDER
+        );
+
+        resultTable.setSelectionBackground(
+                new Color(
+                        236,
+                        253,
+                        245
+                )
+        );
+
+        resultTable.setSelectionForeground(
+                TEXT
+        );
+
+        resultTable.getTableHeader()
+                .setFont(
+                        new Font(
+                                "SansSerif",
+                                Font.BOLD,
+                                12
+                        )
+                );
+
+        resultTable.getTableHeader()
+                .setForeground(
+                        TEXT
+                );
+
+        resultTable.getTableHeader()
+                .setBackground(
+                        new Color(
+                                248,
+                                250,
+                                252
+                        )
+                );
+
+        resultTable.getTableHeader()
+                .setPreferredSize(
+                        new Dimension(
+                                0,
+                                40
+                        )
+                );
+
+        // =====================================================
+        // CENTER MARKS COLUMN
+        // =====================================================
+
+        DefaultTableCellRenderer centerRenderer =
+                new DefaultTableCellRenderer();
+
+        centerRenderer.setHorizontalAlignment(
+                SwingConstants.CENTER
+        );
+
+        resultTable
+                .getColumnModel()
+                .getColumn(1)
+                .setCellRenderer(
+                        centerRenderer
+                );
+
+        // =====================================================
+        // GRADE COLUMN
+        // =====================================================
+
+        resultTable
+                .getColumnModel()
+                .getColumn(2)
+                .setCellRenderer(
+                        new GradeRenderer()
+                );
+
+        JScrollPane scrollPane =
+                new JScrollPane(
+                        resultTable
+                );
+
+        scrollPane.setBorder(
+                BorderFactory.createEmptyBorder()
+        );
+
+        panel.add(
+                scrollPane,
+                BorderLayout.CENTER
+        );
+
+        return panel;
+    }
+
+    // =========================================================
+    // GRADE RENDERER
+    // =========================================================
+
+    private class GradeRenderer
+            extends DefaultTableCellRenderer {
+
+        @Override
+        public Component
+        getTableCellRendererComponent(
+                JTable table,
+                Object value,
+                boolean selected,
+                boolean focused,
+                int row,
+                int column
+        ) {
+
+            JLabel label =
+                    (JLabel)
+                            super
+                                    .getTableCellRendererComponent(
+                                            table,
+                                            value,
+                                            selected,
+                                            focused,
+                                            row,
+                                            column
+                                    );
+
+            label.setHorizontalAlignment(
+                    SwingConstants.CENTER
+            );
+
+            String grade =
+                    value == null
+                            ? ""
+                            : value.toString();
+
+            if (!selected) {
+
+                if (
+                        grade.equals("F")
+                ) {
+
+                    label.setForeground(
+                            RED
+                    );
+
+                } else {
+
+                    label.setForeground(
+                            GREEN
+                    );
+                }
+
+            } else {
+
+                label.setForeground(
+                        TEXT
+                );
+            }
+
+            label.setFont(
+                    new Font(
+                            "SansSerif",
+                            Font.BOLD,
+                            12
+                    )
+            );
+
+            return label;
+        }
+    }
+
+    // =========================================================
+    // FOOTER
+    // =========================================================
+
+    private JPanel createFooter() {
+
+        JPanel footer =
+                new JPanel(
+                        new BorderLayout()
+                );
+
+        footer.setBackground(
+                WHITE
+        );
+
+        footer.setBorder(
+                new EmptyBorder(
+                        12,
+                        25,
+                        12,
+                        25
+                )
+        );
+
+        JButton refreshButton =
+                new JButton(
+                        "Refresh"
+                );
+
+        refreshButton.setFocusPainted(
+                false
+        );
+
+        refreshButton.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        refreshButton.addActionListener(
+                e -> loadResults()
+        );
+
+        JButton backButton =
+                new JButton(
+                        "Back"
+                );
+
+        backButton.setFocusPainted(
+                false
+        );
+
+        backButton.setCursor(
+                new Cursor(
+                        Cursor.HAND_CURSOR
+                )
+        );
+
+        backButton.addActionListener(
+                e -> dispose()
+        );
+
+        footer.add(
+                refreshButton,
+                BorderLayout.WEST
+        );
+
+        footer.add(
+                backButton,
+                BorderLayout.EAST
+        );
+
+        return footer;
+    }
+
+    // =========================================================
+    // LOAD RESULTS
+    // =========================================================
+
+    private void loadResults() {
+
+        if (loggedInUser == null) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Student login information is missing.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+            return;
+        }
+
+        int studentId =
+                loggedInUser.getStudentId();
+
+        if (studentId <= 0) {
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Invalid Student ID. Please login again.",
+                    "Student ID Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+
+            return;
+        }
+
+        try {
+
+            // =================================================
+            // GET SUBJECTS
+            // =================================================
+
+            Map<Integer, String> subjectMap =
+                    new HashMap<>();
+
+            List<Subject> subjects =
+                    subjectDAO.getAll();
+
+            if (subjects != null) {
+
+                for (
+                        Subject subject :
+                        subjects
+                ) {
+
+                    subjectMap.put(
+                            subject.getSubjectId(),
+                            subject.getSubjectName()
+                    );
+                }
+            }
+
+            // =================================================
+            // GET THIS STUDENT'S MARKS
+            // =================================================
+
+            List<Marks> marksList =
+                    marksDAO.getMarksByStudentId(
+                            studentId
+                    );
+
+            tableModel.setRowCount(0);
+
+            double totalMarks = 0;
+
+            int subjectCount = 0;
+
+            if (marksList != null) {
+
+                for (
+                        Marks marks :
+                        marksList
+                ) {
+
+                    double mark =
+                            marks.getMarks();
+
+                    String subjectName =
+                            subjectMap.get(
+                                    marks.getSubjectId()
+                            );
+
+                    if (
+                            subjectName == null ||
+                                    subjectName.trim()
+                                            .isEmpty()
+                    ) {
+
+                        subjectName =
+                                "Subject "
+                                        + marks
+                                        .getSubjectId();
+                    }
+
+                    String grade =
+                            calculateGrade(mark);
+
+                    tableModel.addRow(
+                            new Object[]{
+                                    subjectName,
+                                    formatMarks(mark),
+                                    grade
+                            }
+                    );
+
+                    totalMarks += mark;
+
+                    subjectCount++;
+                }
+            }
+
+            // =================================================
+            // CALCULATE PERCENTAGE
+            // =================================================
+
+            double percentage = 0;
+
+            if (subjectCount > 0) {
+
+                /*
+                 * Assumption:
+                 *
+                 * Each subject is out of 100 marks.
+                 */
+
+                percentage =
+                        totalMarks /
+                                subjectCount;
+            }
+
+            String overallGrade =
+                    calculateGrade(
+                            percentage
+                    );
+
+            // =================================================
+            // UPDATE SUMMARY
+            // =================================================
+
+            totalValue.setText(
+                    formatMarks(totalMarks)
+            );
+
+            percentageValue.setText(
+                    String.format(
+                            "%.2f%%",
+                            percentage
+                    )
+            );
+
+            gradeValue.setText(
+                    overallGrade
+            );
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Unable to load result data.\n\n"
+                            + e.getMessage(),
+                    "Database Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    // =========================================================
+    // CALCULATE GRADE
+    // =========================================================
+
+    private String calculateGrade(
+            double marks
+    ) {
+
+        if (marks >= 90) {
+
+            return "A+";
+
+        } else if (marks >= 80) {
+
+            return "A";
+
+        } else if (marks >= 70) {
+
+            return "B+";
+
+        } else if (marks >= 60) {
+
+            return "B";
+
+        } else if (marks >= 50) {
+
+            return "C+";
+
+        } else if (marks >= 40) {
+
+            return "C";
+
+        } else {
+
+            return "F";
+        }
+    }
+
+    // =========================================================
+    // FORMAT MARKS
+    // =========================================================
+
+    private String formatMarks(
+            double marks
+    ) {
+
+        if (
+                marks ==
+                        Math.floor(marks)
+        ) {
+
+            return String.valueOf(
+                    (int) marks
+            );
+        }
+
+        return String.format(
+                "%.2f",
+                marks
+        );
+    }
+
+    // =========================================================
+    // GET STUDENT ID
+    // =========================================================
+
+    private String getStudentId() {
+
+        if (loggedInUser == null) {
+
+            return "Not available";
+        }
+
+        return String.valueOf(
+                loggedInUser.getStudentId()
+        );
     }
 }

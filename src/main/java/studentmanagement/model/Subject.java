@@ -44,7 +44,7 @@ public class Subject {
         this.courseId = courseId;
     }
 
-    @Override
+    @Override   //overriding concept that same method name + parent-child relationship + different implementation
     public String toString() {
         return subjectName;
     }

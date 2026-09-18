@@ -1,847 +1,1319 @@
 package studentmanagement.admin.subject;
 
+import studentmanagement.admin.MainFrame;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableCellEditor;
+import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-import studentmanagement.admin.MainFrame;
 
 public class SubjectPanel extends JFrame {
 
-    // =========================
-    // COLORS
-    // =========================
-    private final Color GREEN = new Color(26, 120, 61);
-    private final Color DARK_GREEN = new Color(27, 128, 64);
-    private final Color RED = new Color(239, 68, 68);
-    private final Color BLUE = new Color(59, 130, 246);
-    private final Color TEXT = new Color(31, 41, 55);
-    private final Color MUTED = new Color(107, 114, 128);
-    private final Color BORDER = new Color(229, 231, 235);
-    private final Color LIGHT_BG = new Color(248, 250, 252);
+    // =========================================================
+    // COLOR PALETTE
+    // =========================================================
+    private static final Color PRIMARY = Color.decode("#7F7B7F");
+    private static final Color SECONDARY = Color.decode("#C7CED6");
+    private static final Color BG = Color.decode("#F6EDDD");
+    private static final Color BORDER_COLOR = Color.decode("#DBD9D9");
 
-    private JTextField searchField;
+    private static final Color CARD_BG = Color.decode("#FFFDF9");
+    private static final Color TEXT_DARK = Color.decode("#373537");
+    private static final Color TEXT_MUTED = Color.decode("#696669");
+
+    private static final Color DELETE_RED = Color.decode("#B43C3C");
+
+    // =========================================================
+    // COMPONENTS
+    // =========================================================
+    private JPanel mainPanel;
+    private JPanel tableCard;
     private JTable subjectTable;
     private DefaultTableModel tableModel;
+
+    private JTextField searchField;
+    private JComboBox<String> filterCombo;
 
     private JLabel totalLabel;
     private JLabel activeLabel;
     private JLabel inactiveLabel;
-    private JLabel showingLabel;
+    private JLabel pageLabel;
 
-    private JComboBox<String> filterCombo;
+    private int currentPage = 1;
+    private final int rowsPerPage = 6;
 
     private final List<Subject> subjects = new ArrayList<>();
 
-    private int currentPage = 1;
-    private final int rowsPerPage = 8;
-
-    // =========================
+    // =========================================================
     // CONSTRUCTOR
-    // =========================
+    // =========================================================
     public SubjectPanel() {
-
         setTitle("Subject Management");
-        setSize(1200, 750);
+        setSize(1150, 720);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
         initializeSubjects();
-        buildUI();
-        refreshTable();
+        initializeUI();
+        loadTable();
     }
 
-    // =========================
-    // SUBJECT MODEL
-    // =========================
-    static class Subject {
-
-        int id;
-        String name;
-        String code;
-        int creditHours;
-        String status;
-
-        Subject(int id, String name, String code,
-                int creditHours, String status) {
-
-            this.id = id;
-            this.name = name;
-            this.code = code;
-            this.creditHours = creditHours;
-            this.status = status;
-        }
-    }
-
-    // =========================
-    // SAMPLE DATA
-    // =========================
+    // =========================================================
+    // SAMPLE SUBJECT DATA
+    // =========================================================
     private void initializeSubjects() {
 
         subjects.add(new Subject(
-                1,
-                "Data Structures",
                 "SUB-001",
+                "Data Structures",
                 3,
                 "Active"
         ));
 
         subjects.add(new Subject(
-                2,
-                "Database Management",
                 "SUB-002",
+                "Database Management",
                 3,
                 "Active"
         ));
 
         subjects.add(new Subject(
-                3,
-                "Web Development",
                 "SUB-003",
+                "Web Development",
                 3,
                 "Active"
         ));
 
         subjects.add(new Subject(
-                4,
-                "Object Oriented Programming",
                 "SUB-004",
+                "Object Oriented Programming",
                 3,
                 "Active"
         ));
 
         subjects.add(new Subject(
-                5,
-                "Computer Networking",
                 "SUB-005",
+                "Computer Networking",
                 3,
                 "Active"
         ));
 
         subjects.add(new Subject(
-                6,
-                "Operating Systems",
                 "SUB-006",
+                "Operating Systems",
                 3,
                 "Active"
         ));
 
         subjects.add(new Subject(
-                7,
-                "Software Engineering",
                 "SUB-007",
+                "Software Engineering",
                 2,
                 "Active"
         ));
 
         subjects.add(new Subject(
-                8,
-                "Physics",
                 "SUB-008",
+                "Physics",
                 2,
                 "Inactive"
         ));
     }
 
-    // =========================
+    // =========================================================
     // MAIN UI
-    // =========================
-    private void buildUI() {
+    // =========================================================
+    private void initializeUI() {
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(Color.WHITE);
+        mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBackground(BG);
 
+        // -----------------------------------------------------
         // HEADER
-        mainPanel.add(createHeader(), BorderLayout.NORTH);
-
-        // CENTER
-        JPanel centerPanel = new JPanel(new BorderLayout());
-        centerPanel.setBackground(Color.WHITE);
-        centerPanel.setBorder(
-                new EmptyBorder(0, 30, 20, 30)
-        );
-
-        // STAT CARDS
-        centerPanel.add(
-                createStatisticsPanel(),
-                BorderLayout.NORTH
-        );
-
-        // TABLE AREA
-        JPanel tableArea = new JPanel(new BorderLayout(0, 15));
-        tableArea.setBackground(Color.WHITE);
-
-        tableArea.add(
-                createToolbar(),
-                BorderLayout.NORTH
-        );
-
-        tableArea.add(
-                createTablePanel(),
-                BorderLayout.CENTER
-        );
-
-        centerPanel.add(
-                tableArea,
-                BorderLayout.CENTER
-        );
-
-        mainPanel.add(
-                centerPanel,
-                BorderLayout.CENTER
-        );
-
-        setContentPane(mainPanel);
-    }
-
-    // =========================
-    // HEADER
-    // =========================
-    private JPanel createHeader() {
-
+        // -----------------------------------------------------
         JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(Color.WHITE);
-        header.setBorder(
-                new EmptyBorder(25, 30, 20, 30)
-        );
+        header.setBackground(PRIMARY);
+        header.setBorder(new EmptyBorder(18, 28, 18, 28));
 
         JPanel titlePanel = new JPanel();
-        titlePanel.setLayout(
-                new BoxLayout(titlePanel, BoxLayout.Y_AXIS)
-        );
-        titlePanel.setBackground(Color.WHITE);
+        titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
+        titlePanel.setOpaque(false);
 
         JLabel title = new JLabel("Subject Management");
-        title.setFont(
-                new Font("Segoe UI", Font.BOLD, 27)
-        );
-        title.setForeground(TEXT);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        title.setForeground(Color.WHITE);
 
-        JLabel subtitle = new JLabel(
-                "Manage subject records efficiently."
-        );
-        subtitle.setFont(
-                new Font("Segoe UI", Font.PLAIN, 14)
-        );
-        subtitle.setForeground(MUTED);
+        JLabel subtitle = new JLabel("Manage academic subjects and their details");
+        subtitle.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        subtitle.setForeground(Color.WHITE);
 
         titlePanel.add(title);
-        titlePanel.add(Box.createVerticalStrut(5));
+        titlePanel.add(Box.createVerticalStrut(4));
         titlePanel.add(subtitle);
 
-        JButton addButton = new JButton("+ Add Subject");
-        addButton.setFont(
-                new Font("Segoe UI", Font.BOLD, 14)
-        );
-        addButton.setForeground(Color.WHITE);
-        addButton.setBackground(GREEN);
-        addButton.setFocusPainted(false);
-        addButton.setBorderPainted(false);
-        addButton.setCursor(
-                new Cursor(Cursor.HAND_CURSOR)
-        );
-        addButton.setPreferredSize(
-                new Dimension(145, 42)
+        JButton backButton = createButton(
+                "BACK TO DASHBOARD",
+                SECONDARY,
+                TEXT_DARK
         );
 
-        addButton.addActionListener(e ->
-                showAddSubjectDialog()
-        );
+        backButton.addActionListener(e -> {
+            dispose();
 
-        header.add(titlePanel, BorderLayout.WEST);
-        header.add(addButton, BorderLayout.EAST);
-
-        return header;
-    }
-
-    // =========================
-    // STATISTICS
-    // =========================
-    private JPanel createStatisticsPanel() {
-
-        JPanel panel = new JPanel(
-                new GridLayout(1, 3, 18, 0)
-        );
-
-        panel.setBackground(Color.WHITE);
-        panel.setBorder(
-                new EmptyBorder(0, 0, 20, 0)
-        );
-
-        totalLabel = new JLabel("0");
-        activeLabel = new JLabel("0");
-        inactiveLabel = new JLabel("0");
-
-        panel.add(
-                createStatCard(
-                        "Total Subjects",
-                        totalLabel,
-                        "▣",
-                        BLUE
-                )
-        );
-
-        panel.add(
-                createStatCard(
-                        "Active Subjects",
-                        activeLabel,
-                        "✓",
-                        BLUE
-                )
-        );
-
-        panel.add(
-                createStatCard(
-                        "Inactive Subjects",
-                        inactiveLabel,
-                        "!",
-                        RED
-                )
-        );
-
-        return panel;
-    }
-
-    private JPanel createStatCard(
-            String title,
-            JLabel numberLabel,
-            String iconText,
-            Color iconColor) {
-
-        JPanel card = new JPanel(new BorderLayout());
-        card.setBackground(Color.WHITE);
-        card.setBorder(
-                BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(BORDER),
-                        new EmptyBorder(18, 20, 18, 20)
-                )
-        );
-
-        JPanel left = new JPanel();
-        left.setLayout(
-                new BoxLayout(left, BoxLayout.Y_AXIS)
-        );
-        left.setBackground(Color.WHITE);
-
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(
-                new Font("Segoe UI", Font.PLAIN, 13)
-        );
-        titleLabel.setForeground(MUTED);
-
-        numberLabel.setFont(
-                new Font("Segoe UI", Font.BOLD, 26)
-        );
-        numberLabel.setForeground(TEXT);
-
-        left.add(titleLabel);
-        left.add(Box.createVerticalStrut(7));
-        left.add(numberLabel);
-
-        JLabel icon = new JLabel(iconText);
-        icon.setHorizontalAlignment(
-                SwingConstants.CENTER
-        );
-        icon.setFont(
-                new Font("Segoe UI Symbol", Font.BOLD, 23)
-        );
-        icon.setForeground(iconColor);
-
-        JPanel iconBox = new JPanel(new GridBagLayout());
-        iconBox.setBackground(
-                new Color(
-                        iconColor.getRed(),
-                        iconColor.getGreen(),
-                        iconColor.getBlue(),
-                        25
-                )
-        );
-        iconBox.setPreferredSize(
-                new Dimension(52, 52)
-        );
-
-        iconBox.add(icon);
-
-        card.add(left, BorderLayout.WEST);
-        card.add(iconBox, BorderLayout.EAST);
-
-        return card;
-    }
-
-    // =========================
-    // TOOLBAR
-    // =========================
-    private JPanel createToolbar() {
-
-        JPanel toolbar = new JPanel(new BorderLayout());
-        toolbar.setBackground(Color.WHITE);
-
-        // SEARCH
-        JPanel searchPanel = new JPanel(
-                new BorderLayout()
-        );
-        searchPanel.setBackground(Color.WHITE);
-        searchPanel.setPreferredSize(
-                new Dimension(370, 42)
-        );
-        searchPanel.setBorder(
-                BorderFactory.createLineBorder(BORDER)
-        );
-
-        JLabel searchIcon = new JLabel("⌕");
-        searchIcon.setFont(
-                new Font("Segoe UI Symbol", Font.BOLD, 23)
-        );
-        searchIcon.setForeground(MUTED);
-        searchIcon.setBorder(
-                new EmptyBorder(0, 12, 0, 5)
-        );
-
-        searchField = new JTextField();
-        searchField.setFont(
-                new Font("Segoe UI", Font.PLAIN, 14)
-        );
-        searchField.setBorder(
-                BorderFactory.createEmptyBorder(
-                        5, 5, 5, 10
-                )
-        );
-
-        searchField.setToolTipText(
-                "Search by subject name or code..."
-        );
-
-        searchPanel.add(
-                searchIcon,
-                BorderLayout.WEST
-        );
-
-        searchPanel.add(
-                searchField,
-                BorderLayout.CENTER
-        );
-
-        // RIGHT CONTROLS
-        JPanel controls = new JPanel(
-                new FlowLayout(
-                        FlowLayout.RIGHT,
-                        10,
-                        0
-                )
-        );
-        controls.setBackground(Color.WHITE);
-
-        // REFRESH ICON ONLY
-        JButton refreshButton = new JButton("↻");
-        refreshButton.setFont(
-                new Font("Segoe UI Symbol", Font.BOLD, 23)
-        );
-        refreshButton.setForeground(TEXT);
-        refreshButton.setBackground(Color.WHITE);
-        refreshButton.setFocusPainted(false);
-        refreshButton.setToolTipText("Refresh");
-        refreshButton.setCursor(
-                new Cursor(Cursor.HAND_CURSOR)
-        );
-        refreshButton.setPreferredSize(
-                new Dimension(45, 42)
-        );
-        refreshButton.setBorder(
-                BorderFactory.createLineBorder(BORDER)
-        );
-
-        refreshButton.addActionListener(e -> {
-            searchField.setText("");
-            filterCombo.setSelectedItem("All Subjects");
-            currentPage = 1;
-            refreshTable();
+            try {
+                new MainFrame().setVisible(true);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
 
-        // FILTER
+        header.add(titlePanel, BorderLayout.WEST);
+        header.add(backButton, BorderLayout.EAST);
+
+        mainPanel.add(header, BorderLayout.NORTH);
+
+        // -----------------------------------------------------
+        // CENTER CONTENT
+        // -----------------------------------------------------
+        JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+        content.setBackground(BG);
+        content.setBorder(new EmptyBorder(22, 28, 22, 28));
+
+        // Statistics
+        JPanel statsPanel = new JPanel(new GridLayout(1, 3, 16, 0));
+        statsPanel.setOpaque(false);
+        statsPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 100));
+
+        JPanel totalCard = createStatCard(
+                "TOTAL SUBJECTS",
+                "0"
+        );
+
+        JPanel activeCard = createStatCard(
+                "ACTIVE SUBJECTS",
+                "0"
+        );
+
+        JPanel inactiveCard = createStatCard(
+                "INACTIVE SUBJECTS",
+                "0"
+        );
+
+        totalLabel = findValueLabel(totalCard);
+        activeLabel = findValueLabel(activeCard);
+        inactiveLabel = findValueLabel(inactiveCard);
+
+        statsPanel.add(totalCard);
+        statsPanel.add(activeCard);
+        statsPanel.add(inactiveCard);
+
+        content.add(statsPanel);
+        content.add(Box.createVerticalStrut(18));
+
+        // -----------------------------------------------------
+        // TOOLBAR
+        // -----------------------------------------------------
+        JPanel toolbar = new JPanel(new BorderLayout(12, 0));
+        toolbar.setBackground(CARD_BG);
+        toolbar.setBorder(new EmptyBorder(14, 16, 14, 16));
+        toolbar.setMaximumSize(new Dimension(Integer.MAX_VALUE, 62));
+
+        JPanel searchPanel = new JPanel(new BorderLayout());
+        searchPanel.setOpaque(false);
+
+        JLabel searchLabel = new JLabel("Search:");
+        searchLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        searchLabel.setForeground(TEXT_DARK);
+
+        searchField = new JTextField();
+        searchField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        searchField.setPreferredSize(new Dimension(260, 36));
+        searchField.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(BORDER_COLOR),
+                new EmptyBorder(6, 10, 6, 10)
+        ));
+        searchField.setBackground(Color.WHITE);
+        searchField.setForeground(TEXT_DARK);
+
+        searchField.addActionListener(e -> {
+            currentPage = 1;
+            loadTable();
+        });
+
+        searchField.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyReleased(java.awt.event.KeyEvent e) {
+                currentPage = 1;
+                loadTable();
+            }
+        });
+
+        searchPanel.add(searchLabel, BorderLayout.WEST);
+        searchPanel.add(Box.createHorizontalStrut(10), BorderLayout.CENTER);
+
+        JPanel searchWrapper = new JPanel(new BorderLayout());
+        searchWrapper.setOpaque(false);
+        searchWrapper.add(searchField, BorderLayout.CENTER);
+
+        searchPanel.add(searchWrapper, BorderLayout.EAST);
+
+        JPanel filterPanel = new JPanel(new FlowLayout(
+                FlowLayout.RIGHT,
+                8,
+                0
+        ));
+        filterPanel.setOpaque(false);
+
+        JLabel filterLabel = new JLabel("Status:");
+        filterLabel.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        filterLabel.setForeground(TEXT_DARK);
+
         filterCombo = new JComboBox<>(
-                new String[]{
-                        "All Subjects",
-                        "Active",
-                        "Inactive"
-                }
+                new String[]{"All", "Active", "Inactive"}
         );
 
-        filterCombo.setFont(
-                new Font("Segoe UI", Font.PLAIN, 13)
-        );
-
-        filterCombo.setPreferredSize(
-                new Dimension(130, 42)
-        );
+        filterCombo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        filterCombo.setPreferredSize(new Dimension(110, 36));
+        filterCombo.setBackground(Color.WHITE);
+        filterCombo.setForeground(TEXT_DARK);
 
         filterCombo.addActionListener(e -> {
             currentPage = 1;
-            refreshTable();
+            loadTable();
         });
 
-        controls.add(refreshButton);
-        controls.add(filterCombo);
-
-        toolbar.add(
-                searchPanel,
-                BorderLayout.WEST
+        JButton addButton = createButton(
+                "+ ADD SUBJECT",
+                PRIMARY,
+                Color.WHITE
         );
 
-        toolbar.add(
-                controls,
-                BorderLayout.EAST
-        );
+        addButton.addActionListener(this::showAddSubjectDialog);
 
-        // LIVE SEARCH
-        searchField.getDocument().addDocumentListener(
-                new javax.swing.event.DocumentListener() {
+        filterPanel.add(filterLabel);
+        filterPanel.add(filterCombo);
+        filterPanel.add(addButton);
 
-                    public void insertUpdate(
-                            javax.swing.event.DocumentEvent e) {
-                        currentPage = 1;
-                        refreshTable();
-                    }
+        toolbar.add(searchPanel, BorderLayout.WEST);
+        toolbar.add(filterPanel, BorderLayout.EAST);
 
-                    public void removeUpdate(
-                            javax.swing.event.DocumentEvent e) {
-                        currentPage = 1;
-                        refreshTable();
-                    }
+        content.add(toolbar);
+        content.add(Box.createVerticalStrut(14));
 
-                    public void changedUpdate(
-                            javax.swing.event.DocumentEvent e) {
-                        currentPage = 1;
-                        refreshTable();
-                    }
-                }
-        );
-
-        return toolbar;
-    }
-
-    // =========================
-    // TABLE
-    // =========================
-    private JPanel createTablePanel() {
-
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
+        // -----------------------------------------------------
+        // TABLE CARD
+        // -----------------------------------------------------
+        tableCard = new JPanel(new BorderLayout());
+        tableCard.setBackground(CARD_BG);
+        tableCard.setBorder(new EmptyBorder(12, 12, 12, 12));
 
         String[] columns = {
-                "ID",
-                "Subject Name",
-                "Code",
-                "Credit Hours",
-                "Status",
-                "Action"
+                "CODE",
+                "SUBJECT NAME",
+                "CREDIT HOURS",
+                "STATUS",
+                "ACTIONS"
         };
 
-        tableModel = new DefaultTableModel(
-                columns,
-                0
-        ) {
+        tableModel = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(
-                    int row,
-                    int column) {
-
-                return column == 5;
+            public boolean isCellEditable(int row, int column) {
+                return column == 4;
             }
         };
 
         subjectTable = new JTable(tableModel);
 
-        subjectTable.setRowHeight(55);
-        subjectTable.setFont(
-                new Font("Segoe UI", Font.PLAIN, 13)
-        );
-
-        subjectTable.setForeground(TEXT);
+        subjectTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        subjectTable.setForeground(TEXT_DARK);
         subjectTable.setBackground(Color.WHITE);
-        subjectTable.setGridColor(
-                new Color(243, 244, 246)
-        );
-
-        subjectTable.setSelectionBackground(
-                new Color(249, 250, 251)
-        );
-
-        subjectTable.setSelectionForeground(TEXT);
-
+        subjectTable.setRowHeight(48);
+        subjectTable.setGridColor(BORDER_COLOR);
         subjectTable.setShowVerticalLines(false);
         subjectTable.setShowHorizontalLines(true);
+        subjectTable.setSelectionBackground(SECONDARY);
+        subjectTable.setSelectionForeground(TEXT_DARK);
 
-        JTableHeader header =
-                subjectTable.getTableHeader();
-
-        header.setPreferredSize(
-                new Dimension(0, 45)
+        // Header
+        subjectTable.getTableHeader().setFont(
+                new Font("Segoe UI", Font.BOLD, 12)
         );
 
-        header.setFont(
-                new Font("Segoe UI", Font.BOLD, 13)
+        subjectTable.getTableHeader().setForeground(TEXT_DARK);
+        subjectTable.getTableHeader().setBackground(SECONDARY);
+        subjectTable.getTableHeader().setPreferredSize(
+                new Dimension(0, 42)
         );
 
-        header.setForeground(MUTED);
-        header.setBackground(LIGHT_BG);
+        // Column widths
+        subjectTable.getColumnModel().getColumn(0).setPreferredWidth(100);
+        subjectTable.getColumnModel().getColumn(1).setPreferredWidth(300);
+        subjectTable.getColumnModel().getColumn(2).setPreferredWidth(130);
+        subjectTable.getColumnModel().getColumn(3).setPreferredWidth(130);
+        subjectTable.getColumnModel().getColumn(4).setPreferredWidth(170);
 
-        header.setReorderingAllowed(false);
-
-        // COLUMN WIDTHS
-        subjectTable.getColumnModel()
-                .getColumn(0)
-                .setPreferredWidth(55);
-
-        subjectTable.getColumnModel()
-                .getColumn(1)
-                .setPreferredWidth(240);
-
-        subjectTable.getColumnModel()
-                .getColumn(2)
-                .setPreferredWidth(120);
-
-        subjectTable.getColumnModel()
-                .getColumn(3)
-                .setPreferredWidth(120);
-
-        subjectTable.getColumnModel()
-                .getColumn(4)
-                .setPreferredWidth(120);
-
-        subjectTable.getColumnModel()
-                .getColumn(5)
-                .setPreferredWidth(110);
-
-        // CENTER ALIGN
-        DefaultTableCellRenderer center =
+        // Center renderers
+        DefaultTableCellRenderer centerRenderer =
                 new DefaultTableCellRenderer();
 
-        center.setHorizontalAlignment(
+        centerRenderer.setHorizontalAlignment(
                 SwingConstants.CENTER
         );
 
+        centerRenderer.setForeground(TEXT_DARK);
+
         subjectTable.getColumnModel()
                 .getColumn(0)
-                .setCellRenderer(center);
+                .setCellRenderer(centerRenderer);
 
         subjectTable.getColumnModel()
                 .getColumn(2)
-                .setCellRenderer(center);
+                .setCellRenderer(centerRenderer);
 
+        // Status renderer
         subjectTable.getColumnModel()
                 .getColumn(3)
-                .setCellRenderer(center);
+                .setCellRenderer(new StatusRenderer());
 
-        // STATUS
+        // Actions
         subjectTable.getColumnModel()
                 .getColumn(4)
-                .setCellRenderer(
-                        new StatusRenderer()
-                );
-
-        // ACTION
-        subjectTable.getColumnModel()
-                .getColumn(5)
-                .setCellRenderer(
-                        new ActionRenderer()
-                );
+                .setCellRenderer(new ActionRenderer());
 
         subjectTable.getColumnModel()
-                .getColumn(5)
-                .setCellEditor(
-                        new ActionEditor()
-                );
+                .getColumn(4)
+                .setCellEditor(new ActionEditor());
 
-        JScrollPane scrollPane =
-                new JScrollPane(subjectTable);
-
+        JScrollPane scrollPane = new JScrollPane(subjectTable);
         scrollPane.setBorder(
-                BorderFactory.createLineBorder(BORDER)
+                BorderFactory.createLineBorder(BORDER_COLOR)
+        );
+        scrollPane.getViewport().setBackground(Color.WHITE);
+
+        tableCard.add(scrollPane, BorderLayout.CENTER);
+
+        content.add(tableCard);
+        content.add(Box.createVerticalStrut(12));
+
+        // -----------------------------------------------------
+        // PAGINATION
+        // -----------------------------------------------------
+        JPanel pagination = new JPanel(new BorderLayout());
+        pagination.setOpaque(false);
+        pagination.setMaximumSize(new Dimension(
+                Integer.MAX_VALUE,
+                42
+        ));
+
+        JButton previousButton = createButton(
+                "← Previous",
+                SECONDARY,
+                TEXT_DARK
         );
 
-        scrollPane.getViewport()
-                .setBackground(Color.WHITE);
-
-        panel.add(
-                scrollPane,
-                BorderLayout.CENTER
+        JButton nextButton = createButton(
+                "Next →",
+                SECONDARY,
+                TEXT_DARK
         );
 
-        // =========================
-// FOOTER
-// =========================
-
-        JPanel footer = new JPanel(new BorderLayout());
-
-        footer.setBackground(Color.WHITE);
-
-        footer.setBorder(
-                new EmptyBorder(10, 0, 0, 0)
+        pageLabel = new JLabel("Page 1");
+        pageLabel.setFont(
+                new Font("Segoe UI", Font.BOLD, 13)
+        );
+        pageLabel.setForeground(TEXT_MUTED);
+        pageLabel.setHorizontalAlignment(
+                SwingConstants.CENTER
         );
 
-        showingLabel = new JLabel();
-
-        showingLabel.setFont(
-                new Font("Segoe UI", Font.PLAIN, 13)
-        );
-
-        showingLabel.setForeground(MUTED);
-
-
-// =========================
-// BACK TO DASHBOARD
-// =========================
-
-        JButton backButton =
-                new JButton("← BACK TO DASHBOARD");
-
-        backButton.setFont(
-                new Font("Segoe UI", Font.BOLD, 11)
-        );
-
-        backButton.setForeground(Color.WHITE);
-
-        backButton.setBackground(DARK_GREEN);
-
-        backButton.setFocusPainted(false);
-
-        backButton.setBorderPainted(false);
-
-        backButton.setPreferredSize(
-                new Dimension(150, 30)
-        );
-
-        backButton.setCursor(
-                new Cursor(Cursor.HAND_CURSOR)
-        );
-
-        backButton.addActionListener(e -> {
-
-            MainFrame dashboard = new MainFrame();
-
-            dashboard.setVisible(true);
-
-            dispose();
+        previousButton.addActionListener(e -> {
+            if (currentPage > 1) {
+                currentPage--;
+                loadTable();
+            }
         });
 
+        nextButton.addActionListener(e -> {
+            int totalPages = getTotalPages();
 
-// =========================
-// LEFT FOOTER
-// =========================
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadTable();
+            }
+        });
 
-        JPanel leftFooter =
-                new JPanel(
-                        new FlowLayout(
-                                FlowLayout.LEFT,
-                                0,
-                                0
-                        )
-                );
+        pagination.add(previousButton, BorderLayout.WEST);
+        pagination.add(pageLabel, BorderLayout.CENTER);
+        pagination.add(nextButton, BorderLayout.EAST);
 
-        leftFooter.setBackground(Color.WHITE);
+        content.add(pagination);
 
-        leftFooter.add(backButton);
+        mainPanel.add(content, BorderLayout.CENTER);
 
-        leftFooter.add(
-                Box.createHorizontalStrut(15)
-        );
-
-        leftFooter.add(showingLabel);
-
-
-// =========================
-// FOOTER LAYOUT
-// =========================
-
-        footer.add(
-                leftFooter,
-                BorderLayout.WEST
-        );
-
-        footer.add(
-                createPagination(),
-                BorderLayout.EAST
-        );
-
-        panel.add(
-                footer,
-                BorderLayout.SOUTH
-        );
-
-        return panel;
+        setContentPane(mainPanel);
     }
-    // =========================
-    // STATUS RENDERER
-    // =========================
-    class StatusRenderer
-            extends DefaultTableCellRenderer {
 
-        @Override
-        public Component getTableCellRendererComponent(
-                JTable table,
-                Object value,
-                boolean isSelected,
-                boolean hasFocus,
-                int row,
-                int column) {
+    // =========================================================
+    // STAT CARD
+    // =========================================================
+    private JPanel createStatCard(
+            String title,
+            String value
+    ) {
 
-            JPanel panel = new JPanel(
-                    new FlowLayout(
-                            FlowLayout.LEFT,
-                            0,
-                            13
-                    )
-            );
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBackground(CARD_BG);
+        card.setBorder(new EmptyBorder(15, 18, 15, 18));
 
-            panel.setBackground(Color.WHITE);
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(
+                new Font("Segoe UI", Font.BOLD, 11)
+        );
+        titleLabel.setForeground(TEXT_MUTED);
 
-            String status = String.valueOf(value);
+        JLabel valueLabel = new JLabel(value);
+        valueLabel.setFont(
+                new Font("Segoe UI", Font.BOLD, 26)
+        );
+        valueLabel.setForeground(TEXT_DARK);
 
-            JLabel badge = new JLabel(status);
+        JPanel iconBox = new JPanel(new GridBagLayout());
+        iconBox.setBackground(SECONDARY);
+        iconBox.setPreferredSize(new Dimension(42, 42));
 
-            badge.setOpaque(true);
+        JLabel icon = new JLabel("●");
+        icon.setFont(
+                new Font("Segoe UI", Font.BOLD, 16)
+        );
+        icon.setForeground(TEXT_DARK);
 
-            badge.setFont(
-                    new Font("Segoe UI", Font.BOLD, 12)
-            );
+        iconBox.add(icon);
 
-            badge.setBorder(
-                    new EmptyBorder(5, 12, 5, 12)
-            );
+        JPanel textPanel = new JPanel();
+        textPanel.setOpaque(false);
+        textPanel.setLayout(
+                new BoxLayout(textPanel, BoxLayout.Y_AXIS)
+        );
 
-            if (status.equals("Active")) {
+        textPanel.add(titleLabel);
+        textPanel.add(Box.createVerticalStrut(4));
+        textPanel.add(valueLabel);
 
-                badge.setForeground(
-                        new Color(21, 128, 61)
+        card.add(iconBox, BorderLayout.WEST);
+        card.add(textPanel, BorderLayout.CENTER);
+
+        return card;
+    }
+
+    // =========================================================
+    // FIND VALUE LABEL
+    // =========================================================
+    private JLabel findValueLabel(JPanel card) {
+
+        for (Component component : card.getComponents()) {
+
+            if (component instanceof JPanel) {
+
+                JPanel panel = (JPanel) component;
+
+                for (Component child : panel.getComponents()) {
+
+                    if (child instanceof JLabel) {
+
+                        JLabel label = (JLabel) child;
+
+                        if (label.getFont().getSize() == 26) {
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+
+        return new JLabel("0");
+    }
+
+    // =========================================================
+    // LOAD TABLE
+    // =========================================================
+    private void loadTable() {
+
+        tableModel.setRowCount(0);
+
+        String searchText =
+                searchField == null
+                        ? ""
+                        : searchField.getText()
+                          .trim()
+                          .toLowerCase();
+
+        String selectedStatus =
+                filterCombo == null
+                        ? "All"
+                        : (String) filterCombo.getSelectedItem();
+
+        List<Subject> filtered = new ArrayList<>();
+
+        for (Subject subject : subjects) {
+
+            boolean matchesSearch =
+                    subject.getName()
+                            .toLowerCase()
+                            .contains(searchText)
+                            ||
+                            subject.getCode()
+                                    .toLowerCase()
+                                    .contains(searchText);
+
+            boolean matchesStatus =
+                    selectedStatus == null
+                            ||
+                            selectedStatus.equals("All")
+                            ||
+                            subject.getStatus()
+                                    .equalsIgnoreCase(selectedStatus);
+
+            if (matchesSearch && matchesStatus) {
+                filtered.add(subject);
+            }
+        }
+
+        int start =
+                (currentPage - 1) * rowsPerPage;
+
+        int end =
+                Math.min(
+                        start + rowsPerPage,
+                        filtered.size()
                 );
 
-                badge.setBackground(
-                        new Color(220, 252, 231)
-                );
+        if (start > end) {
+            currentPage = 1;
+            start = 0;
+            end = Math.min(rowsPerPage, filtered.size());
+        }
+
+        for (int i = start; i < end; i++) {
+
+            Subject subject = filtered.get(i);
+
+            tableModel.addRow(new Object[]{
+                    subject.getCode(),
+                    subject.getName(),
+                    subject.getCreditHours(),
+                    subject.getStatus(),
+                    ""
+            });
+        }
+
+        updateStatistics();
+        updatePagination(filtered.size());
+    }
+
+    // =========================================================
+    // STATISTICS
+    // =========================================================
+    private void updateStatistics() {
+
+        int total = subjects.size();
+        int active = 0;
+        int inactive = 0;
+
+        for (Subject subject : subjects) {
+
+            if (subject.getStatus()
+                    .equalsIgnoreCase("Active")) {
+
+                active++;
 
             } else {
 
-                badge.setForeground(
-                        new Color(185, 28, 28)
-                );
-
-                badge.setBackground(
-                        new Color(254, 226, 226)
-                );
+                inactive++;
             }
+        }
 
-            panel.add(badge);
+        if (totalLabel != null) {
+            totalLabel.setText(String.valueOf(total));
+        }
 
-            return panel;
+        if (activeLabel != null) {
+            activeLabel.setText(String.valueOf(active));
+        }
+
+        if (inactiveLabel != null) {
+            inactiveLabel.setText(String.valueOf(inactive));
         }
     }
 
-    // =========================
-    // ACTION RENDERER
-    // =========================
-    class ActionRenderer
+    // =========================================================
+    // PAGINATION
+    // =========================================================
+    private int getTotalPages() {
+
+        String searchText =
+                searchField == null
+                        ? ""
+                        : searchField.getText()
+                          .trim()
+                          .toLowerCase();
+
+        String selectedStatus =
+                filterCombo == null
+                        ? "All"
+                        : (String) filterCombo.getSelectedItem();
+
+        int count = 0;
+
+        for (Subject subject : subjects) {
+
+            boolean matchesSearch =
+                    subject.getName()
+                            .toLowerCase()
+                            .contains(searchText)
+                            ||
+                            subject.getCode()
+                                    .toLowerCase()
+                                    .contains(searchText);
+
+            boolean matchesStatus =
+                    selectedStatus == null
+                            ||
+                            selectedStatus.equals("All")
+                            ||
+                            subject.getStatus()
+                                    .equalsIgnoreCase(selectedStatus);
+
+            if (matchesSearch && matchesStatus) {
+                count++;
+            }
+        }
+
+        return Math.max(
+                1,
+                (int) Math.ceil(
+                        (double) count / rowsPerPage
+                )
+        );
+    }
+
+    private void updatePagination(int totalItems) {
+
+        int totalPages = Math.max(
+                1,
+                (int) Math.ceil(
+                        (double) totalItems / rowsPerPage
+                )
+        );
+
+        pageLabel.setText(
+                "Page " + currentPage +
+                        " of " + totalPages
+        );
+    }
+
+    // =========================================================
+    // ADD SUBJECT DIALOG
+    // =========================================================
+    private void showAddSubjectDialog(ActionEvent e) {
+
+        JDialog dialog = new JDialog(
+                this,
+                "Add Subject",
+                true
+        );
+
+        dialog.setSize(430, 400);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel();
+        panel.setBackground(BG);
+        panel.setBorder(new EmptyBorder(22, 24, 22, 24));
+
+        panel.setLayout(
+                new BoxLayout(panel, BoxLayout.Y_AXIS)
+        );
+
+        JLabel title = new JLabel("Add New Subject");
+        title.setFont(
+                new Font("Segoe UI", Font.BOLD, 21)
+        );
+        title.setForeground(TEXT_DARK);
+
+        JLabel subtitle = new JLabel(
+                "Enter the subject information below."
+        );
+        subtitle.setFont(
+                new Font("Segoe UI", Font.PLAIN, 12)
+        );
+        subtitle.setForeground(TEXT_MUTED);
+
+        panel.add(title);
+        panel.add(Box.createVerticalStrut(4));
+        panel.add(subtitle);
+        panel.add(Box.createVerticalStrut(20));
+
+        JTextField codeField =
+                createDialogField(panel, "Subject Code");
+
+        JTextField nameField =
+                createDialogField(panel, "Subject Name");
+
+        JTextField creditField =
+                createDialogField(panel, "Credit Hours");
+
+        JComboBox<String> statusBox =
+                new JComboBox<>(
+                        new String[]{"Active", "Inactive"}
+                );
+
+        statusBox.setFont(
+                new Font("Segoe UI", Font.PLAIN, 13)
+        );
+        statusBox.setPreferredSize(
+                new Dimension(0, 36)
+        );
+        statusBox.setBackground(Color.WHITE);
+        statusBox.setForeground(TEXT_DARK);
+
+        addDialogLabel(panel, "Status");
+        panel.add(statusBox);
+
+        panel.add(Box.createVerticalStrut(22));
+
+        JPanel buttons = new JPanel(
+                new FlowLayout(
+                        FlowLayout.RIGHT,
+                        8,
+                        0
+                )
+        );
+
+        buttons.setOpaque(false);
+
+        JButton cancelButton = createButton(
+                "Cancel",
+                SECONDARY,
+                TEXT_DARK
+        );
+
+        JButton saveButton = createButton(
+                "Save Subject",
+                PRIMARY,
+                Color.WHITE
+        );
+
+        cancelButton.addActionListener(
+                ex -> dialog.dispose()
+        );
+
+        saveButton.addActionListener(ex -> {
+
+            String code =
+                    codeField.getText().trim();
+
+            String name =
+                    nameField.getText().trim();
+
+            String creditText =
+                    creditField.getText().trim();
+
+            String status =
+                    (String) statusBox.getSelectedItem();
+
+            if (code.isEmpty()
+                    || name.isEmpty()
+                    || creditText.isEmpty()) {
+
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        "Please fill in all fields.",
+                        "Validation Error",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+            int credits;
+
+            try {
+
+                credits =
+                        Integer.parseInt(creditText);
+
+                if (credits <= 0) {
+                    throw new NumberFormatException();
+                }
+
+            } catch (NumberFormatException ex2) {
+
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        "Credit hours must be a valid positive number.",
+                        "Validation Error",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+            subjects.add(
+                    new Subject(
+                            code,
+                            name,
+                            credits,
+                            status
+                    )
+            );
+
+            currentPage = 1;
+            loadTable();
+
+            dialog.dispose();
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Subject added successfully.",
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        });
+
+        buttons.add(cancelButton);
+        buttons.add(saveButton);
+
+        panel.add(buttons);
+
+        dialog.setContentPane(panel);
+        dialog.setVisible(true);
+    }
+
+    // =========================================================
+    // DIALOG FIELD
+    // =========================================================
+    private JTextField createDialogField(
+            JPanel parent,
+            String label
+    ) {
+
+        addDialogLabel(parent, label);
+
+        JTextField field = new JTextField();
+
+        field.setFont(
+                new Font("Segoe UI", Font.PLAIN, 13)
+        );
+
+        field.setPreferredSize(
+                new Dimension(0, 36)
+        );
+
+        field.setMaximumSize(
+                new Dimension(Integer.MAX_VALUE, 36)
+        );
+
+        field.setBorder(
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(
+                                BORDER_COLOR
+                        ),
+                        new EmptyBorder(
+                                7,
+                                10,
+                                7,
+                                10
+                        )
+                )
+        );
+
+        field.setBackground(Color.WHITE);
+        field.setForeground(TEXT_DARK);
+
+        parent.add(field);
+        parent.add(Box.createVerticalStrut(12));
+
+        return field;
+    }
+
+    private void addDialogLabel(
+            JPanel parent,
+            String text
+    ) {
+
+        JLabel label = new JLabel(text);
+
+        label.setFont(
+                new Font("Segoe UI", Font.BOLD, 12)
+        );
+
+        label.setForeground(TEXT_DARK);
+
+        parent.add(label);
+        parent.add(Box.createVerticalStrut(5));
+    }
+
+    // =========================================================
+    // EDIT SUBJECT
+    // =========================================================
+    private void showEditSubjectDialog(int row) {
+
+        if (row < 0 || row >= tableModel.getRowCount()) {
+            return;
+        }
+
+        String code =
+                tableModel.getValueAt(row, 0).toString();
+
+        Subject subject = findSubjectByCode(code);
+
+        if (subject == null) {
+            return;
+        }
+
+        JDialog dialog = new JDialog(
+                this,
+                "Edit Subject",
+                true
+        );
+
+        dialog.setSize(430, 400);
+        dialog.setLocationRelativeTo(this);
+
+        JPanel panel = new JPanel();
+        panel.setBackground(BG);
+        panel.setBorder(
+                new EmptyBorder(
+                        22,
+                        24,
+                        22,
+                        24
+                )
+        );
+
+        panel.setLayout(
+                new BoxLayout(
+                        panel,
+                        BoxLayout.Y_AXIS
+                )
+        );
+
+        JLabel title = new JLabel("Edit Subject");
+        title.setFont(
+                new Font("Segoe UI", Font.BOLD, 21)
+        );
+        title.setForeground(TEXT_DARK);
+
+        JLabel subtitle = new JLabel(
+                "Update the subject information."
+        );
+        subtitle.setFont(
+                new Font("Segoe UI", Font.PLAIN, 12)
+        );
+        subtitle.setForeground(TEXT_MUTED);
+
+        panel.add(title);
+        panel.add(Box.createVerticalStrut(4));
+        panel.add(subtitle);
+        panel.add(Box.createVerticalStrut(20));
+
+        JTextField codeField =
+                createDialogField(
+                        panel,
+                        "Subject Code"
+                );
+
+        codeField.setText(subject.getCode());
+
+        JTextField nameField =
+                createDialogField(
+                        panel,
+                        "Subject Name"
+                );
+
+        nameField.setText(subject.getName());
+
+        JTextField creditField =
+                createDialogField(
+                        panel,
+                        "Credit Hours"
+                );
+
+        creditField.setText(
+                String.valueOf(
+                        subject.getCreditHours()
+                )
+        );
+
+        JComboBox<String> statusBox =
+                new JComboBox<>(
+                        new String[]{"Active", "Inactive"}
+                );
+
+        statusBox.setSelectedItem(
+                subject.getStatus()
+        );
+
+        statusBox.setFont(
+                new Font("Segoe UI", Font.PLAIN, 13)
+        );
+
+        statusBox.setPreferredSize(
+                new Dimension(0, 36)
+        );
+
+        statusBox.setBackground(Color.WHITE);
+        statusBox.setForeground(TEXT_DARK);
+
+        addDialogLabel(panel, "Status");
+        panel.add(statusBox);
+
+        panel.add(Box.createVerticalStrut(22));
+
+        JPanel buttons = new JPanel(
+                new FlowLayout(
+                        FlowLayout.RIGHT,
+                        8,
+                        0
+                )
+        );
+
+        buttons.setOpaque(false);
+
+        JButton cancelButton = createButton(
+                "Cancel",
+                SECONDARY,
+                TEXT_DARK
+        );
+
+        JButton updateButton = createButton(
+                "Update Subject",
+                PRIMARY,
+                Color.WHITE
+        );
+
+        cancelButton.addActionListener(
+                ex -> dialog.dispose()
+        );
+
+        updateButton.addActionListener(ex -> {
+
+            String newCode =
+                    codeField.getText().trim();
+
+            String newName =
+                    nameField.getText().trim();
+
+            String creditText =
+                    creditField.getText().trim();
+
+            String status =
+                    (String) statusBox.getSelectedItem();
+
+            if (newCode.isEmpty()
+                    || newName.isEmpty()
+                    || creditText.isEmpty()) {
+
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        "Please fill in all fields.",
+                        "Validation Error",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+            int credits;
+
+            try {
+
+                credits =
+                        Integer.parseInt(creditText);
+
+                if (credits <= 0) {
+                    throw new NumberFormatException();
+                }
+
+            } catch (NumberFormatException ex2) {
+
+                JOptionPane.showMessageDialog(
+                        dialog,
+                        "Credit hours must be a valid positive number.",
+                        "Validation Error",
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+                return;
+            }
+
+            subject.setCode(newCode);
+            subject.setName(newName);
+            subject.setCreditHours(credits);
+            subject.setStatus(status);
+
+            loadTable();
+
+            dialog.dispose();
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Subject updated successfully.",
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        });
+
+        buttons.add(cancelButton);
+        buttons.add(updateButton);
+
+        panel.add(buttons);
+
+        dialog.setContentPane(panel);
+        dialog.setVisible(true);
+    }
+
+    // =========================================================
+    // DELETE SUBJECT
+    // =========================================================
+    private void deleteSubject(int row) {
+
+        if (row < 0 || row >= tableModel.getRowCount()) {
+            return;
+        }
+
+        String code =
+                tableModel.getValueAt(row, 0).toString();
+
+        Subject subject =
+                findSubjectByCode(code);
+
+        if (subject == null) {
+            return;
+        }
+
+        int result =
+                JOptionPane.showConfirmDialog(
+                        this,
+                        "Are you sure you want to delete\n"
+                                + subject.getName()
+                                + "?",
+                        "Delete Subject",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE
+                );
+
+        if (result ==
+                JOptionPane.YES_OPTION) {
+
+            subjects.remove(subject);
+
+            if (currentPage > getTotalPages()) {
+                currentPage = getTotalPages();
+            }
+
+            loadTable();
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Subject deleted successfully.",
+                    "Deleted",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+        }
+    }
+
+    // =========================================================
+    // FIND SUBJECT
+    // =========================================================
+    private Subject findSubjectByCode(String code) {
+
+        for (Subject subject : subjects) {
+
+            if (subject.getCode()
+                    .equalsIgnoreCase(code)) {
+
+                return subject;
+            }
+        }
+
+        return null;
+    }
+
+    // =========================================================
+    // BUTTON CREATION
+    // =========================================================
+    private JButton createButton(
+            String text,
+            Color background,
+            Color foreground
+    ) {
+
+        JButton button = new JButton(text);
+
+        button.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        12
+                )
+        );
+
+        button.setForeground(foreground);
+        button.setBackground(background);
+
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setOpaque(true);
+
+        button.setBorder(
+                new EmptyBorder(
+                        9,
+                        15,
+                        9,
+                        15
+                )
+        );
+
+        button.addMouseListener(
+                new MouseAdapter() {
+
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+
+                        if (background == PRIMARY) {
+
+                            button.setBackground(
+                                    Color.decode("#696669")
+                            );
+                        }
+                    }
+
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+
+                        button.setBackground(
+                                background
+                        );
+                    }
+                }
+        );
+
+        return button;
+    }
+
+    // =========================================================
+    // STATUS RENDERER
+    // =========================================================
+    private static class StatusRenderer
             extends DefaultTableCellRenderer {
 
         @Override
@@ -851,56 +1323,138 @@ public class SubjectPanel extends JFrame {
                 boolean isSelected,
                 boolean hasFocus,
                 int row,
-                int column) {
+                int column
+        ) {
 
-            JPanel panel = new JPanel(
-                    new FlowLayout(
-                            FlowLayout.LEFT,
-                            8,
-                            10
+            JLabel label =
+                    (JLabel) super
+                            .getTableCellRendererComponent(
+                                    table,
+                                    value,
+                                    isSelected,
+                                    hasFocus,
+                                    row,
+                                    column
+                            );
+
+            label.setHorizontalAlignment(
+                    SwingConstants.CENTER
+            );
+
+            label.setFont(
+                    new Font(
+                            "Segoe UI",
+                            Font.BOLD,
+                            11
                     )
             );
 
-            panel.setBackground(Color.WHITE);
+            if (isSelected) {
 
-            JLabel edit = new JLabel("✎");
-            edit.setFont(
-                    new Font("Segoe UI Symbol", Font.BOLD, 20)
-            );
-            edit.setForeground(DARK_GREEN);
+                label.setBackground(SECONDARY);
+                label.setForeground(TEXT_DARK);
 
-            JLabel delete = new JLabel("♜");
-            delete.setFont(
-                    new Font("Segoe UI Symbol", Font.BOLD, 17)
-            );
-            delete.setForeground(RED);
+            } else {
 
-            panel.add(edit);
-            panel.add(delete);
+                label.setBackground(Color.WHITE);
 
-            return panel;
+                if ("Active".equalsIgnoreCase(
+                        String.valueOf(value)
+                )) {
+
+                    label.setForeground(TEXT_DARK);
+
+                } else {
+
+                    label.setForeground(TEXT_MUTED);
+                }
+            }
+
+            return label;
         }
     }
 
-    // =========================
+    // =========================================================
+    // ACTION RENDERER
+    // =========================================================
+    private class ActionRenderer
+            extends JPanel
+            implements TableCellRenderer {
+
+        private final JButton editButton;
+        private final JButton deleteButton;
+
+        public ActionRenderer() {
+
+            setLayout(
+                    new FlowLayout(
+                            FlowLayout.CENTER,
+                            5,
+                            7
+                    )
+            );
+
+            setOpaque(true);
+
+            editButton = new JButton("✎");
+            deleteButton = new JButton("✕");
+
+            styleActionButton(
+                    editButton,
+                    SECONDARY,
+                    TEXT_DARK
+            );
+
+            styleActionButton(
+                    deleteButton,
+                    Color.WHITE,
+                    DELETE_RED
+            );
+
+            add(editButton);
+            add(deleteButton);
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(
+                JTable table,
+                Object value,
+                boolean isSelected,
+                boolean hasFocus,
+                int row,
+                int column
+        ) {
+
+            setBackground(
+                    isSelected
+                            ? SECONDARY
+                            : Color.WHITE
+            );
+
+            return this;
+        }
+    }
+
+    // =========================================================
     // ACTION EDITOR
-    // =========================
-    class ActionEditor extends AbstractCellEditor
+    // =========================================================
+    private class ActionEditor
+            extends AbstractCellEditor
             implements TableCellEditor {
 
         private final JPanel panel;
         private final JButton editButton;
         private final JButton deleteButton;
 
-        private int row;
+        private int currentRow;
 
-        ActionEditor() {
+        public ActionEditor() {
 
             panel = new JPanel(
                     new FlowLayout(
-                            FlowLayout.LEFT,
-                            8,
-                            8
+                            FlowLayout.CENTER,
+                            5,
+                            7
                     )
             );
 
@@ -909,67 +1463,32 @@ public class SubjectPanel extends JFrame {
             editButton = new JButton("✎");
             deleteButton = new JButton("✕");
 
-            editButton.setFont(
-                    new Font(
-                            "Segoe UI Symbol",
-                            Font.BOLD,
-                            18
-                    )
+            styleActionButton(
+                    editButton,
+                    SECONDARY,
+                    TEXT_DARK
             );
 
-            deleteButton.setFont(
-                    new Font(
-                            "Segoe UI Symbol",
-                            Font.BOLD,
-                            16
-                    )
-            );
-
-            editButton.setForeground(DARK_GREEN);
-            deleteButton.setForeground(RED);
-
-            editButton.setBackground(Color.WHITE);
-            deleteButton.setBackground(Color.WHITE);
-
-            editButton.setBorderPainted(false);
-            deleteButton.setBorderPainted(false);
-
-            editButton.setFocusPainted(false);
-            deleteButton.setFocusPainted(false);
-
-            editButton.setToolTipText("Edit");
-            deleteButton.setToolTipText("Delete");
-
-            editButton.setCursor(
-                    new Cursor(Cursor.HAND_CURSOR)
-            );
-
-            deleteButton.setCursor(
-                    new Cursor(Cursor.HAND_CURSOR)
+            styleActionButton(
+                    deleteButton,
+                    Color.WHITE,
+                    DELETE_RED
             );
 
             editButton.addActionListener(e -> {
 
                 fireEditingStopped();
 
-                int modelRow =
-                        subjectTable.convertRowIndexToModel(row);
-
-                if (modelRow >= 0) {
-                    showEditSubjectDialog(modelRow);
-                }
+                showEditSubjectDialog(
+                        currentRow
+                );
             });
 
             deleteButton.addActionListener(e -> {
 
                 fireEditingStopped();
 
-                int modelRow =
-                        subjectTable.convertRowIndexToModel(row);
-
-                if (modelRow >= 0) {
-                    deleteSubject(modelRow);
-                }
+                deleteSubject(currentRow);
             });
 
             panel.add(editButton);
@@ -982,9 +1501,16 @@ public class SubjectPanel extends JFrame {
                 Object value,
                 boolean isSelected,
                 int row,
-                int column) {
+                int column
+        ) {
 
-            this.row = row;
+            currentRow = row;
+
+            panel.setBackground(
+                    isSelected
+                            ? SECONDARY
+                            : Color.WHITE
+            );
 
             return panel;
         }
@@ -995,508 +1521,111 @@ public class SubjectPanel extends JFrame {
         }
     }
 
-    // =========================
-    // PAGINATION
-    // =========================
-    private JPanel createPagination() {
+    // =========================================================
+    // ACTION BUTTON STYLE
+    // =========================================================
+    private void styleActionButton(
+            JButton button,
+            Color background,
+            Color foreground
+    ) {
 
-        JPanel panel = new JPanel(
-                new FlowLayout(
-                        FlowLayout.RIGHT,
-                        5,
-                        0
+        button.setFont(
+                new Font(
+                        "Segoe UI",
+                        Font.BOLD,
+                        13
                 )
         );
 
-        panel.setBackground(Color.WHITE);
-
-        JButton previous = new JButton("‹");
-        JButton page = new JButton("1");
-        JButton next = new JButton("›");
-
-        JButton[] buttons = {
-                previous,
-                page,
-                next
-        };
-
-        for (JButton button : buttons) {
-
-            button.setFocusPainted(false);
-            button.setBackground(Color.WHITE);
-            button.setFont(
-                    new Font("Segoe UI", Font.PLAIN, 14)
-            );
-            button.setBorder(
-                    BorderFactory.createLineBorder(BORDER)
-            );
-            button.setPreferredSize(
-                    new Dimension(36, 34)
-            );
-        }
-
-        page.setBackground(
-                new Color(240, 253, 244)
+        button.setPreferredSize(
+                new Dimension(34, 30)
         );
 
-        page.setForeground(DARK_GREEN);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setOpaque(true);
 
-        previous.addActionListener(e -> {
+        button.setBackground(background);
+        button.setForeground(foreground);
 
-            if (currentPage > 1) {
-                currentPage--;
-                refreshTable();
-            }
-        });
-
-        next.addActionListener(e -> {
-
-            if (currentPage < getTotalPages()) {
-                currentPage++;
-                refreshTable();
-            }
-        });
-
-        panel.add(previous);
-        panel.add(page);
-        panel.add(next);
-
-        return panel;
-    }
-
-    // =========================
-    // REFRESH TABLE
-    // =========================
-    private void refreshTable() {
-
-        if (tableModel == null) {
-            return;
-        }
-
-        tableModel.setRowCount(0);
-
-        String search =
-                searchField == null
-                        ? ""
-                        : searchField.getText()
-                          .trim()
-                          .toLowerCase();
-
-        String filter =
-                filterCombo == null
-                        ? "All Subjects"
-                        : String.valueOf(
-                        filterCombo.getSelectedItem()
-                );
-
-        List<Subject> filtered =
-                new ArrayList<>();
-
-        for (Subject subject : subjects) {
-
-            boolean matchesSearch =
-                    subject.name.toLowerCase()
-                            .contains(search)
-                            ||
-                            subject.code.toLowerCase()
-                                    .contains(search);
-
-            boolean matchesFilter =
-                    filter.equals("All Subjects")
-                            ||
-                            subject.status.equals(filter);
-
-            if (matchesSearch && matchesFilter) {
-                filtered.add(subject);
-            }
-        }
-
-        int total =
-                filtered.size();
-
-        int start =
-                (currentPage - 1) * rowsPerPage;
-
-        if (start >= total && total > 0) {
-            currentPage = 1;
-            start = 0;
-        }
-
-        int end =
-                Math.min(
-                        start + rowsPerPage,
-                        total
-                );
-
-        for (int i = start; i < end; i++) {
-
-            Subject s = filtered.get(i);
-
-            tableModel.addRow(
-                    new Object[]{
-                            s.id,
-                            s.name,
-                            s.code,
-                            s.creditHours,
-                            s.status,
-                            ""
-                    }
-            );
-        }
-
-        updateStatistics();
-
-        if (total == 0) {
-
-            showingLabel.setText(
-                    "Showing 0 to 0 of 0 subjects"
-            );
-
-        } else {
-
-            showingLabel.setText(
-                    "Showing "
-                            + (start + 1)
-                            + " to "
-                            + end
-                            + " of "
-                            + total
-                            + " subjects"
-            );
-        }
-    }
-
-    // =========================
-    // STATISTICS UPDATE
-    // =========================
-    private void updateStatistics() {
-
-        int total = subjects.size();
-        int active = 0;
-        int inactive = 0;
-
-        for (Subject subject : subjects) {
-
-            if (subject.status.equals("Active")) {
-                active++;
-            } else {
-                inactive++;
-            }
-        }
-
-        totalLabel.setText(
-                String.valueOf(total)
-        );
-
-        activeLabel.setText(
-                String.valueOf(active)
-        );
-
-        inactiveLabel.setText(
-                String.valueOf(inactive)
+        button.setBorder(
+                new EmptyBorder(
+                        5,
+                        8,
+                        5,
+                        8
+                )
         );
     }
 
-    // =========================
-    // TOTAL PAGES
-    // =========================
-    private int getTotalPages() {
+    // =========================================================
+    // SUBJECT MODEL
+    // =========================================================
+    private static class Subject {
 
-        if (subjects.isEmpty()) {
-            return 1;
+        private String code;
+        private String name;
+        private int creditHours;
+        private String status;
+
+        public Subject(
+                String code,
+                String name,
+                int creditHours,
+                String status
+        ) {
+
+            this.code = code;
+            this.name = name;
+            this.creditHours = creditHours;
+            this.status = status;
         }
 
-        return (int) Math.ceil(
-                subjects.size()
-                        / (double) rowsPerPage
-        );
-    }
+        public String getCode() {
+            return code;
+        }
 
-    // =========================
-    // ADD SUBJECT
-    // =========================
-    private void showAddSubjectDialog() {
+        public void setCode(String code) {
+            this.code = code;
+        }
 
-        JTextField nameField =
-                new JTextField();
+        public String getName() {
+            return name;
+        }
 
-        JTextField codeField =
-                new JTextField();
+        public void setName(String name) {
+            this.name = name;
+        }
 
-        JTextField creditField =
-                new JTextField();
+        public int getCreditHours() {
+            return creditHours;
+        }
 
-        JComboBox<String> statusBox =
-                new JComboBox<>(
-                        new String[]{
-                                "Active",
-                                "Inactive"
-                        }
-                );
+        public void setCreditHours(int creditHours) {
+            this.creditHours = creditHours;
+        }
 
-        JPanel panel = new JPanel(
-                new GridLayout(4, 2, 10, 10)
-        );
+        public String getStatus() {
+            return status;
+        }
 
-        panel.setBorder(
-                new EmptyBorder(10, 10, 10, 10)
-        );
-
-        panel.add(
-                new JLabel("Subject Name:")
-        );
-
-        panel.add(nameField);
-
-        panel.add(
-                new JLabel("Subject Code:")
-        );
-
-        panel.add(codeField);
-
-        panel.add(
-                new JLabel("Credit Hours:")
-        );
-
-        panel.add(creditField);
-
-        panel.add(
-                new JLabel("Status:")
-        );
-
-        panel.add(statusBox);
-
-        int result =
-                JOptionPane.showConfirmDialog(
-                        this,
-                        panel,
-                        "Add Subject",
-                        JOptionPane.OK_CANCEL_OPTION,
-                        JOptionPane.PLAIN_MESSAGE
-                );
-
-        if (result == JOptionPane.OK_OPTION) {
-
-            String name =
-                    nameField.getText().trim();
-
-            String code =
-                    codeField.getText().trim();
-
-            String creditText =
-                    creditField.getText().trim();
-
-            if (name.isEmpty()
-                    || code.isEmpty()
-                    || creditText.isEmpty()) {
-
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Please fill all fields.",
-                        "Validation",
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-                return;
-            }
-
-            try {
-
-                int credit =
-                        Integer.parseInt(creditText);
-
-                int newId =
-                        subjects.size() + 1;
-
-                String status =
-                        String.valueOf(
-                                statusBox.getSelectedItem()
-                        );
-
-                subjects.add(
-                        new Subject(
-                                newId,
-                                name,
-                                code,
-                                credit,
-                                status
-                        )
-                );
-
-                refreshTable();
-
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Subject added successfully!"
-                );
-
-            } catch (NumberFormatException ex) {
-
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Credit hours must be a number.",
-                        "Invalid Input",
-                        JOptionPane.ERROR_MESSAGE
-                );
-            }
+        public void setStatus(String status) {
+            this.status = status;
         }
     }
 
-    // =========================
-    // EDIT SUBJECT
-    // =========================
-    private void showEditSubjectDialog(
-            int index) {
-
-        Subject subject =
-                subjects.get(index);
-
-        JTextField nameField =
-                new JTextField(subject.name);
-
-        JTextField codeField =
-                new JTextField(subject.code);
-
-        JTextField creditField =
-                new JTextField(
-                        String.valueOf(
-                                subject.creditHours
-                        )
-                );
-
-        JComboBox<String> statusBox =
-                new JComboBox<>(
-                        new String[]{
-                                "Active",
-                                "Inactive"
-                        }
-                );
-
-        statusBox.setSelectedItem(
-                subject.status
-        );
-
-        JPanel panel = new JPanel(
-                new GridLayout(4, 2, 10, 10)
-        );
-
-        panel.setBorder(
-                new EmptyBorder(10, 10, 10, 10)
-        );
-
-        panel.add(
-                new JLabel("Subject Name:")
-        );
-
-        panel.add(nameField);
-
-        panel.add(
-                new JLabel("Subject Code:")
-        );
-
-        panel.add(codeField);
-
-        panel.add(
-                new JLabel("Credit Hours:")
-        );
-
-        panel.add(creditField);
-
-        panel.add(
-                new JLabel("Status:")
-        );
-
-        panel.add(statusBox);
-
-        int result =
-                JOptionPane.showConfirmDialog(
-                        this,
-                        panel,
-                        "Update Subject",
-                        JOptionPane.OK_CANCEL_OPTION,
-                        JOptionPane.PLAIN_MESSAGE
-                );
-
-        if (result == JOptionPane.OK_OPTION) {
-
-            try {
-
-                subject.name =
-                        nameField.getText().trim();
-
-                subject.code =
-                        codeField.getText().trim();
-
-                subject.creditHours =
-                        Integer.parseInt(
-                                creditField.getText().trim()
-                        );
-
-                subject.status =
-                        String.valueOf(
-                                statusBox.getSelectedItem()
-                        );
-
-                refreshTable();
-
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Subject updated successfully!"
-                );
-
-            } catch (NumberFormatException ex) {
-
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Credit hours must be a number.",
-                        "Invalid Input",
-                        JOptionPane.ERROR_MESSAGE
-                );
-            }
-        }
-    }
-
-    // =========================
-    // DELETE SUBJECT
-    // =========================
-    private void deleteSubject(int index) {
-
-        Subject subject =
-                subjects.get(index);
-
-        int result =
-                JOptionPane.showConfirmDialog(
-                        this,
-                        "Are you sure you want to delete "
-                                + subject.name
-                                + "?",
-                        "Delete Subject",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.WARNING_MESSAGE
-                );
-
-        if (result == JOptionPane.YES_OPTION) {
-
-            subjects.remove(index);
-
-            refreshTable();
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Subject deleted successfully!"
-            );
-        }
-    }
-
-    // =========================
+    // =========================================================
     // MAIN
-    // =========================
+    // =========================================================
     public static void main(String[] args) {
 
         SwingUtilities.invokeLater(() -> {
 
-            new SubjectPanel().setVisible(true);
+            SubjectPanel frame =
+                    new SubjectPanel();
 
+            frame.setVisible(true);
         });
     }
 }

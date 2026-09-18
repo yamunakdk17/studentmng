@@ -1,5 +1,6 @@
 package studentmanagement.dao;
 
+import studentmanagement.DBConnection;
 import studentmanagement.model.Student;
 
 import java.sql.*;
@@ -8,17 +9,7 @@ import java.util.List;
 
 public class StudentDAO {
 
-    private static final String DB_URL = "jdbc:mysql://localhost:3306/student_management";
-    private static final String DB_USER = "root";
-    private static final String DB_PASSWORD = "yasukdk17#yasu@kdk1";
-
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-    }
-
-    // =========================================================
     // ADD STUDENT
-    // =========================================================
     public boolean addStudent(Student student) {
 
         String query = """
@@ -27,7 +18,7 @@ public class StudentDAO {
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
-        try (Connection conn = getConnection();
+        try (Connection conn = DBConnection.getConnection();   // connect to the java to my sql
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setString(1, student.getName());
@@ -47,38 +38,37 @@ public class StudentDAO {
         }
     }
 
-    // =========================================================
+
     // UPDATE STUDENT
-    // =========================================================
     public boolean update(Student student) {
 
         String query = """
-            UPDATE students
-            SET name = ?,
-                age = ?,
-                gender = ?,
-                address = ?,
-                phone = ?,
-                email = ?,
-                course = ?,
-                semester = ?
-            WHERE student_id = ?
-            """;
+                UPDATE students
+                SET name = ?,
+                    age = ?,
+                    gender = ?,
+                    address = ?,
+                    phone = ?,
+                    email = ?,
+                    course = ?,
+                    semester = ?
+                WHERE student_id = ?
+                """;
 
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(query)) {
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(query)) {
 
-            ps.setString(1, student.getName());
-            ps.setInt(2, student.getAge());
-            ps.setString(3, student.getGender());
-            ps.setString(4, student.getAddress());
-            ps.setString(5, student.getPhone());
-            ps.setString(6, student.getEmail());
-            ps.setString(7, student.getCourse());
-            ps.setInt(8, student.getSemester());
-            ps.setInt(9, student.getStudentId());
+            pstmt.setString(1, student.getName());
+            pstmt.setInt(2, student.getAge());
+            pstmt.setString(3, student.getGender());
+            pstmt.setString(4, student.getAddress());
+            pstmt.setString(5, student.getPhone());
+            pstmt.setString(6, student.getEmail());
+            pstmt.setString(7, student.getCourse());
+            pstmt.setInt(8, student.getSemester());
+            pstmt.setInt(9, student.getStudentId());
 
-            int rows = ps.executeUpdate();
+            int rows = pstmt.executeUpdate();
 
             System.out.println("================================");
             System.out.println("UPDATE STUDENT");
@@ -86,9 +76,7 @@ public class StudentDAO {
             System.out.println("Rows affected: " + rows);
             System.out.println("================================");
 
-            // If SQL executed successfully, consider it successful.
-            // rows can be 0 when the user saves unchanged information.
-            return true;
+            return rows > 0;
 
         } catch (SQLException e) {
 
@@ -100,17 +88,17 @@ public class StudentDAO {
             System.out.println("================================");
 
             e.printStackTrace();
-
             return false;
         }
-    }    // =========================================================
+    }
+
+
     // DELETE STUDENT
-    // =========================================================
     public boolean delete(int studentId) {
 
         String query = "DELETE FROM students WHERE student_id = ?";
 
-        try (Connection conn = getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setInt(1, studentId);
@@ -123,18 +111,18 @@ public class StudentDAO {
         }
     }
 
+
     public boolean deleteStudent(int studentId) {
         return delete(studentId);
     }
 
-    // =========================================================
+
     // GET STUDENT BY ID
-    // =========================================================
     public Student getStudentById(int studentId) {
 
         String query = "SELECT * FROM students WHERE student_id = ?";
 
-        try (Connection conn = getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setInt(1, studentId);
@@ -164,16 +152,15 @@ public class StudentDAO {
         return null;
     }
 
-    // =========================================================
+
     // GET ALL STUDENTS
-    // =========================================================
     public List<Student> getAllStudents() {
 
         List<Student> students = new ArrayList<>();
 
         String query = "SELECT * FROM students";
 
-        try (Connection conn = getConnection();
+        try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
@@ -201,14 +188,13 @@ public class StudentDAO {
         return students;
     }
 
-    // =========================================================
+
     // COUNT STUDENTS
-    // =========================================================
     public int count() {
 
         String query = "SELECT COUNT(*) FROM students";
 
-        try (Connection conn = getConnection();
+        try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
 
@@ -223,18 +209,18 @@ public class StudentDAO {
         return 0;
     }
 
+
     public int getStudentCount() {
         return count();
     }
 
-    // =========================================================
+
     // COUNT BY GENDER
-    // =========================================================
     public int getStudentCount(String gender) {
 
         String query = "SELECT COUNT(*) FROM students WHERE gender = ?";
 
-        try (Connection conn = getConnection();
+        try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(query)) {
 
             pstmt.setString(1, gender);
